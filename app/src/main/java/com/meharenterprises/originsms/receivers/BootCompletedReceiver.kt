@@ -35,7 +35,7 @@ class NotificationActionReceiver : BroadcastReceiver() {
             ACTION_QUICK_REPLY -> {
                 val threadId = intent.getLongExtra(EXTRA_THREAD_ID, -1L)
                 val address = intent.getStringExtra(EXTRA_ADDRESS) ?: return
-                val replyText = android.app.RemoteInput.getResultsFromIntent(intent)
+                val replyText = androidx.core.app.RemoteInput.getResultsFromIntent(intent)
                     ?.getCharSequence(KEY_QUICK_REPLY)?.toString() ?: return
                 com.meharenterprises.originsms.core.SmsRepository(context)
                     .sendSms(address, replyText, if (threadId != -1L) threadId else null)

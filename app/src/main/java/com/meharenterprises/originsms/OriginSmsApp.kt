@@ -63,11 +63,44 @@ class OriginSmsApp : Application() {
     private fun writeCrashToFile(throwable: Throwable) {
         val stackTraceWriter = StringWriter()
         throwable.printStackTrace(PrintWriter(stackTraceWriter))
-
+        val crashText = stackTraceWriter.toString()
         val timestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(Date())
-        val externalDir = getExternalFilesDir(null) ?: filesDir
-        val crashFile = File(externalDir, "crash_$timestamp.txt")
-        crashFile.writeText(stackTraceWriter.toString())
+        val fileName = "OriginSMS_crash_$timestamp.txt"
+
+        // Always write to the app-private external files dir first — this
+        // location requires no permissions and works on every Android version,
+        // so the write itself can never fail due to storage restrictions.
+        val privateDir = getExternalFilesDir(null) ?: filesDir
+        File(privateDir, fileName).writeText(crashText)
+
+        // Additionally copy into the public Downloads folder via MediaStore,
+        // which is the scoped-storage-compliant way to place a file somewhere
+        // any file manager can browse without special permissions on
+        // Android 10+ (direct File-based writes to getExternalStoragePublicDirectory
+        // are blocked by the system once targetSdkVersion is 29 or higher).
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val values = android.content.ContentValues().apply {
+                    put(android.provider.MediaStore.Downloads.DISPLAY_NAME, fileName)
+                    put(android.provider.MediaStore.Downloads.MIME_TYPE, "text/plain")
+                }
+                val uri = contentResolver.insert(
+                    android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values
+                )
+                if (uri != null) {
+                    contentResolver.openOutputStream(uri)?.use { it.write(crashText.toByteArray()) }
+                }
+            } else {
+                @Suppress("DEPRECATION")
+                val legacyDownloads = android.os.Environment.getExternalStoragePublicDirectory(
+                    android.os.Environment.DIRECTORY_DOWNLOADS
+                )
+                File(legacyDownloads, fileName).writeText(crashText)
+            }
+        } catch (_: Exception) {
+            // The private-dir copy above already succeeded regardless, so a
+            // failure here just means the public copy isn't available.
+        }
     }
 
     companion object {

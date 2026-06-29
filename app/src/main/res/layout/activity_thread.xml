@@ -24,7 +24,6 @@
         android:clipToPadding="false"
         android:paddingHorizontal="@dimen/spacing_sm"
         android:paddingVertical="@dimen/spacing_md"
-        android:stackFromEnd="true"
         tools:listitem="@layout/item_message_sent" />
 
     <View

@@ -51,7 +51,7 @@ class ComposeActivity : AppCompatActivity() {
         // Empty adapter for visual consistency; this screen doesn't show history
         // since no thread exists yet for a brand-new recipient.
         findViewById<RecyclerView>(R.id.recyclerMessages).apply {
-            layoutManager = LinearLayoutManager(this@ComposeActivity)
+            layoutManager = LinearLayoutManager(this@ComposeActivity).apply { stackFromEnd = true }
             adapter = MessageAdapter(onLongPress = {})
         }
 

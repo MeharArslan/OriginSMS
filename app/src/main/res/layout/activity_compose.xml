@@ -60,8 +60,7 @@
         android:layout_weight="1"
         android:clipToPadding="false"
         android:paddingHorizontal="@dimen/spacing_sm"
-        android:paddingVertical="@dimen/spacing_md"
-        android:stackFromEnd="true" />
+        android:paddingVertical="@dimen/spacing_md" />
 
     <LinearLayout
         android:layout_width="match_parent"

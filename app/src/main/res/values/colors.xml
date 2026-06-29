@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- OriginSMS original brand palette: deep indigo + warm coral accent -->
+    <color name="origin_primary">#3B3486</color>
+    <color name="origin_primary_dark">#262060</color>
+    <color name="origin_primary_light">#6C63B8</color>
+    <color name="origin_accent">#FF6F59</color>
+    <color name="origin_accent_dark">#E0543F</color>
+
+    <color name="bg_light">#FAF9FD</color>
+    <color name="bg_dark">#121116</color>
+    <color name="surface_light">#FFFFFF</color>
+    <color name="surface_dark">#1E1D26</color>
+
+    <color name="text_primary_light">#1B1A22</color>
+    <color name="text_secondary_light">#6B6878</color>
+    <color name="text_primary_dark">#F1F0F6</color>
+    <color name="text_secondary_dark">#A6A3B5</color>
+
+    <color name="bubble_sent_light">#3B3486</color>
+    <color name="bubble_sent_text_light">#FFFFFF</color>
+    <color name="bubble_received_light">#EFEDF7</color>
+    <color name="bubble_received_text_light">#1B1A22</color>
+
+    <color name="bubble_sent_dark">#6C63B8</color>
+    <color name="bubble_sent_text_dark">#FFFFFF</color>
+    <color name="bubble_received_dark">#2A2933</color>
+    <color name="bubble_received_text_dark">#F1F0F6</color>
+
+    <color name="locked_chat_tint">#FF6F59</color>
+    <color name="unread_badge">#FF6F59</color>
+    <color name="divider_light">#E5E3ED</color>
+    <color name="divider_dark">#33323D</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
+    <color name="error_red">#D32F2F</color>
+    <color name="success_green">#2E7D32</color>
+</resources>

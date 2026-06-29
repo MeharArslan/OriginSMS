@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="end"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/spacing_sm"
+    android:paddingVertical="2dp">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/imgAttachment"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="end"
+        android:layout_marginBottom="2dp"
+        android:background="@color/bubble_received_light"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        app:shapeAppearanceOverlay="@style/ShapeOverlay.AttachmentBubble" />
+
+    <TextView
+        android:id="@+id/txtMessageBody"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:background="@drawable/bg_bubble_sent"
+        android:maxWidth="@dimen/bubble_max_width"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="10dp"
+        android:textColor="@color/bubble_sent_text_light"
+        android:textIsSelectable="true"
+        android:textSize="15sp"
+        tools:text="Theek hai bhai, kal subah 10 baje mil lete hain office mein" />
+
+    <TextView
+        android:id="@+id/txtMessageStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="4dp"
+        android:textColor="@color/text_secondary_light"
+        android:textSize="11sp"
+        tools:text="Delivered · 10:42 AM" />
+
+</LinearLayout>

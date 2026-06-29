@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OriginSMS</string>
+
+    <!-- Conversation list -->
+    <string name="title_conversations">Chats</string>
+    <string name="empty_conversations">No messages yet. Tap + to start a new chat.</string>
+    <string name="action_new_message">New message</string>
+    <string name="action_search">Search</string>
+    <string name="action_settings">Settings</string>
+    <string name="menu_lock_chat">Lock chat</string>
+    <string name="menu_unlock_chat">Remove lock</string>
+    <string name="menu_hide_chat">Hide chat</string>
+    <string name="menu_unhide_chat">Unhide chat</string>
+    <string name="menu_delete_chat">Delete chat</string>
+    <string name="menu_archive_chat">Archive</string>
+    <string name="menu_mark_read">Mark as read</string>
+    <string name="menu_mark_unread">Mark as unread</string>
+    <string name="section_hidden_chats">Hidden chats</string>
+
+    <!-- Thread -->
+    <string name="hint_type_message">Text message</string>
+    <string name="action_send">Send</string>
+    <string name="action_attach">Attach</string>
+    <string name="status_sending">Sending…</string>
+    <string name="status_sent">Sent</string>
+    <string name="status_delivered">Delivered</string>
+    <string name="status_failed">Not sent. Tap to retry.</string>
+    <string name="action_delete_message">Delete message</string>
+    <string name="action_copy_text">Copy text</string>
+    <string name="action_forward">Forward</string>
+    <string name="action_reply">Reply</string>
+
+    <!-- Default app role -->
+    <string name="default_app_prompt_title">Set OriginSMS as default</string>
+    <string name="default_app_prompt_body">To send and receive messages, OriginSMS needs to be your default messaging app.</string>
+    <string name="action_set_default">Set as default</string>
+
+    <!-- Permissions -->
+    <string name="permission_required_title">Permissions required</string>
+    <string name="permission_required_body">OriginSMS needs SMS, Contacts, and Notification permissions to work properly.</string>
+    <string name="action_grant">Grant permissions</string>
+
+    <!-- Lock system -->
+    <string name="lock_title_setup">Set up chat lock</string>
+    <string name="lock_create_pin">Create a PIN</string>
+    <string name="lock_confirm_pin">Confirm PIN</string>
+    <string name="lock_enter_pin">Enter PIN</string>
+    <string name="lock_pin_mismatch">PINs do not match. Try again.</string>
+    <string name="lock_pin_too_short">PIN must be at least 4 digits</string>
+    <string name="lock_wrong_pin">Incorrect PIN</string>
+    <string name="lock_use_biometric">Use biometric instead</string>
+    <string name="lock_biometric_title">Unlock chat</string>
+    <string name="lock_biometric_subtitle">Confirm your identity to open this chat</string>
+    <string name="lock_biometric_not_available">Biometric authentication not available on this device</string>
+    <string name="lock_enable_biometric_toggle">Enable biometric unlock</string>
+    <string name="lock_too_many_attempts">Too many attempts. Try again in %1$d seconds.</string>
+    <string name="lock_forgot_pin">Forgot PIN?</string>
+    <string name="lock_reset_warning">Resetting your PIN will require re-locking all chats.</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_unlock">Unlock</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_chat_lock">Chat lock</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_default_app">Default SMS app</string>
+    <string name="settings_blocked_numbers">Blocked numbers</string>
+    <string name="settings_about">About OriginSMS</string>
+
+    <!-- Notifications -->
+    <string name="notif_channel_messages">Messages</string>
+    <string name="notif_channel_messages_desc">Notifications for new text messages</string>
+    <string name="notif_action_reply">Reply</string>
+    <string name="notif_action_mark_read">Mark as read</string>
+    <string name="notif_locked_chat_content">New message in a locked chat</string>
+</resources>

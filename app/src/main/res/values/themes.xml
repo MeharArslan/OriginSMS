@@ -29,14 +29,6 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
-    <style name="Widget.OriginSMS.SentBubble">
-        <item name="android:background">@drawable/bg_bubble_sent</item>
-    </style>
-
-    <style name="Widget.OriginSMS.ReceivedBubble">
-        <item name="android:background">@drawable/bg_bubble_received</item>
-    </style>
-
     <style name="ShapeOverlay.AttachmentBubble" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">16dp</item>

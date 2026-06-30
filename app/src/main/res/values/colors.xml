@@ -56,4 +56,5 @@
     <color name="input_field_bg">@color/bubble_received_light</color>
     <color name="input_field_text">@color/text_primary_light</color>
     <color name="input_field_hint">@color/text_secondary_light</color>
+    <color name="row_selected_bg">#E8E5F7</color>
 </resources>

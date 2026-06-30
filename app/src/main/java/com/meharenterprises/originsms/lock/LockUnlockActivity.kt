@@ -215,7 +215,8 @@ class LockUnlockActivity : AppCompatActivity() {
 
             val adapter = ConversationAdapter(
                 onClick = { conversation -> openHiddenThread(conversation) },
-                onLongClick = { conversation, _ -> confirmUnhide(conversation) }
+                onLongClick = { conversation -> confirmUnhide(conversation) },
+                selectionModeEnabled = false
             )
             recyclerVault.layoutManager = LinearLayoutManager(this@LockUnlockActivity)
             recyclerVault.adapter = adapter

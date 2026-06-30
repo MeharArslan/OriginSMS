@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [ThreadLockEntity::class, BlockedNumberEntity::class, DraftEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class OriginDatabase : RoomDatabase() {
@@ -25,7 +25,13 @@ abstract class OriginDatabase : RoomDatabase() {
                     context.applicationContext,
                     OriginDatabase::class.java,
                     "origin_sms.db"
-                ).build().also { instance = it }
+                )
+                    // App-level metadata only (lock state, drafts, blocked numbers) —
+                    // never actual message content, so a destructive migration on
+                    // schema change just means the user re-locks/re-mutes chats
+                    // after an update, with zero risk to real SMS/MMS data.
+                    .fallbackToDestructiveMigration()
+                    .build().also { instance = it }
             }
     }
 }

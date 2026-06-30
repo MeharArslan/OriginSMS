@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_light"
+    android:background="@color/bg_surface"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -19,7 +19,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/surface_light"
+        android:background="@color/surface_card"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="@dimen/spacing_md"
@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="To:"
-            android:textColor="@color/text_secondary_light"
+            android:textColor="@color/text_secondary"
             android:textSize="15sp" />
 
         <EditText
@@ -40,10 +40,10 @@
             android:layout_weight="1"
             android:autofillHints="phone"
             android:background="@null"
-            android:hint="Phone number"
-            android:inputType="phone"
+            android:hint="Name or phone number"
+            android:inputType="text"
             android:maxLines="1"
-            android:textColor="@color/text_primary_light"
+            android:textColor="@color/text_primary"
             android:textSize="15sp" />
 
     </LinearLayout>
@@ -51,21 +51,35 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/divider_light" />
+        android:background="@color/divider" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerMessages"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:paddingHorizontal="@dimen/spacing_sm"
-        android:paddingVertical="@dimen/spacing_md" />
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerContactPicker"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingVertical="@dimen/spacing_sm" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerMessages"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="@dimen/spacing_sm"
+            android:paddingVertical="@dimen/spacing_md"
+            android:visibility="gone" />
+
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/surface_light"
+        android:background="@color/surface_card"
         android:gravity="bottom"
         android:orientation="horizontal"
         android:padding="@dimen/spacing_sm">
@@ -84,8 +98,8 @@
             android:maxLines="5"
             android:paddingHorizontal="@dimen/spacing_md"
             android:paddingVertical="@dimen/spacing_sm"
-            android:textColor="@color/text_primary_light"
-            android:textColorHint="@color/text_secondary_light"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
             android:textSize="15sp" />
 
         <ImageButton

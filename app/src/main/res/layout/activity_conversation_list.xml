@@ -5,9 +5,10 @@
     android:id="@+id/rootCoordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_light">
+    android:background="@color/bg_surface">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/origin_primary"
@@ -21,7 +22,102 @@
             app:title="@string/title_conversations"
             app:titleTextColor="@android:color/white" />
 
+        <LinearLayout
+            android:id="@+id/searchBarRow"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@android:color/transparent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/spacing_md"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ImageButton
+                android:id="@+id/btnCloseSearch"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/action_settings"
+                android:src="@drawable/ic_back"
+                app:tint="@android:color/white" />
+
+            <EditText
+                android:id="@+id/editSearch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_sm"
+                android:layout_weight="1"
+                android:autofillHints=""
+                android:background="@null"
+                android:hint="@string/action_search"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="@android:color/white"
+                android:textColorHint="#CCFFFFFF"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
     </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Multi-select contextual action bar, shown when one or more conversations are selected -->
+    <LinearLayout
+        android:id="@+id/selectionActionBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_gravity="top"
+        android:background="@color/origin_primary_dark"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/spacing_sm"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageButton
+            android:id="@+id/btnCloseSelection"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/action_settings"
+            android:src="@drawable/ic_close_white" />
+
+        <TextView
+            android:id="@+id/txtSelectionCount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:layout_weight="1"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            tools:text="2" />
+
+        <ImageButton
+            android:id="@+id/btnSelectionMarkRead"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/menu_mark_read"
+            android:src="@drawable/ic_mark_read" />
+
+        <ImageButton
+            android:id="@+id/btnSelectionArchive"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/menu_archive_chat"
+            android:src="@drawable/ic_archive" />
+
+        <ImageButton
+            android:id="@+id/btnSelectionDelete"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/menu_delete_chat"
+            android:src="@drawable/ic_delete" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/defaultAppBanner"
@@ -78,7 +174,7 @@
             android:layout_gravity="center_horizontal"
             android:gravity="center"
             android:text="@string/empty_conversations"
-            android:textColor="@color/text_secondary_light"
+            android:textColor="@color/text_secondary"
             android:textSize="15sp" />
 
     </LinearLayout>

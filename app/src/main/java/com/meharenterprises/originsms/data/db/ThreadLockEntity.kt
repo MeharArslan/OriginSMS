@@ -13,5 +13,7 @@ data class ThreadLockEntity(
     @PrimaryKey val threadId: Long,
     val isLocked: Boolean = false,
     val isHidden: Boolean = false,
-    val lockedAtMillis: Long = 0L
+    val lockedAtMillis: Long = 0L,
+    val isMuted: Boolean = false,
+    val isArchived: Boolean = false
 )

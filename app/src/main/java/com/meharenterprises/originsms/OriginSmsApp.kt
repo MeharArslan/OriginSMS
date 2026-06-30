@@ -29,6 +29,7 @@ class OriginSmsApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        com.meharenterprises.originsms.ui.ThemePreferenceManager(this).applyStoredMode()
         createNotificationChannels()
         installCrashLogger()
     }

@@ -19,14 +19,17 @@ import com.meharenterprises.originsms.lock.PinManager
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var pinManager: PinManager
+    private lateinit var themeManager: ThemePreferenceManager
     private lateinit var switchBiometric: Switch
     private lateinit var txtChatLockStatus: TextView
     private lateinit var txtDefaultAppStatus: TextView
+    private lateinit var txtThemeStatus: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
         pinManager = PinManager(this)
+        themeManager = ThemePreferenceManager(this)
 
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         toolbar.setNavigationOnClickListener { finish() }
@@ -36,11 +39,13 @@ class SettingsActivity : AppCompatActivity() {
         switchBiometric = findViewById(R.id.switchBiometric)
         txtChatLockStatus = findViewById(R.id.txtChatLockStatus)
         txtDefaultAppStatus = findViewById(R.id.txtDefaultAppStatus)
+        txtThemeStatus = findViewById(R.id.txtThemeStatus)
 
         setupChatLockRow()
         setupBiometricRow()
         setupResetPinRow()
         setupDefaultAppRow()
+        setupThemeRow()
         setupBlockedNumbersRow()
     }
 
@@ -52,12 +57,41 @@ class SettingsActivity : AppCompatActivity() {
     private fun refreshStatuses() {
         txtChatLockStatus.text = if (pinManager.hasPinConfigured()) "Enabled" else "Not set up"
         txtDefaultAppStatus.text = if (isDefaultSmsApp()) "Yes" else "No — tap to set"
+        txtThemeStatus.text = themeLabel(themeManager.getCurrentMode())
 
         val biometricAvailable = BiometricManager.from(this)
             .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) ==
             BiometricManager.BIOMETRIC_SUCCESS
         switchBiometric.isEnabled = biometricAvailable && pinManager.hasPinConfigured()
         switchBiometric.isChecked = pinManager.isBiometricEnabled() && biometricAvailable
+    }
+
+    private fun themeLabel(mode: ThemePreferenceManager.ThemeMode): String = when (mode) {
+        ThemePreferenceManager.ThemeMode.LIGHT -> "Light"
+        ThemePreferenceManager.ThemeMode.DARK -> "Dark"
+        ThemePreferenceManager.ThemeMode.SYSTEM -> "System default"
+    }
+
+    private fun setupThemeRow() {
+        findViewById<android.view.View>(R.id.rowTheme).setOnClickListener {
+            val options = arrayOf("Light", "Dark", "System default")
+            val modes = arrayOf(
+                ThemePreferenceManager.ThemeMode.LIGHT,
+                ThemePreferenceManager.ThemeMode.DARK,
+                ThemePreferenceManager.ThemeMode.SYSTEM
+            )
+            val currentIndex = modes.indexOf(themeManager.getCurrentMode())
+
+            AlertDialog.Builder(this)
+                .setTitle(R.string.settings_theme)
+                .setSingleChoiceItems(options, currentIndex) { dialog, index ->
+                    themeManager.setMode(modes[index])
+                    txtThemeStatus.text = options[index]
+                    dialog.dismiss()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
     }
 
     private fun setupChatLockRow() {

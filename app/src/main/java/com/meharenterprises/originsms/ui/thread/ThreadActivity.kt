@@ -1,310 +1,204 @@
-package com.meharenterprises.originsms.ui.thread
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_surface"
+    android:orientation="vertical">
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Intent
-import android.net.Uri
-import android.os.Bundle
-import android.telephony.SubscriptionManager
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.widget.EditText
-import android.widget.HorizontalScrollView
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.emoji2.emojipicker.EmojiPickerView
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.appbar.MaterialToolbar
-import com.meharenterprises.originsms.R
-import com.meharenterprises.originsms.core.Message
-import kotlinx.coroutines.launch
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize">
 
-class ThreadActivity : AppCompatActivity() {
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/origin_primary"
+            android:theme="@style/Theme.OriginSMS"
+            app:navigationIcon="@drawable/ic_back"
+            app:titleTextColor="@android:color/white" />
 
-    private lateinit var viewModel: ThreadViewModel
-    private lateinit var adapter: MessageAdapter
-    private lateinit var recycler: RecyclerView
-    private lateinit var editMessage: EditText
-    private lateinit var emojiPicker: EmojiPickerView
-    private lateinit var attachmentScroll: HorizontalScrollView
-    private lateinit var attachmentContainer: LinearLayout
-    private lateinit var simIndicatorRow: LinearLayout
-    private lateinit var txtSimLabel: TextView
+        <LinearLayout
+            android:id="@+id/messageSelectionBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/origin_primary_dark"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/spacing_sm"
+            android:visibility="gone"
+            tools:visibility="visible">
 
-    private var threadId: Long = -1L
-    private var address: String = ""
-    private var displayName: String = ""
-    private var emojiPickerVisible = false
+            <ImageButton
+                android:id="@+id/btnCloseMessageSelection"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/action_settings"
+                android:src="@drawable/ic_close_white" />
 
-    private val attachmentPickerLauncher = registerForActivityResult(
-        ActivityResultContracts.PickMultipleVisualMedia(MAX_ATTACHMENTS)
-    ) { uris ->
-        uris.forEach { uri ->
-            try {
-                contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            } catch (_: SecurityException) { }
-            viewModel.addPendingAttachment(uri)
-        }
-    }
+            <TextView
+                android:id="@+id/txtMessageSelectionCount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_md"
+                android:layout_weight="1"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                tools:text="1" />
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_thread)
+            <ImageButton
+                android:id="@+id/btnMessageCopy"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/action_copy_text"
+                android:src="@drawable/ic_copy" />
 
-        threadId = intent.getLongExtra(EXTRA_THREAD_ID, -1L)
-        address = intent.getStringExtra(EXTRA_ADDRESS).orEmpty()
-        displayName = intent.getStringExtra(EXTRA_DISPLAY_NAME).orEmpty().ifBlank { address }
+            <ImageButton
+                android:id="@+id/btnMessageForward"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/action_forward"
+                android:src="@drawable/ic_forward" />
 
-        viewModel = ViewModelProvider(this)[ThreadViewModel::class.java]
+            <ImageButton
+                android:id="@+id/btnMessageDelete"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/action_delete_message"
+                android:src="@drawable/ic_delete" />
 
-        setupToolbar()
-        setupRecyclerView()
-        setupComposeBar()
-        setupEmojiPicker()
-        setupSimIndicator()
+        </LinearLayout>
 
-        viewModel.bind(threadId, address)
-        viewModel.messages.observe(this) { list ->
-            adapter.submitList(list) {
-                if (list.isNotEmpty()) recycler.scrollToPosition(list.size - 1)
-            }
-        }
-        viewModel.pendingAttachments.observe(this) { uris -> renderAttachmentPreviews(uris) }
+    </FrameLayout>
 
-        restoreDraft()
-        intent.getStringExtra(EXTRA_PREFILL_BODY)?.let { prefill ->
-            if (editMessage.text?.toString().isNullOrBlank()) {
-                editMessage.setText(prefill)
-                editMessage.setSelection(prefill.length)
-            }
-        }
-    }
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerMessages"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingHorizontal="@dimen/spacing_sm"
+        android:paddingVertical="@dimen/spacing_md"
+        tools:listitem="@layout/item_message_sent" />
 
-    private fun setupToolbar() {
-        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
-        toolbar.title = displayName
-        toolbar.setNavigationOnClickListener { finish() }
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayShowTitleEnabled(true)
-    }
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider" />
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_thread, menu)
-        return true
-    }
+    <HorizontalScrollView
+        android:id="@+id/attachmentPreviewScroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/surface_card"
+        android:scrollbars="none"
+        android:visibility="gone">
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_call -> {
-                val dialIntent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${Uri.encode(address)}"))
-                startActivity(dialIntent)
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
+        <LinearLayout
+            android:id="@+id/attachmentPreviewContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="@dimen/spacing_sm" />
 
-    private fun setupRecyclerView() {
-        recycler = findViewById(R.id.recyclerMessages)
-        adapter = MessageAdapter(onLongPress = { message -> showMessageActions(message) })
-        val lm = LinearLayoutManager(this).apply { stackFromEnd = true }
-        recycler.layoutManager = lm
-        recycler.adapter = adapter
-    }
+    </HorizontalScrollView>
 
-    private fun setupComposeBar() {
-        editMessage = findViewById(R.id.editMessage)
-        attachmentScroll = findViewById(R.id.attachmentPreviewScroll)
-        attachmentContainer = findViewById(R.id.attachmentPreviewContainer)
+    <LinearLayout
+        android:id="@+id/simIndicatorRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/surface_card"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/spacing_md"
+        android:paddingVertical="4dp"
+        android:visibility="gone">
 
-        findViewById<ImageButton>(R.id.btnSend).setOnClickListener {
-            val text = editMessage.text?.toString().orEmpty()
-            val hasAttachments = !viewModel.pendingAttachments.value.isNullOrEmpty()
-            if (text.isNotBlank() || hasAttachments) {
-                viewModel.sendMessage(text)
-                editMessage.setText("")
-                hideEmojiPicker()
-            }
-        }
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_sim_card"
+            tools:ignore="ContentDescription" />
 
-        findViewById<ImageButton>(R.id.btnAttach).setOnClickListener {
-            attachmentPickerLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
-            )
-        }
-    }
+        <TextView
+            android:id="@+id/txtSimLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            tools:text="Sending from SIM 1 · Jazz" />
 
-    private fun setupEmojiPicker() {
-        emojiPicker = findViewById(R.id.emojiPickerView)
-        val btnEmoji = findViewById<ImageButton>(R.id.btnEmoji)
+    </LinearLayout>
 
-        emojiPicker.setOnEmojiPickedListener { emojiViewItem ->
-            val emoji = emojiViewItem.emoji
-            val start = editMessage.selectionStart.coerceAtLeast(0)
-            val end = editMessage.selectionEnd.coerceAtLeast(0)
-            editMessage.text?.replace(minOf(start, end), maxOf(start, end), emoji)
-        }
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/surface_card"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:padding="@dimen/spacing_sm">
 
-        btnEmoji.setOnClickListener {
-            if (emojiPickerVisible) hideEmojiPicker() else showEmojiPicker()
-        }
+        <ImageButton
+            android:id="@+id/btnAttach"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_gravity="center_vertical"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/action_attach"
+            android:src="@drawable/ic_attach" />
 
-        editMessage.setOnClickListener {
-            if (emojiPickerVisible) hideEmojiPicker()
-        }
-    }
+        <ImageButton
+            android:id="@+id/btnEmoji"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_gravity="center_vertical"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/action_emoji"
+            android:src="@drawable/ic_emoji" />
 
-    private fun showEmojiPicker() {
-        emojiPickerVisible = true
-        emojiPicker.visibility = View.VISIBLE
-        // Hide the software keyboard so the emoji picker doesn't fight for space
-        val imm = getSystemService(android.view.inputmethod.InputMethodManager::class.java)
-        imm.hideSoftInputFromWindow(editMessage.windowToken, 0)
-    }
+        <EditText
+            android:id="@+id/editMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginHorizontal="@dimen/spacing_sm"
+            android:layout_weight="1"
+            android:autofillHints=""
+            android:background="@drawable/bg_input_field"
+            android:hint="@string/hint_type_message"
+            android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
+            android:maxLines="5"
+            android:paddingHorizontal="@dimen/spacing_md"
+            android:paddingVertical="@dimen/spacing_sm"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
+            android:textSize="15sp" />
 
-    private fun hideEmojiPicker() {
-        emojiPickerVisible = false
-        emojiPicker.visibility = View.GONE
-    }
+        <ImageButton
+            android:id="@+id/btnSend"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/bg_send_button"
+            android:contentDescription="@string/action_send"
+            android:src="@drawable/ic_send" />
 
-    private fun setupSimIndicator() {
-        simIndicatorRow = findViewById(R.id.simIndicatorRow)
-        txtSimLabel = findViewById(R.id.txtSimLabel)
+    </LinearLayout>
 
-        try {
-            val subManager = getSystemService(SubscriptionManager::class.java)
-            val activeSubscriptions = subManager.activeSubscriptionInfoList
-            if (activeSubscriptions != null && activeSubscriptions.size > 1) {
-                // Dual-SIM: show indicator row and allow tapping to switch
-                simIndicatorRow.visibility = View.VISIBLE
-                val defaultSubId = SubscriptionManager.getDefaultSmsSubscriptionId()
-                viewModel.selectedSubscriptionId = defaultSubId
-                updateSimLabel(activeSubscriptions.indexOfFirst { it.subscriptionId == defaultSubId })
+    <androidx.emoji2.emojipicker.EmojiPickerView
+        android:id="@+id/emojiPickerView"
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
+        android:background="@color/surface_card"
+        android:visibility="gone" />
 
-                simIndicatorRow.setOnClickListener {
-                    val options = activeSubscriptions.mapIndexed { idx, info ->
-                        "SIM ${idx + 1} · ${info.displayName}"
-                    }.toTypedArray()
-                    val currentIdx = activeSubscriptions.indexOfFirst {
-                        it.subscriptionId == viewModel.selectedSubscriptionId
-                    }
-                    AlertDialog.Builder(this)
-                        .setTitle("Send from")
-                        .setSingleChoiceItems(options, currentIdx) { dialog, idx ->
-                            viewModel.selectedSubscriptionId = activeSubscriptions[idx].subscriptionId
-                            updateSimLabel(idx)
-                            dialog.dismiss()
-                        }
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .show()
-                }
-            } else {
-                simIndicatorRow.visibility = View.GONE
-            }
-        } catch (_: SecurityException) {
-            // READ_PHONE_STATE may not be granted yet; hide the row gracefully
-            simIndicatorRow.visibility = View.GONE
-        }
-    }
-
-    private fun updateSimLabel(simIndex: Int) {
-        try {
-            val subManager = getSystemService(SubscriptionManager::class.java)
-            val sub = subManager.activeSubscriptionInfoList?.getOrNull(simIndex)
-            val simName = sub?.displayName ?: "SIM ${simIndex + 1}"
-            txtSimLabel.text = "Sending from $simName · tap to switch"
-        } catch (_: Exception) {
-            txtSimLabel.text = "SIM ${simIndex + 1}"
-        }
-    }
-
-    private fun renderAttachmentPreviews(uris: List<Uri>) {
-        attachmentContainer.removeAllViews()
-        attachmentScroll.visibility = if (uris.isEmpty()) View.GONE else View.VISIBLE
-
-        val inflater = LayoutInflater.from(this)
-        for (uri in uris) {
-            val chip = inflater.inflate(R.layout.item_attachment_preview, attachmentContainer, false)
-            val thumbnail = chip.findViewById<ImageView>(R.id.imgThumbnail)
-            val removeButton = chip.findViewById<ImageButton>(R.id.btnRemoveAttachment)
-
-            try {
-                contentResolver.openInputStream(uri)?.use { stream ->
-                    val bitmap = android.graphics.BitmapFactory.decodeStream(stream)
-                    if (bitmap != null) thumbnail.setImageBitmap(bitmap)
-                }
-            } catch (_: Exception) {
-                thumbnail.setImageResource(R.drawable.ic_attach)
-            }
-            removeButton.setOnClickListener { viewModel.removePendingAttachment(uri) }
-            attachmentContainer.addView(chip)
-        }
-    }
-
-    private fun restoreDraft() {
-        lifecycleScope.launch {
-            val draft = viewModel.getDraft(threadId)
-            if (!draft.isNullOrBlank()) {
-                editMessage.setText(draft)
-                editMessage.setSelection(draft.length)
-            }
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        viewModel.saveDraft(editMessage.text?.toString().orEmpty())
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.loadMessages()
-    }
-
-    private fun showMessageActions(message: Message) {
-        val options = arrayOf(
-            getString(R.string.action_copy_text),
-            getString(R.string.action_delete_message)
-        )
-        AlertDialog.Builder(this)
-            .setItems(options) { _, index ->
-                when (index) {
-                    0 -> copyToClipboard(message.body)
-                    1 -> confirmDeleteMessage(message)
-                }
-            }
-            .show()
-    }
-
-    private fun copyToClipboard(text: String) {
-        val clipboard = getSystemService(ClipboardManager::class.java)
-        clipboard.setPrimaryClip(ClipData.newPlainText("message", text))
-    }
-
-    private fun confirmDeleteMessage(message: Message) {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.action_delete_message)
-            .setPositiveButton(android.R.string.ok) { _, _ -> viewModel.deleteMessage(message.id) }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
-
-    companion object {
-        const val EXTRA_THREAD_ID = "extra_thread_id"
-        const val EXTRA_ADDRESS = "extra_address"
-        const val EXTRA_DISPLAY_NAME = "extra_display_name"
-        const val EXTRA_PREFILL_BODY = "extra_prefill_body"
-        private const val MAX_ATTACHMENTS = 5
-    }
-}
+</LinearLayout>

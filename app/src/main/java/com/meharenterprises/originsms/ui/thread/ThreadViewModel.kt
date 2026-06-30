@@ -1,7 +1,11 @@
 package com.meharenterprises.originsms.ui.thread
 
 import android.app.Application
+import android.database.ContentObserver
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
+import android.provider.Telephony
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -27,10 +31,43 @@ class ThreadViewModel(application: Application) : AndroidViewModel(application) 
     private var currentAddress: String = ""
     var selectedSubscriptionId: Int? = null   // null = system default SIM
 
+    /**
+     * Watches the system SMS provider for any change (new incoming message,
+     * status update on a sent message, etc.) and reloads this thread's
+     * messages automatically — this is what makes send/receive feel
+     * "real time" instead of only refreshing on screen re-entry.
+     */
+    private val smsContentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+        override fun onChange(selfChange: Boolean) {
+            loadMessages()
+        }
+    }
+    private var observerRegistered = false
+
     fun bind(threadId: Long, address: String) {
         currentThreadId = threadId
         currentAddress = address
         loadMessages()
+        registerContentObserver()
+    }
+
+    private fun registerContentObserver() {
+        if (observerRegistered) return
+        getApplication<Application>().contentResolver.registerContentObserver(
+            Telephony.Sms.CONTENT_URI, true, smsContentObserver
+        )
+        getApplication<Application>().contentResolver.registerContentObserver(
+            Telephony.Mms.CONTENT_URI, true, smsContentObserver
+        )
+        observerRegistered = true
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        if (observerRegistered) {
+            getApplication<Application>().contentResolver.unregisterContentObserver(smsContentObserver)
+            observerRegistered = false
+        }
     }
 
     fun loadMessages() {
@@ -68,6 +105,9 @@ class ThreadViewModel(application: Application) : AndroidViewModel(application) 
         clearPendingAttachments()
         viewModelScope.launch {
             database.draftDao().clearDraft(currentThreadId)
+            // The optimistic provider insert in SmsRepository is synchronous,
+            // so the new message is already visible without waiting for the
+            // ContentObserver round-trip — this keeps Send feeling instant.
             loadMessages()
         }
     }
@@ -76,6 +116,20 @@ class ThreadViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             repository.deleteMessage(messageId)
             loadMessages()
+        }
+    }
+
+    fun deleteMessages(messageIds: Set<Long>) {
+        viewModelScope.launch {
+            messageIds.forEach { repository.deleteMessage(it) }
+            loadMessages()
+        }
+    }
+
+    fun retryMessage(message: Message) {
+        sendMessage(message.body)
+        viewModelScope.launch {
+            repository.deleteMessage(message.id)
         }
     }
 

@@ -25,6 +25,7 @@ class ThreadViewModel(application: Application) : AndroidViewModel(application) 
 
     private var currentThreadId: Long = -1L
     private var currentAddress: String = ""
+    var selectedSubscriptionId: Int? = null   // null = system default SIM
 
     fun bind(threadId: Long, address: String) {
         currentThreadId = threadId
@@ -57,7 +58,9 @@ class ThreadViewModel(application: Application) : AndroidViewModel(application) 
 
         if (attachments.isEmpty()) {
             if (body.isBlank()) return
-            repository.sendSms(currentAddress, body, if (currentThreadId != -1L) currentThreadId else null)
+            repository.sendSms(currentAddress, body,
+                if (currentThreadId != -1L) currentThreadId else null,
+                selectedSubscriptionId)
         } else {
             repository.sendMms(currentAddress, body, attachments, if (currentThreadId != -1L) currentThreadId else null)
         }

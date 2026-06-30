@@ -3,8 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search"
+        android:title="@string/action_search"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/action_hidden_chats"
         android:title="@string/section_hidden_chats"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_archived_chats"
+        android:title="@string/menu_archive_chat"
         app:showAsAction="never" />
 
     <item

@@ -19,4 +19,5 @@
     <color name="input_field_bg">@color/bubble_received_dark</color>
     <color name="input_field_text">@color/text_primary_dark</color>
     <color name="input_field_hint">@color/text_secondary_dark</color>
+    <color name="row_selected_bg">#332D5C</color>
 </resources>

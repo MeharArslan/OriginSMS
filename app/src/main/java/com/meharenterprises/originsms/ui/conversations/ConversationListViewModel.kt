@@ -16,6 +16,9 @@ class ConversationListViewModel(application: Application) : AndroidViewModel(app
     private val repository = SmsRepository(application)
     private val database = OriginDatabase.getInstance(application)
 
+    private var allLoadedConversations: List<ConversationSummary> = emptyList()
+    private var currentSearchQuery: String = ""
+
     private val _conversations = MutableLiveData<List<ConversationSummary>>(emptyList())
     val conversations: LiveData<List<ConversationSummary>> = _conversations
 
@@ -26,39 +29,65 @@ class ConversationListViewModel(application: Application) : AndroidViewModel(app
         viewModelScope.launch {
             _isLoading.value = true
             val all = repository.getConversations()
-            // Hidden chats never surface in the main list — they only appear
-            // inside the dedicated "Hidden chats" vault screen after authentication.
-            _conversations.value = all.filter { !it.isHidden }
+            // Hidden and archived chats never surface in the main list — hidden
+            // ones live in the PIN-gated vault, archived ones in their own view.
+            allLoadedConversations = all.filter { !it.isHidden && !it.isArchived }
+            applySearchFilter()
             _isLoading.value = false
         }
     }
 
+    fun setSearchQuery(query: String) {
+        currentSearchQuery = query
+        applySearchFilter()
+    }
+
+    private fun applySearchFilter() {
+        _conversations.value = if (currentSearchQuery.isBlank()) {
+            allLoadedConversations
+        } else {
+            val q = currentSearchQuery.trim().lowercase()
+            allLoadedConversations.filter {
+                it.displayName.lowercase().contains(q) ||
+                    it.address.lowercase().contains(q) ||
+                    it.snippet.lowercase().contains(q)
+            }
+        }
+    }
+
+    private suspend fun upsertWithChange(threadId: Long, change: (ThreadLockEntity) -> ThreadLockEntity) {
+        val existing = database.threadLockDao().getForThread(threadId) ?: ThreadLockEntity(threadId = threadId)
+        database.threadLockDao().upsert(change(existing))
+    }
+
     fun setLocked(threadId: Long, locked: Boolean) {
         viewModelScope.launch {
-            val existing = database.threadLockDao().getForThread(threadId)
-            database.threadLockDao().upsert(
-                ThreadLockEntity(
-                    threadId = threadId,
-                    isLocked = locked,
-                    isHidden = existing?.isHidden ?: false,
-                    lockedAtMillis = if (locked) System.currentTimeMillis() else 0L
-                )
-            )
+            upsertWithChange(threadId) {
+                it.copy(isLocked = locked, lockedAtMillis = if (locked) System.currentTimeMillis() else 0L)
+            }
             loadConversations()
         }
     }
 
     fun setHidden(threadId: Long, hidden: Boolean) {
         viewModelScope.launch {
-            val existing = database.threadLockDao().getForThread(threadId)
-            database.threadLockDao().upsert(
-                ThreadLockEntity(
-                    threadId = threadId,
-                    isLocked = existing?.isLocked ?: false,
-                    isHidden = hidden,
-                    lockedAtMillis = existing?.lockedAtMillis ?: 0L
-                )
-            )
+            upsertWithChange(threadId) { it.copy(isHidden = hidden) }
+            loadConversations()
+        }
+    }
+
+    fun setMuted(threadIds: Set<Long>, muted: Boolean) {
+        viewModelScope.launch {
+            threadIds.forEach { id -> database.threadLockDao().setMuted(id, muted) }
+            loadConversations()
+        }
+    }
+
+    fun setArchived(threadIds: Set<Long>, archived: Boolean) {
+        viewModelScope.launch {
+            threadIds.forEach { id ->
+                upsertWithChange(id) { it.copy(isArchived = archived) }
+            }
             loadConversations()
         }
     }
@@ -70,6 +99,13 @@ class ConversationListViewModel(application: Application) : AndroidViewModel(app
         }
     }
 
+    fun deleteThreads(threadIds: Set<Long>) {
+        viewModelScope.launch {
+            threadIds.forEach { repository.deleteThread(it) }
+            loadConversations()
+        }
+    }
+
     fun markRead(threadId: Long) {
         viewModelScope.launch {
             repository.markThreadRead(threadId)
@@ -77,7 +113,18 @@ class ConversationListViewModel(application: Application) : AndroidViewModel(app
         }
     }
 
+    fun markReadMultiple(threadIds: Set<Long>) {
+        viewModelScope.launch {
+            threadIds.forEach { repository.markThreadRead(it) }
+            loadConversations()
+        }
+    }
+
     suspend fun getHiddenConversations(): List<ConversationSummary> {
         return repository.getConversations().filter { it.isHidden }
+    }
+
+    suspend fun getArchivedConversations(): List<ConversationSummary> {
+        return repository.getConversations().filter { it.isArchived && !it.isHidden }
     }
 }

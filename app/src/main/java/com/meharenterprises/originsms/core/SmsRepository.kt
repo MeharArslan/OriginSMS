@@ -32,12 +32,17 @@ class SmsRepository(private val context: Context) {
     suspend fun getConversations(): List<ConversationSummary> = withContext(Dispatchers.IO) {
         val results = mutableListOf<ConversationSummary>()
 
+        // Deliberately minimal projection: _ID, DATE, READ are the only
+        // Threads-table columns that have proven reliable across OEM SMS
+        // provider implementations (some custom providers, e.g. on certain
+        // Infinix/XOS builds, reject SNIPPET, RECIPIENT_IDS, or MESSAGE_COUNT
+        // with "no such column" even though they're standard Android SDK
+        // constants). Snippet, address, and unread count are each derived
+        // from a direct Sms-table query instead, which is reliable everywhere.
         val projection = arrayOf(
             Telephony.Threads._ID,
-            Telephony.Threads.SNIPPET,
             Telephony.Threads.DATE,
-            Telephony.Threads.READ,
-            Telephony.Threads.MESSAGE_COUNT
+            Telephony.Threads.READ
         )
 
         context.contentResolver.query(
@@ -47,24 +52,23 @@ class SmsRepository(private val context: Context) {
             "${Telephony.Threads.DATE} DESC"
         )?.use { cursor ->
             val idIdx = cursor.getColumnIndex(Telephony.Threads._ID)
-            val snippetIdx = cursor.getColumnIndex(Telephony.Threads.SNIPPET)
             val dateIdx = cursor.getColumnIndex(Telephony.Threads.DATE)
             val readIdx = cursor.getColumnIndex(Telephony.Threads.READ)
 
             while (cursor.moveToNext()) {
                 val threadId = cursor.getLong(idIdx)
-                val address = getAddressForThread(threadId) ?: continue
-                val contact = contactsHelper.resolve(address)
+                val latest = getLatestMessageForThread(threadId) ?: continue
+                val contact = contactsHelper.resolve(latest.address)
                 val lockState = database.threadLockDao().getForThread(threadId)
                 val unreadCount = getUnreadCountForThread(threadId)
 
                 results.add(
                     ConversationSummary(
                         threadId = threadId,
-                        address = address,
+                        address = latest.address,
                         displayName = contact.displayName,
-                        snippet = if (snippetIdx >= 0) cursor.getString(snippetIdx).orEmpty() else "",
-                        dateMillis = if (dateIdx >= 0) cursor.getLong(dateIdx) else 0L,
+                        snippet = latest.body,
+                        dateMillis = if (dateIdx >= 0) cursor.getLong(dateIdx) else latest.dateMillis,
                         isRead = if (readIdx >= 0) cursor.getInt(readIdx) == 1 else true,
                         isLocked = lockState?.isLocked == true,
                         isHidden = lockState?.isHidden == true,
@@ -77,17 +81,28 @@ class SmsRepository(private val context: Context) {
         results
     }
 
-    private fun getAddressForThread(threadId: Long): String? {
+    private data class LatestMessage(val address: String, val body: String, val dateMillis: Long)
+
+    private fun getLatestMessageForThread(threadId: Long): LatestMessage? {
         context.contentResolver.query(
             Telephony.Sms.CONTENT_URI,
-            arrayOf(Telephony.Sms.ADDRESS),
+            arrayOf(Telephony.Sms.ADDRESS, Telephony.Sms.BODY, Telephony.Sms.DATE),
             "${Telephony.Sms.THREAD_ID} = ?",
             arrayOf(threadId.toString()),
             "${Telephony.Sms.DATE} DESC LIMIT 1"
         )?.use { cursor ->
             if (cursor.moveToFirst()) {
-                val idx = cursor.getColumnIndex(Telephony.Sms.ADDRESS)
-                if (idx >= 0) return cursor.getString(idx)
+                val addrIdx = cursor.getColumnIndex(Telephony.Sms.ADDRESS)
+                val bodyIdx = cursor.getColumnIndex(Telephony.Sms.BODY)
+                val dateIdx = cursor.getColumnIndex(Telephony.Sms.DATE)
+                val address = if (addrIdx >= 0) cursor.getString(addrIdx) else null
+                if (!address.isNullOrBlank()) {
+                    return LatestMessage(
+                        address = address,
+                        body = if (bodyIdx >= 0) cursor.getString(bodyIdx).orEmpty() else "",
+                        dateMillis = if (dateIdx >= 0) cursor.getLong(dateIdx) else 0L
+                    )
+                }
             }
         }
         return null

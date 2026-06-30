@@ -34,7 +34,6 @@ class SmsRepository(private val context: Context) {
 
         val projection = arrayOf(
             Telephony.Threads._ID,
-            Telephony.Threads.RECIPIENT_IDS,
             Telephony.Threads.SNIPPET,
             Telephony.Threads.DATE,
             Telephony.Threads.READ,
@@ -317,9 +316,17 @@ class SmsRepository(private val context: Context) {
      * Sends an SMS, splitting into multipart segments if needed, and writes a
      * SENT-box copy to the provider so it appears immediately in the thread.
      * As default SMS app, this app is responsible for persisting its own sent messages.
+     *
+     * On dual-SIM devices, passing a subscriptionId routes the message through
+     * that specific SIM's SmsManager instance; passing null uses the system's
+     * current default SMS subscription.
      */
-    fun sendSms(destinationAddress: String, body: String, threadId: Long?) {
-        val smsManager = context.getSystemService(SmsManager::class.java)
+    fun sendSms(destinationAddress: String, body: String, threadId: Long?, subscriptionId: Int? = null) {
+        val smsManager = if (subscriptionId != null && subscriptionId != -1) {
+            SmsManager.getSmsManagerForSubscriptionId(subscriptionId)
+        } else {
+            context.getSystemService(SmsManager::class.java)
+        }
         val parts = smsManager.divideMessage(body)
 
         val sentIntents = ArrayList<PendingIntent>()

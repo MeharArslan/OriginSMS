@@ -129,8 +129,8 @@ class ThreadActivity : AppCompatActivity() {
     private fun setupToolbar() {
         toolbar = findViewById(R.id.toolbar)
         toolbar.title = displayName
-        toolbar.setNavigationOnClickListener { finish() }
         setSupportActionBar(toolbar)
+        toolbar.setNavigationOnClickListener { finish() }
         supportActionBar?.setDisplayShowTitleEnabled(true)
     }
 
@@ -141,7 +141,9 @@ class ThreadActivity : AppCompatActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         lifecycleScope.launch {
-            val muted = OriginDatabase.getInstance(this@ThreadActivity).threadLockDao().getForThread(threadId)?.isMuted == true
+            val lockState = OriginDatabase.getInstance(this@ThreadActivity).threadLockDao().getForThread(threadId)
+            val muted = lockState?.isMuted == true &&
+                (lockState.muteUntilMillis == -1L || lockState.muteUntilMillis > System.currentTimeMillis())
             menu.findItem(R.id.action_mute_chat)?.title =
                 getString(if (muted) R.string.action_unmute_chat else R.string.action_mute_chat)
         }
@@ -178,9 +180,42 @@ class ThreadActivity : AppCompatActivity() {
     private fun toggleMute() {
         lifecycleScope.launch {
             val dao = OriginDatabase.getInstance(this@ThreadActivity).threadLockDao()
-            val current = dao.getForThread(threadId)?.isMuted == true
-            dao.setMuted(threadId, !current)
-            invalidateOptionsMenu()
+            val current = dao.getForThread(threadId)
+            val currentlyMuted = current?.isMuted == true &&
+                (current.muteUntilMillis == -1L || current.muteUntilMillis > System.currentTimeMillis())
+
+            if (currentlyMuted) {
+                dao.setMutedUntil(threadId, false, 0L)
+                android.widget.Toast.makeText(
+                    this@ThreadActivity, getString(R.string.action_unmute_chat), android.widget.Toast.LENGTH_SHORT
+                ).show()
+                invalidateOptionsMenu()
+                return@launch
+            }
+
+            val options = arrayOf(
+                getString(R.string.mute_duration_always),
+                getString(R.string.mute_duration_24h),
+                getString(R.string.mute_duration_8h)
+            )
+            AlertDialog.Builder(this@ThreadActivity)
+                .setTitle(R.string.action_mute_chat)
+                .setItems(options) { _, index ->
+                    val muteUntil = when (index) {
+                        0 -> -1L
+                        1 -> System.currentTimeMillis() + 24 * 60 * 60 * 1000L
+                        else -> System.currentTimeMillis() + 8 * 60 * 60 * 1000L
+                    }
+                    lifecycleScope.launch {
+                        dao.setMutedUntil(threadId, true, muteUntil)
+                        android.widget.Toast.makeText(
+                            this@ThreadActivity, getString(R.string.action_mute_chat), android.widget.Toast.LENGTH_SHORT
+                        ).show()
+                        invalidateOptionsMenu()
+                    }
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
         }
     }
 

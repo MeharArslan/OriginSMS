@@ -72,6 +72,8 @@ class SmsRepository(private val context: Context) {
                         isRead = if (readIdx >= 0) cursor.getInt(readIdx) == 1 else true,
                         isLocked = lockState?.isLocked == true,
                         isHidden = lockState?.isHidden == true,
+                        isMuted = lockState?.isMuted == true,
+                        isArchived = lockState?.isArchived == true,
                         unreadCount = unreadCount,
                         contactPhotoUri = contact.photoUri
                     )

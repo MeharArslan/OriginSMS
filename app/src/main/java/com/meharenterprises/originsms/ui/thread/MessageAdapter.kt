@@ -16,8 +16,14 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class MessageAdapter(
-    private val onLongPress: (Message) -> Unit
+    private val onLongPress: (Message) -> Unit,
+    private val onTapWhileSelecting: (Message) -> Unit = {},
+    private val onTapFailedRetry: (Message) -> Unit = {}
 ) : ListAdapter<Message, RecyclerView.ViewHolder>(DIFF) {
+
+    private val selectedIds = mutableSetOf<Long>()
+    var isSelectionMode: Boolean = false
+        private set
 
     inner class SentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val txtBody: TextView = itemView.findViewById(R.id.txtMessageBody)
@@ -52,36 +58,71 @@ class MessageAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val message = getItem(position)
         val time = formatTime(message.dateMillis)
+        val isSelected = selectedIds.contains(message.id)
         val firstImageOrVideoAttachment = message.attachments.firstOrNull {
             it.contentType.startsWith("image/") || it.contentType.startsWith("video/")
         }
+
+        val bubbleAlpha = if (isSelectionMode && isSelected) 0.6f else 1f
 
         when (holder) {
             is SentViewHolder -> {
                 bindAttachment(holder.imgAttachment, firstImageOrVideoAttachment)
                 holder.txtBody.visibility = if (message.body.isBlank()) View.GONE else View.VISIBLE
                 holder.txtBody.text = message.body
+                holder.itemView.alpha = bubbleAlpha
                 holder.txtStatus.text = when (message.box) {
                     MessageBox.FAILED -> holder.itemView.context.getString(R.string.status_failed)
                     MessageBox.OUTBOX, MessageBox.QUEUED -> holder.itemView.context.getString(R.string.status_sending)
                     else -> "${holder.itemView.context.getString(R.string.status_sent)} · $time"
                 }
-                holder.itemView.setOnLongClickListener {
-                    onLongPress(message)
-                    true
-                }
+                bindClickHandlers(holder.itemView, message)
             }
             is ReceivedViewHolder -> {
                 bindAttachment(holder.imgAttachment, firstImageOrVideoAttachment)
                 holder.txtBody.visibility = if (message.body.isBlank()) View.GONE else View.VISIBLE
                 holder.txtBody.text = message.body
                 holder.txtStatus.text = time
-                holder.itemView.setOnLongClickListener {
-                    onLongPress(message)
-                    true
-                }
+                holder.itemView.alpha = bubbleAlpha
+                bindClickHandlers(holder.itemView, message)
             }
         }
+    }
+
+    private fun bindClickHandlers(itemView: View, message: Message) {
+        itemView.setOnClickListener {
+            when {
+                isSelectionMode -> {
+                    toggleSelection(message.id)
+                    onTapWhileSelecting(message)
+                }
+                message.box == MessageBox.FAILED -> onTapFailedRetry(message)
+            }
+        }
+        itemView.setOnLongClickListener {
+            if (!isSelectionMode) {
+                isSelectionMode = true
+                selectedIds.add(message.id)
+                notifyDataSetChanged()
+            }
+            onLongPress(message)
+            true
+        }
+    }
+
+    private fun toggleSelection(messageId: Long) {
+        if (selectedIds.contains(messageId)) selectedIds.remove(messageId) else selectedIds.add(messageId)
+        if (selectedIds.isEmpty()) isSelectionMode = false
+        notifyDataSetChanged()
+    }
+
+    fun getSelectedIds(): Set<Long> = selectedIds.toSet()
+    fun getSelectedCount(): Int = selectedIds.size
+
+    fun clearSelection() {
+        selectedIds.clear()
+        isSelectionMode = false
+        notifyDataSetChanged()
     }
 
     private fun bindAttachment(imageView: ShapeableImageView, attachment: com.meharenterprises.originsms.core.Attachment?) {

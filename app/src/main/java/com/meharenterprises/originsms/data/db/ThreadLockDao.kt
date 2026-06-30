@@ -29,6 +29,12 @@ interface ThreadLockDao {
     @Query("UPDATE thread_lock_state SET isHidden = :hidden WHERE threadId = :threadId")
     suspend fun setHidden(threadId: Long, hidden: Boolean)
 
+    @Query("UPDATE thread_lock_state SET isMuted = :muted WHERE threadId = :threadId")
+    suspend fun setMuted(threadId: Long, muted: Boolean)
+
+    @Query("UPDATE thread_lock_state SET isArchived = :archived WHERE threadId = :threadId")
+    suspend fun setArchived(threadId: Long, archived: Boolean)
+
     @Query("DELETE FROM thread_lock_state WHERE threadId = :threadId")
     suspend fun clear(threadId: Long)
 }

@@ -13,6 +13,8 @@ data class ConversationSummary(
     val isRead: Boolean,
     val isLocked: Boolean,
     val isHidden: Boolean,
+    val isMuted: Boolean = false,
+    val isArchived: Boolean = false,
     val unreadCount: Int,
     val contactPhotoUri: String? = null
 )

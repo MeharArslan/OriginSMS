@@ -37,4 +37,23 @@
     <color name="transparent">#00000000</color>
     <color name="error_red">#D32F2F</color>
     <color name="success_green">#2E7D32</color>
+
+    <!--
+        Semantic, theme-aware aliases (light-mode values here; dark-mode
+        values for the same names live in values-night/colors.xml). New
+        layouts should reference these instead of the _light/_dark suffixed
+        colors above, so they automatically adapt to the system theme.
+    -->
+    <color name="bg_surface">@color/bg_light</color>
+    <color name="surface_card">@color/surface_light</color>
+    <color name="text_primary">@color/text_primary_light</color>
+    <color name="text_secondary">@color/text_secondary_light</color>
+    <color name="bubble_sent_bg">@color/bubble_sent_light</color>
+    <color name="bubble_sent_text">@color/bubble_sent_text_light</color>
+    <color name="bubble_received_bg">@color/bubble_received_light</color>
+    <color name="bubble_received_text">@color/bubble_received_text_light</color>
+    <color name="divider">@color/divider_light</color>
+    <color name="input_field_bg">@color/bubble_received_light</color>
+    <color name="input_field_text">@color/text_primary_light</color>
+    <color name="input_field_hint">@color/text_secondary_light</color>
 </resources>

@@ -4,7 +4,7 @@
     android:id="@+id/itemRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
+    android:background="@drawable/bg_conversation_row"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingHorizontal="@dimen/spacing_md"
@@ -35,6 +35,18 @@
             tools:ignore="ContentDescription"
             tools:visibility="visible" />
 
+        <ImageView
+            android:id="@+id/imgSelectedCheck"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_avatar_selected_overlay"
+            android:contentDescription="@null"
+            android:padding="10dp"
+            android:src="@drawable/ic_check"
+            android:visibility="gone"
+            tools:ignore="ContentDescription"
+            tools:visibility="visible" />
+
     </FrameLayout>
 
     <LinearLayout
@@ -50,7 +62,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="@color/text_primary_light"
+            android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:textStyle="bold"
             tools:text="Ali Raza" />
@@ -62,7 +74,7 @@
             android:layout_marginTop="2dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="@color/text_secondary_light"
+            android:textColor="@color/text_secondary"
             android:textSize="14sp"
             tools:text="Theek hai, kal milte hain" />
 
@@ -79,7 +91,7 @@
             android:id="@+id/txtTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_secondary_light"
+            android:textColor="@color/text_secondary"
             android:textSize="12sp"
             tools:text="10:42 AM" />
 

@@ -234,17 +234,49 @@ class LockUnlockActivity : AppCompatActivity() {
     }
 
     private fun confirmUnhide(conversation: ConversationSummary) {
+        val options = arrayOf(
+            getString(R.string.menu_unhide_chat),
+            getString(R.string.schedule_auto_unhide)
+        )
         AlertDialog.Builder(this)
-            .setTitle(R.string.menu_unhide_chat)
-            .setMessage(conversation.displayName)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                lifecycleScope.launch {
-                    OriginDatabase.getInstance(this@LockUnlockActivity).threadLockDao()
-                        .setHidden(conversation.threadId, false)
-                    showVault()
+            .setTitle(conversation.displayName)
+            .setItems(options) { _, index ->
+                if (index == 0) {
+                    lifecycleScope.launch {
+                        OriginDatabase.getInstance(this@LockUnlockActivity).threadLockDao()
+                            .setHidden(conversation.threadId, false)
+                        showVault()
+                    }
+                } else {
+                    showScheduleUnhideDialog(conversation)
                 }
             }
-            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun showScheduleUnhideDialog(conversation: ConversationSummary) {
+        val options = arrayOf(
+            getString(R.string.schedule_1_hour),
+            getString(R.string.schedule_6_hours),
+            getString(R.string.schedule_24_hours),
+            getString(R.string.schedule_7_days)
+        )
+        val hoursValues = longArrayOf(1, 6, 24, 24 * 7)
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.schedule_auto_unhide)
+            .setItems(options) { _, index ->
+                val unhideAt = System.currentTimeMillis() + hoursValues[index] * 60 * 60 * 1000L
+                lifecycleScope.launch {
+                    OriginDatabase.getInstance(this@LockUnlockActivity).threadLockDao()
+                        .setAutoUnhideAt(conversation.threadId, unhideAt)
+                    android.widget.Toast.makeText(
+                        this@LockUnlockActivity,
+                        getString(R.string.schedule_auto_unhide_confirmed),
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
             .show()
     }
 

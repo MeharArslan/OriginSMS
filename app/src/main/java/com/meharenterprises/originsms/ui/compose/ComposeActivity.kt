@@ -88,7 +88,50 @@ class ComposeActivity : AppCompatActivity() {
             editRecipient.setText(contact.displayName)
             isProgrammaticTextChange = false
             editRecipient.clearFocus()
-            showMessageMode()
+
+            // If a thread already exists for this address, jump straight into
+            // it rather than showing an empty compose-mode message list.
+            lifecycleScope.launch {
+                val existingThreadId = withContext(Dispatchers.IO) {
+                    try {
+                        Telephony.Threads.getOrCreateThreadId(
+                            this@ComposeActivity, selectedAddress!!
+                        )
+                    } catch (_: Exception) { -1L }
+                }
+                // getOrCreateThreadId always returns a value — check if there
+                // are actual messages for that thread id before jumping.
+                val hasMessages = withContext(Dispatchers.IO) {
+                    try {
+                        val cursor = contentResolver.query(
+                            android.provider.Telephony.Sms.CONTENT_URI,
+                            arrayOf(android.provider.Telephony.Sms._ID),
+                            "${android.provider.Telephony.Sms.THREAD_ID} = ?",
+                            arrayOf(existingThreadId.toString()),
+                            null
+                        )
+                        val count = cursor?.count ?: 0
+                        cursor?.close()
+                        count > 0
+                    } catch (_: Exception) { false }
+                }
+
+                if (hasMessages && existingThreadId != -1L) {
+                    val contactInfo = withContext(Dispatchers.IO) {
+                        contactsHelper.resolve(selectedAddress!!)
+                    }
+                    val intent = Intent(this@ComposeActivity, ThreadActivity::class.java).apply {
+                        putExtra(ThreadActivity.EXTRA_THREAD_ID, existingThreadId)
+                        putExtra(ThreadActivity.EXTRA_ADDRESS, selectedAddress)
+                        putExtra(ThreadActivity.EXTRA_DISPLAY_NAME, contactInfo.displayName)
+                        getStringExtra(EXTRA_PREFILL_BODY)?.let { putExtra(ThreadActivity.EXTRA_PREFILL_BODY, it) }
+                    }
+                    startActivity(intent)
+                    finish()
+                } else {
+                    showMessageMode()
+                }
+            }
         }
         recyclerContactPicker.layoutManager = LinearLayoutManager(this)
         recyclerContactPicker.adapter = contactPickerAdapter

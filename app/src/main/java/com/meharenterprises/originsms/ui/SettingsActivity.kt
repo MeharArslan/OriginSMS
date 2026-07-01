@@ -46,6 +46,7 @@ class SettingsActivity : AppCompatActivity() {
         setupResetPinRow()
         setupDefaultAppRow()
         setupThemeRow()
+        setupAutoHideTimerRow()
         setupBlockedNumbersRow()
     }
 
@@ -178,6 +179,80 @@ class SettingsActivity : AppCompatActivity() {
             }
             defaultAppRoleLauncher.launch(intent)
         }
+    }
+
+    private fun setupAutoHideTimerRow() {
+        findViewById<android.view.View>(R.id.rowAutoHideTimer).setOnClickListener {
+            showAutoHideContactPicker()
+        }
+    }
+
+    private fun showAutoHideContactPicker() {
+        lifecycleScope.launch {
+            val conversations = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                com.meharenterprises.originsms.core.SmsRepository(this@SettingsActivity).getConversations()
+            }
+            if (conversations.isEmpty()) {
+                android.widget.Toast.makeText(this@SettingsActivity, "No chats available", android.widget.Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            val names = conversations.map { it.displayName }.toTypedArray()
+            AlertDialog.Builder(this@SettingsActivity)
+                .setTitle(R.string.auto_hide_timer_title)
+                .setItems(names) { _, index ->
+                    showAutoHideTimerDialog(conversations[index])
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
+    }
+
+    private fun showAutoHideTimerDialog(conversation: com.meharenterprises.originsms.core.ConversationSummary) {
+        val options = arrayOf(
+            "Disable (no auto-hide)",
+            getString(R.string.schedule_1_hour),
+            getString(R.string.schedule_6_hours),
+            getString(R.string.schedule_24_hours),
+            getString(R.string.schedule_7_days)
+        )
+        val hoursValues = longArrayOf(-1, 1, 6, 24, 24 * 7)
+
+        AlertDialog.Builder(this)
+            .setTitle("${getString(R.string.auto_hide_timer_title)} ${conversation.displayName}")
+            .setItems(options) { _, index ->
+                lifecycleScope.launch {
+                    val dao = com.meharenterprises.originsms.data.db.OriginDatabase
+                        .getInstance(this@SettingsActivity).threadLockDao()
+                    val existing = dao.getForThread(conversation.threadId)
+                    if (hoursValues[index] == -1L) {
+                        // Disable auto-hide
+                        if (existing != null) {
+                            dao.upsert(existing.copy(autoUnhideAtMillis = 0L))
+                        }
+                        android.widget.Toast.makeText(
+                            this@SettingsActivity,
+                            getString(R.string.auto_hide_timer_disabled),
+                            android.widget.Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        val hideAt = System.currentTimeMillis() + hoursValues[index] * 3600_000L
+                        val entity = existing
+                            ?: com.meharenterprises.originsms.data.db.ThreadLockEntity(
+                                threadId = conversation.threadId
+                            )
+                        dao.upsert(entity.copy(
+                            isHidden = false,         // not hidden yet — will be hidden at hideAt
+                            autoUnhideAtMillis = hideAt  // we repurpose this field as "auto-hide AT"
+                        ))
+                        android.widget.Toast.makeText(
+                            this@SettingsActivity,
+                            getString(R.string.auto_hide_timer_set),
+                            android.widget.Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+            .show()
     }
 
     private fun setupBlockedNumbersRow() {

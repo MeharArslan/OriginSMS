@@ -128,13 +128,20 @@ class ConversationListActivity : AppCompatActivity() {
             val dao = com.meharenterprises.originsms.data.db.OriginDatabase.getInstance(this@ConversationListActivity).threadLockDao()
             val now = System.currentTimeMillis()
 
+            // Auto-hide: chats scheduled to become hidden at this time
+            dao.getThreadsDueForAutoHide(now).forEach { entry ->
+                dao.upsert(entry.copy(isHidden = true, isLocked = true, autoUnhideAtMillis = 0L))
+            }
+            // Auto-unhide: chats scheduled to become visible again
             dao.getThreadsDueForAutoUnhide(now).forEach { entry ->
                 dao.setHidden(entry.threadId, false)
                 dao.setAutoUnhideAt(entry.threadId, 0L)
             }
+            // Auto-unmute: mute duration expired
             dao.getThreadsDueForAutoUnmute(now).forEach { entry ->
                 dao.setMutedUntil(entry.threadId, false, 0L)
             }
+            viewModel.loadConversations()
         }
     }
 
@@ -278,13 +285,8 @@ class ConversationListActivity : AppCompatActivity() {
 
     private fun isDefaultSmsApp(): Boolean {
         val defaultPkg = Telephony.Sms.getDefaultSmsPackage(this) ?: return false
-        // In debug builds the package name has a .debug suffix; check both the
-        // full package name and the application ID prefix so the banner hides
-        // correctly regardless of build variant.
-        return defaultPkg == packageName ||
-            defaultPkg == applicationInfo.packageName ||
-            packageName.startsWith(defaultPkg) ||
-            defaultPkg.startsWith(applicationInfo.packageName.removeSuffix(".debug"))
+        val myPkg = packageName.removeSuffix(".debug")
+        return defaultPkg == packageName || defaultPkg == myPkg
     }
 
     private fun requestDefaultSmsRole() {

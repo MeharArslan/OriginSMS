@@ -84,12 +84,30 @@
         android:orientation="horizontal"
         android:padding="@dimen/spacing_sm">
 
+        <ImageButton
+            android:id="@+id/btnAttach"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_gravity="center_vertical"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/action_attach"
+            android:src="@drawable/ic_attach" />
+
+        <ImageButton
+            android:id="@+id/btnEmoji"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_gravity="center_vertical"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/action_emoji"
+            android:src="@drawable/ic_emoji" />
+
         <EditText
             android:id="@+id/editMessage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginEnd="@dimen/spacing_sm"
+            android:layout_marginHorizontal="@dimen/spacing_sm"
             android:layout_weight="1"
             android:autofillHints=""
             android:background="@drawable/bg_input_field"
@@ -112,5 +130,12 @@
             android:src="@drawable/ic_send" />
 
     </LinearLayout>
+
+    <androidx.emoji2.emojipicker.EmojiPickerView
+        android:id="@+id/emojiPickerView"
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
+        android:background="@color/surface_card"
+        android:visibility="gone" />
 
 </LinearLayout>

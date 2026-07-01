@@ -10,11 +10,15 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.MaterialToolbar
 import com.meharenterprises.originsms.R
 import com.meharenterprises.originsms.lock.LockSetupActivity
 import com.meharenterprises.originsms.lock.LockUnlockActivity
 import com.meharenterprises.originsms.lock.PinManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -189,7 +193,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun showAutoHideContactPicker() {
         lifecycleScope.launch {
-            val conversations = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            val conversations = withContext(Dispatchers.IO) {
                 com.meharenterprises.originsms.core.SmsRepository(this@SettingsActivity).getConversations()
             }
             if (conversations.isEmpty()) {
@@ -200,59 +204,64 @@ class SettingsActivity : AppCompatActivity() {
             AlertDialog.Builder(this@SettingsActivity)
                 .setTitle(R.string.auto_hide_timer_title)
                 .setItems(names) { _, index ->
-                    showAutoHideTimerDialog(conversations[index])
+                    showDailyHideTimePicker(conversations[index])
                 }
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
         }
     }
 
-    private fun showAutoHideTimerDialog(conversation: com.meharenterprises.originsms.core.ConversationSummary) {
-        val options = arrayOf(
-            "Disable (no auto-hide)",
-            getString(R.string.schedule_1_hour),
-            getString(R.string.schedule_6_hours),
-            getString(R.string.schedule_24_hours),
-            getString(R.string.schedule_7_days)
-        )
-        val hoursValues = longArrayOf(-1, 1, 6, 24, 24 * 7)
-
-        AlertDialog.Builder(this)
-            .setTitle("${getString(R.string.auto_hide_timer_title)} ${conversation.displayName}")
-            .setItems(options) { _, index ->
+    private fun showDailyHideTimePicker(conversation: com.meharenterprises.originsms.core.ConversationSummary) {
+        val now = java.util.Calendar.getInstance()
+        val timePicker = android.app.TimePickerDialog(
+            this,
+            { _, hour, minute ->
                 lifecycleScope.launch {
-                    val dao = com.meharenterprises.originsms.data.db.OriginDatabase
-                        .getInstance(this@SettingsActivity).threadLockDao()
-                    val existing = dao.getForThread(conversation.threadId)
-                    if (hoursValues[index] == -1L) {
-                        // Disable auto-hide
-                        if (existing != null) {
-                            dao.upsert(existing.copy(autoUnhideAtMillis = 0L))
-                        }
-                        android.widget.Toast.makeText(
-                            this@SettingsActivity,
-                            getString(R.string.auto_hide_timer_disabled),
-                            android.widget.Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        val hideAt = System.currentTimeMillis() + hoursValues[index] * 3600_000L
-                        val entity = existing
-                            ?: com.meharenterprises.originsms.data.db.ThreadLockEntity(
-                                threadId = conversation.threadId
-                            )
-                        dao.upsert(entity.copy(
-                            isHidden = false,         // not hidden yet — will be hidden at hideAt
-                            autoUnhideAtMillis = hideAt  // we repurpose this field as "auto-hide AT"
-                        ))
-                        android.widget.Toast.makeText(
-                            this@SettingsActivity,
-                            getString(R.string.auto_hide_timer_set),
-                            android.widget.Toast.LENGTH_SHORT
-                        ).show()
+                    val dao = withContext(Dispatchers.IO) {
+                        com.meharenterprises.originsms.data.db.OriginDatabase
+                            .getInstance(this@SettingsActivity).threadLockDao()
                     }
+                    val totalMinutes = hour * 60 + minute
+                    withContext(Dispatchers.IO) {
+                        val existing = dao.getForThread(conversation.threadId)
+                        dao.upsert(
+                            (existing ?: com.meharenterprises.originsms.data.db.ThreadLockEntity(
+                                threadId = conversation.threadId
+                            )).copy(dailyHideTimeMinutes = totalMinutes)
+                        )
+                    }
+                    val timeStr = String.format("%02d:%02d", hour, minute)
+                    android.widget.Toast.makeText(
+                        this@SettingsActivity,
+                        "${conversation.displayName} will auto-hide daily at $timeStr",
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
                 }
+            },
+            now.get(java.util.Calendar.HOUR_OF_DAY),
+            now.get(java.util.Calendar.MINUTE),
+            true
+        )
+        // Option to disable
+        timePicker.setButton(
+            android.app.AlertDialog.BUTTON_NEUTRAL, "Disable"
+        ) { _, _ ->
+            lifecycleScope.launch {
+                withContext(Dispatchers.IO) {
+                    com.meharenterprises.originsms.data.db.OriginDatabase
+                        .getInstance(this@SettingsActivity)
+                        .threadLockDao()
+                        .setDailyHideTime(conversation.threadId, -1)
+                }
+                android.widget.Toast.makeText(
+                    this@SettingsActivity,
+                    getString(R.string.auto_hide_timer_disabled),
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
             }
-            .show()
+        }
+        timePicker.setTitle("Daily auto-hide time for ${conversation.displayName}")
+        timePicker.show()
     }
 
     private fun setupBlockedNumbersRow() {

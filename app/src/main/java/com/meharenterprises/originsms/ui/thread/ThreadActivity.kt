@@ -188,7 +188,11 @@ class ThreadActivity : AppCompatActivity() {
                         lifecycleScope.launch {
                             OriginDatabase.getInstance(this@ThreadActivity)
                                 .blockedNumberDao()
-                                .add(com.meharenterprises.originsms.data.db.BlockedNumberEntity(number = address))
+                                .block(com.meharenterprises.originsms.data.db.BlockedNumberEntity(
+                                    normalizedNumber = address.filter { it.isDigit() || it == '+' },
+                                    displayNumber = address,
+                                    blockedAtMillis = System.currentTimeMillis()
+                                ))
                             android.widget.Toast.makeText(this@ThreadActivity, getString(R.string.action_block_number), android.widget.Toast.LENGTH_SHORT).show()
                             finish()
                         }

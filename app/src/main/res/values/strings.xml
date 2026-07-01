@@ -26,6 +26,15 @@
     <string name="action_emoji">Emoji</string>
     <string name="action_mute_chat">Mute notifications</string>
     <string name="action_unmute_chat">Unmute notifications</string>
+    <string name="mute_duration_always">Always</string>
+    <string name="mute_duration_24h">24 hours</string>
+    <string name="mute_duration_8h">8 hours</string>
+    <string name="schedule_auto_unhide">Schedule auto-unhide</string>
+    <string name="schedule_auto_unhide_confirmed">This chat will unhide automatically</string>
+    <string name="schedule_1_hour">In 1 hour</string>
+    <string name="schedule_6_hours">In 6 hours</string>
+    <string name="schedule_24_hours">In 24 hours</string>
+    <string name="schedule_7_days">In 7 days</string>
     <string name="action_view_contact">View contact</string>
     <string name="action_camera">Camera</string>
     <string name="action_gallery">Gallery</string>

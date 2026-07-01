@@ -31,54 +31,46 @@ class SmsRepository(private val context: Context) {
 
     suspend fun getConversations(): List<ConversationSummary> = withContext(Dispatchers.IO) {
         val results = mutableListOf<ConversationSummary>()
+        try {
+            context.contentResolver.query(
+                Telephony.Sms.CONTENT_URI,
+                arrayOf(Telephony.Sms.THREAD_ID, Telephony.Sms.DATE, Telephony.Sms.READ),
+                null, null,
+                "${Telephony.Sms.DATE} DESC"
+            )?.use { cursor ->
+                val seenThreadIds = mutableSetOf<Long>()
+                val tidIdx = cursor.getColumnIndex(Telephony.Sms.THREAD_ID)
+                val dateIdx = cursor.getColumnIndex(Telephony.Sms.DATE)
+                val readIdx = cursor.getColumnIndex(Telephony.Sms.READ)
 
-        // Deliberately minimal projection: _ID, DATE, READ are the only
-        // Threads-table columns that have proven reliable across OEM SMS
-        // provider implementations (some custom providers, e.g. on certain
-        // Infinix/XOS builds, reject SNIPPET, RECIPIENT_IDS, or MESSAGE_COUNT
-        // with "no such column" even though they're standard Android SDK
-        // constants). Snippet, address, and unread count are each derived
-        // from a direct Sms-table query instead, which is reliable everywhere.
-        val projection = arrayOf(
-            Telephony.Threads._ID,
-            Telephony.Threads.DATE,
-            Telephony.Threads.READ
-        )
-
-        context.contentResolver.query(
-            Telephony.Threads.CONTENT_URI,
-            projection,
-            null, null,
-            "${Telephony.Threads.DATE} DESC"
-        )?.use { cursor ->
-            val idIdx = cursor.getColumnIndex(Telephony.Threads._ID)
-            val dateIdx = cursor.getColumnIndex(Telephony.Threads.DATE)
-            val readIdx = cursor.getColumnIndex(Telephony.Threads.READ)
-
-            while (cursor.moveToNext()) {
-                val threadId = cursor.getLong(idIdx)
-                val latest = getLatestMessageForThread(threadId) ?: continue
-                val contact = contactsHelper.resolve(latest.address)
-                val lockState = database.threadLockDao().getForThread(threadId)
-                val unreadCount = getUnreadCountForThread(threadId)
-
-                results.add(
-                    ConversationSummary(
-                        threadId = threadId,
-                        address = latest.address,
-                        displayName = contact.displayName,
-                        snippet = latest.body,
-                        dateMillis = if (dateIdx >= 0) cursor.getLong(dateIdx) else latest.dateMillis,
-                        isRead = if (readIdx >= 0) cursor.getInt(readIdx) == 1 else true,
-                        isLocked = lockState?.isLocked == true,
-                        isHidden = lockState?.isHidden == true,
-                        isMuted = lockState?.isMuted == true,
-                        isArchived = lockState?.isArchived == true,
-                        unreadCount = unreadCount,
-                        contactPhotoUri = contact.photoUri
+                while (cursor.moveToNext()) {
+                    if (tidIdx < 0) continue
+                    val threadId = cursor.getLong(tidIdx)
+                    if (!seenThreadIds.add(threadId)) continue
+                    val latest = getLatestMessageForThread(threadId) ?: continue
+                    val contact = contactsHelper.resolve(latest.address)
+                    val lockState = database.threadLockDao().getForThread(threadId)
+                    val unreadCount = getUnreadCountForThread(threadId)
+                    results.add(
+                        ConversationSummary(
+                            threadId = threadId,
+                            address = latest.address,
+                            displayName = contact.displayName,
+                            snippet = latest.body,
+                            dateMillis = if (dateIdx >= 0) cursor.getLong(dateIdx) else latest.dateMillis,
+                            isRead = if (readIdx >= 0) cursor.getInt(readIdx) == 1 else true,
+                            isLocked = lockState?.isLocked == true,
+                            isHidden = lockState?.isHidden == true,
+                            isMuted = lockState?.isMuted == true,
+                            isArchived = lockState?.isArchived == true,
+                            unreadCount = unreadCount,
+                            contactPhotoUri = contact.photoUri
+                        )
                     )
-                )
+                }
             }
+        } catch (e: Exception) {
+            android.util.Log.e("SmsRepo", "getConversations", e)
         }
         results
     }

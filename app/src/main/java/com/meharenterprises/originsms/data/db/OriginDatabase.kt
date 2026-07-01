@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [ThreadLockEntity::class, BlockedNumberEntity::class, DraftEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class OriginDatabase : RoomDatabase() {

@@ -158,7 +158,17 @@ class ConversationListActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
             override fun afterTextChanged(s: Editable?) {
-                viewModel.setSearchQuery(s?.toString().orEmpty())
+                val query = s?.toString().orEmpty()
+                // WhatsApp-style: if the typed text matches the PIN exactly,
+                // open the hidden-chats vault and clear the search field so
+                // the PIN is never visible in the UI for more than a moment.
+                if (query.length >= 4 && pinManager.verifyPin(query)) {
+                    editSearch.setText("")
+                    exitSearchMode()
+                    openHiddenChatsVault()
+                    return
+                }
+                viewModel.setSearchQuery(query)
             }
         })
     }
@@ -267,7 +277,14 @@ class ConversationListActivity : AppCompatActivity() {
     }
 
     private fun isDefaultSmsApp(): Boolean {
-        return Telephony.Sms.getDefaultSmsPackage(this) == packageName
+        val defaultPkg = Telephony.Sms.getDefaultSmsPackage(this) ?: return false
+        // In debug builds the package name has a .debug suffix; check both the
+        // full package name and the application ID prefix so the banner hides
+        // correctly regardless of build variant.
+        return defaultPkg == packageName ||
+            defaultPkg == applicationInfo.packageName ||
+            packageName.startsWith(defaultPkg) ||
+            defaultPkg.startsWith(applicationInfo.packageName.removeSuffix(".debug"))
     }
 
     private fun requestDefaultSmsRole() {

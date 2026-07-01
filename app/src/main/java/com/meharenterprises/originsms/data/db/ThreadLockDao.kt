@@ -41,6 +41,12 @@ interface ThreadLockDao {
     @Query("UPDATE thread_lock_state SET autoUnhideAtMillis = :timestamp WHERE threadId = :threadId")
     suspend fun setAutoUnhideAt(threadId: Long, timestamp: Long)
 
+    @Query("SELECT * FROM thread_lock_state WHERE dailyHideTimeMinutes >= 0")
+    suspend fun getThreadsWithDailyHide(): List<ThreadLockEntity>
+
+    @Query("UPDATE thread_lock_state SET dailyHideTimeMinutes = :minutes WHERE threadId = :threadId")
+    suspend fun setDailyHideTime(threadId: Long, minutes: Int)
+
     @Query("SELECT * FROM thread_lock_state WHERE isHidden = 0 AND autoUnhideAtMillis > 0 AND autoUnhideAtMillis <= :now")
     suspend fun getThreadsDueForAutoHide(now: Long): List<ThreadLockEntity>
 

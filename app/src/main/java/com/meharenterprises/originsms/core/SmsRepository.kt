@@ -350,13 +350,23 @@ class SmsRepository(private val context: Context) {
         val deliveredIntents = ArrayList<PendingIntent>()
 
         for (i in parts.indices) {
+            // A monotonically increasing counter guarantees a unique
+            // PendingIntent requestCode per part, per send. The previous
+            // implementation derived the requestCode from
+            // (System.currentTimeMillis() % 100000), which could collide
+            // when multiple messages were sent in quick succession — with
+            // FLAG_UPDATE_CURRENT, a colliding requestCode silently reuses
+            // an existing PendingIntent's extras instead of creating a new
+            // one, which made the wrong message's sent/failed callback fire.
+            val requestCode = nextPendingIntentRequestCode()
+
             val sentIntent = Intent(context, SendStatusReceiver::class.java).apply {
                 action = ACTION_SMS_SENT
                 putExtra(EXTRA_PART_INDEX, i)
             }
             sentIntents.add(
                 PendingIntent.getBroadcast(
-                    context, (System.currentTimeMillis() % 100000).toInt() + i,
+                    context, requestCode,
                     sentIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
             )
@@ -365,7 +375,7 @@ class SmsRepository(private val context: Context) {
             }
             deliveredIntents.add(
                 PendingIntent.getBroadcast(
-                    context, (System.currentTimeMillis() % 100000).toInt() + i + 500,
+                    context, nextPendingIntentRequestCode(),
                     deliveredIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
             )
@@ -407,7 +417,7 @@ class SmsRepository(private val context: Context) {
 
         val sentIntent = Intent(context, SendStatusReceiver::class.java).apply { action = ACTION_MMS_SENT }
         val sentPendingIntent = PendingIntent.getBroadcast(
-            context, (System.currentTimeMillis() % 100000).toInt(),
+            context, nextPendingIntentRequestCode(),
             sentIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
@@ -460,5 +470,12 @@ class SmsRepository(private val context: Context) {
         const val ACTION_SMS_DELIVERED = "com.meharenterprises.originsms.SMS_DELIVERED"
         const val ACTION_MMS_SENT = "com.meharenterprises.originsms.MMS_SENT"
         const val EXTRA_PART_INDEX = "part_index"
+
+        // Shared across all SmsRepository instances in the process so every
+        // PendingIntent requestCode handed to SmsManager is guaranteed unique,
+        // even across rapid successive sends.
+        private val pendingIntentRequestCodeCounter = java.util.concurrent.atomic.AtomicInteger(0)
+
+        private fun nextPendingIntentRequestCode(): Int = pendingIntentRequestCodeCounter.incrementAndGet()
     }
 }

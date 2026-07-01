@@ -41,6 +41,9 @@ interface ThreadLockDao {
     @Query("UPDATE thread_lock_state SET autoUnhideAtMillis = :timestamp WHERE threadId = :threadId")
     suspend fun setAutoUnhideAt(threadId: Long, timestamp: Long)
 
+    @Query("SELECT * FROM thread_lock_state WHERE isHidden = 0 AND autoUnhideAtMillis > 0 AND autoUnhideAtMillis <= :now")
+    suspend fun getThreadsDueForAutoHide(now: Long): List<ThreadLockEntity>
+
     @Query("SELECT * FROM thread_lock_state WHERE isHidden = 1 AND autoUnhideAtMillis > 0 AND autoUnhideAtMillis <= :now")
     suspend fun getThreadsDueForAutoUnhide(now: Long): List<ThreadLockEntity>
 

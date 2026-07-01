@@ -1,193 +1,94 @@
 package com.meharenterprises.originsms.ui
 
-import android.app.role.RoleManager
-import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import android.provider.Telephony
-import android.widget.Switch
-import android.widget.TextView
+import android.view.View
+import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.biometric.BiometricManager
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.meharenterprises.originsms.R
-import com.meharenterprises.originsms.lock.LockSetupActivity
-import com.meharenterprises.originsms.lock.LockUnlockActivity
-import com.meharenterprises.originsms.lock.PinManager
+import com.meharenterprises.originsms.core.ContactsHelper
+import com.meharenterprises.originsms.data.db.BlockedNumberEntity
+import com.meharenterprises.originsms.data.db.OriginDatabase
+import kotlinx.coroutines.launch
 
-class SettingsActivity : AppCompatActivity() {
+class BlockedNumbersActivity : AppCompatActivity() {
 
-    private lateinit var pinManager: PinManager
-    private lateinit var themeManager: ThemePreferenceManager
-    private lateinit var switchBiometric: Switch
-    private lateinit var txtChatLockStatus: TextView
-    private lateinit var txtDefaultAppStatus: TextView
-    private lateinit var txtThemeStatus: TextView
+    private lateinit var adapter: BlockedNumberAdapter
+    private val database by lazy { OriginDatabase.getInstance(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings)
-        pinManager = PinManager(this)
-        themeManager = ThemePreferenceManager(this)
+        setContentView(R.layout.activity_blocked_numbers)
 
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        switchBiometric = findViewById(R.id.switchBiometric)
-        txtChatLockStatus = findViewById(R.id.txtChatLockStatus)
-        txtDefaultAppStatus = findViewById(R.id.txtDefaultAppStatus)
-        txtThemeStatus = findViewById(R.id.txtThemeStatus)
+        adapter = BlockedNumberAdapter(onUnblock = { entity -> unblock(entity) })
+        findViewById<RecyclerView>(R.id.recyclerBlocked).apply {
+            layoutManager = LinearLayoutManager(this@BlockedNumbersActivity)
+            adapter = this@BlockedNumbersActivity.adapter
+        }
 
-        setupChatLockRow()
-        setupBiometricRow()
-        setupResetPinRow()
-        setupDefaultAppRow()
-        setupThemeRow()
-        setupBlockedNumbersRow()
+        findViewById<FloatingActionButton>(R.id.fabAddBlocked).setOnClickListener {
+            showAddBlockedDialog()
+        }
+
+        observeBlockedNumbers()
     }
 
-    override fun onResume() {
-        super.onResume()
-        refreshStatuses()
+    private fun observeBlockedNumbers() {
+        database.blockedNumberDao().observeAll().let { flow ->
+            lifecycleScope.launch {
+                flow.collect { list ->
+                    adapter.submitList(list)
+                    findViewById<View>(R.id.emptyState).visibility =
+                        if (list.isEmpty()) View.VISIBLE else View.GONE
+                }
+            }
+        }
     }
 
-    private fun refreshStatuses() {
-        txtChatLockStatus.text = if (pinManager.hasPinConfigured()) "Enabled" else "Not set up"
-        txtDefaultAppStatus.text = if (isDefaultSmsApp()) "Yes" else "No — tap to set"
-        txtThemeStatus.text = themeLabel(themeManager.getCurrentMode())
-
-        val biometricAvailable = BiometricManager.from(this)
-            .canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) ==
-            BiometricManager.BIOMETRIC_SUCCESS
-        switchBiometric.isEnabled = biometricAvailable && pinManager.hasPinConfigured()
-        switchBiometric.isChecked = pinManager.isBiometricEnabled() && biometricAvailable
+    private fun showAddBlockedDialog() {
+        val input = EditText(this).apply {
+            hint = "Phone number"
+            inputType = android.text.InputType.TYPE_CLASS_PHONE
+        }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.settings_blocked_numbers)
+            .setView(input)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val raw = input.text?.toString()?.trim().orEmpty()
+                if (raw.isNotBlank()) {
+                    blockNumber(raw)
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
-    private fun themeLabel(mode: ThemePreferenceManager.ThemeMode): String = when (mode) {
-        ThemePreferenceManager.ThemeMode.LIGHT -> "Light"
-        ThemePreferenceManager.ThemeMode.DARK -> "Dark"
-        ThemePreferenceManager.ThemeMode.SYSTEM -> "System default"
-    }
-
-    private fun setupThemeRow() {
-        findViewById<android.view.View>(R.id.rowTheme).setOnClickListener {
-            val options = arrayOf("Light", "Dark", "System default")
-            val modes = arrayOf(
-                ThemePreferenceManager.ThemeMode.LIGHT,
-                ThemePreferenceManager.ThemeMode.DARK,
-                ThemePreferenceManager.ThemeMode.SYSTEM
+    private fun blockNumber(rawNumber: String) {
+        val normalized = ContactsHelper.normalize(rawNumber)
+        lifecycleScope.launch {
+            database.blockedNumberDao().block(
+                BlockedNumberEntity(
+                    normalizedNumber = normalized,
+                    displayNumber = rawNumber,
+                    blockedAtMillis = System.currentTimeMillis()
+                )
             )
-            val currentIndex = modes.indexOf(themeManager.getCurrentMode())
-
-            AlertDialog.Builder(this)
-                .setTitle(R.string.settings_theme)
-                .setSingleChoiceItems(options, currentIndex) { dialog, index ->
-                    themeManager.setMode(modes[index])
-                    txtThemeStatus.text = options[index]
-                    dialog.dismiss()
-                }
-                .setNegativeButton(android.R.string.cancel, null)
-                .show()
         }
     }
 
-    private fun setupChatLockRow() {
-        findViewById<android.view.View>(R.id.rowChatLock).setOnClickListener {
-            if (!pinManager.hasPinConfigured()) {
-                startActivity(Intent(this, LockSetupActivity::class.java))
-            } else {
-                AlertDialog.Builder(this)
-                    .setTitle(R.string.settings_chat_lock)
-                    .setMessage("Chat lock is active. You can change your PIN from \"Forgot PIN?\" below.")
-                    .setPositiveButton(android.R.string.ok, null)
-                    .show()
-            }
+    private fun unblock(entity: BlockedNumberEntity) {
+        lifecycleScope.launch {
+            database.blockedNumberDao().unblock(entity.normalizedNumber)
         }
-    }
-
-    private fun setupBiometricRow() {
-        findViewById<android.view.View>(R.id.rowBiometric).setOnClickListener {
-            if (switchBiometric.isEnabled) {
-                switchBiometric.isChecked = !switchBiometric.isChecked
-            }
-        }
-        switchBiometric.setOnCheckedChangeListener { _, isChecked ->
-            pinManager.setBiometricEnabled(isChecked)
-        }
-    }
-
-    private fun setupResetPinRow() {
-        findViewById<android.view.View>(R.id.rowResetPin).setOnClickListener {
-            if (!pinManager.hasPinConfigured()) {
-                startActivity(Intent(this, LockSetupActivity::class.java))
-                return@setOnClickListener
-            }
-
-            AlertDialog.Builder(this)
-                .setTitle(R.string.lock_forgot_pin)
-                .setMessage(R.string.lock_reset_warning)
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    val intent = Intent(this, LockUnlockActivity::class.java).apply {
-                        putExtra(LockUnlockActivity.EXTRA_UNLOCK_INTENT, LockUnlockActivity.INTENT_REMOVE_LOCK)
-                        putExtra(LockUnlockActivity.EXTRA_THREAD_ID, RESET_PIN_SENTINEL_THREAD_ID)
-                    }
-                    startActivityForResult(intent, REQUEST_RESET_PIN)
-                }
-                .setNegativeButton(android.R.string.cancel, null)
-                .show()
-        }
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_RESET_PIN && resultCode == RESULT_OK) {
-            pinManager.clearPin()
-            startActivity(Intent(this, LockSetupActivity::class.java))
-            refreshStatuses()
-        }
-    }
-
-    private val defaultAppRoleLauncher = registerForActivityResult(
-        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
-    ) {
-        refreshStatuses()
-    }
-
-    private fun setupDefaultAppRow() {
-        findViewById<android.view.View>(R.id.rowDefaultApp).setOnClickListener {
-            requestDefaultSmsRole()
-        }
-    }
-
-    private fun isDefaultSmsApp(): Boolean = Telephony.Sms.getDefaultSmsPackage(this) == packageName
-
-    private fun requestDefaultSmsRole() {
-        if (isDefaultSmsApp()) return
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val roleManager = getSystemService(RoleManager::class.java)
-            if (roleManager.isRoleAvailable(RoleManager.ROLE_SMS)) {
-                defaultAppRoleLauncher.launch(roleManager.createRequestRoleIntent(RoleManager.ROLE_SMS))
-            }
-        } else {
-            val intent = Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT).apply {
-                putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, packageName)
-            }
-            defaultAppRoleLauncher.launch(intent)
-        }
-    }
-
-    private fun setupBlockedNumbersRow() {
-        findViewById<android.view.View>(R.id.rowBlockedNumbers).setOnClickListener {
-            startActivity(Intent(this, BlockedNumbersActivity::class.java))
-        }
-    }
-
-    companion object {
-        private const val REQUEST_RESET_PIN = 1001
-        const val RESET_PIN_SENTINEL_THREAD_ID = -2L
     }
 }

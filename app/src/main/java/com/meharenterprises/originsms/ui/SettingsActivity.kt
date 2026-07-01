@@ -32,8 +32,8 @@ class SettingsActivity : AppCompatActivity() {
         themeManager = ThemePreferenceManager(this)
 
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
-        toolbar.setNavigationOnClickListener { finish() }
         setSupportActionBar(toolbar)
+        toolbar.setNavigationOnClickListener { finish() }
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         switchBiometric = findViewById(R.id.switchBiometric)
@@ -151,27 +151,32 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
+    private val defaultAppRoleLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+    ) {
+        refreshStatuses()
+    }
+
     private fun setupDefaultAppRow() {
         findViewById<android.view.View>(R.id.rowDefaultApp).setOnClickListener {
-            if (!isDefaultSmsApp()) {
-                requestDefaultSmsRole()
-            }
+            requestDefaultSmsRole()
         }
     }
 
     private fun isDefaultSmsApp(): Boolean = Telephony.Sms.getDefaultSmsPackage(this) == packageName
 
     private fun requestDefaultSmsRole() {
+        if (isDefaultSmsApp()) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val roleManager = getSystemService(RoleManager::class.java)
-            if (roleManager.isRoleAvailable(RoleManager.ROLE_SMS) && !roleManager.isRoleHeld(RoleManager.ROLE_SMS)) {
-                startActivity(roleManager.createRequestRoleIntent(RoleManager.ROLE_SMS))
+            if (roleManager.isRoleAvailable(RoleManager.ROLE_SMS)) {
+                defaultAppRoleLauncher.launch(roleManager.createRequestRoleIntent(RoleManager.ROLE_SMS))
             }
         } else {
             val intent = Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT).apply {
                 putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, packageName)
             }
-            startActivity(intent)
+            defaultAppRoleLauncher.launch(intent)
         }
     }
 

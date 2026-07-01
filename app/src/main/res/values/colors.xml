@@ -22,10 +22,10 @@
     <color name="bubble_received_light">#EFEDF7</color>
     <color name="bubble_received_text_light">#1B1A22</color>
 
-    <color name="bubble_sent_dark">#6C63B8</color>
+    <color name="bubble_sent_dark">#7B71D6</color>
     <color name="bubble_sent_text_dark">#FFFFFF</color>
-    <color name="bubble_received_dark">#2A2933</color>
-    <color name="bubble_received_text_dark">#F1F0F6</color>
+    <color name="bubble_received_dark">#3A3946</color>
+    <color name="bubble_received_text_dark">#FFFFFF</color>
 
     <color name="locked_chat_tint">#FF6F59</color>
     <color name="unread_badge">#FF6F59</color>

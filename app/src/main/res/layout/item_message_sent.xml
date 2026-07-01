@@ -15,7 +15,7 @@
         android:layout_height="200dp"
         android:layout_gravity="end"
         android:layout_marginBottom="2dp"
-        android:background="@color/bubble_received_light"
+        android:background="@color/bubble_received_bg"
         android:contentDescription="@null"
         android:scaleType="centerCrop"
         android:visibility="gone"
@@ -30,8 +30,7 @@
         android:maxWidth="@dimen/bubble_max_width"
         android:paddingHorizontal="14dp"
         android:paddingVertical="10dp"
-        android:textColor="@color/bubble_sent_text_light"
-        android:textIsSelectable="true"
+        android:textColor="@color/bubble_sent_text"
         android:textSize="15sp"
         tools:text="Theek hai bhai, kal subah 10 baje mil lete hain office mein" />
 
@@ -42,7 +41,7 @@
         android:layout_gravity="end"
         android:layout_marginTop="2dp"
         android:layout_marginEnd="4dp"
-        android:textColor="@color/text_secondary_light"
+        android:textColor="@color/text_secondary"
         android:textSize="11sp"
         tools:text="Delivered · 10:42 AM" />
 

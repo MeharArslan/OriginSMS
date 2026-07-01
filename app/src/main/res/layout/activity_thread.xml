@@ -73,6 +73,14 @@
                 android:contentDescription="@string/action_delete_message"
                 android:src="@drawable/ic_delete" />
 
+            <ImageButton
+                android:id="@+id/btnMessageMore"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="More"
+                android:src="@drawable/ic_more_vert" />
+
         </LinearLayout>
 
     </FrameLayout>
@@ -110,84 +118,67 @@
     </HorizontalScrollView>
 
     <LinearLayout
-        android:id="@+id/simIndicatorRow"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/surface_card"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="@dimen/spacing_md"
-        android:paddingVertical="4dp"
-        android:visibility="gone">
-
-        <ImageView
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_sim_card"
-            tools:ignore="ContentDescription" />
-
-        <TextView
-            android:id="@+id/txtSimLabel"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:layout_weight="1"
-            android:textColor="@color/text_secondary"
-            android:textSize="12sp"
-            tools:text="Sending from SIM 1 · Jazz" />
-
-    </LinearLayout>
-
-    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/surface_card"
         android:gravity="bottom"
         android:orientation="horizontal"
-        android:padding="@dimen/spacing_sm">
+        android:paddingHorizontal="@dimen/spacing_sm"
+        android:paddingVertical="6dp">
 
         <ImageButton
             android:id="@+id/btnAttach"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:layout_gravity="center_vertical"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="2dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/action_attach"
             android:src="@drawable/ic_attach" />
 
-        <ImageButton
-            android:id="@+id/btnEmoji"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:layout_gravity="center_vertical"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/action_emoji"
-            android:src="@drawable/ic_emoji" />
-
-        <EditText
-            android:id="@+id/editMessage"
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginHorizontal="@dimen/spacing_sm"
-            android:layout_weight="1"
-            android:autofillHints=""
-            android:background="@drawable/bg_input_field"
-            android:hint="@string/hint_type_message"
-            android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
-            android:maxLines="5"
-            android:paddingHorizontal="@dimen/spacing_md"
-            android:paddingVertical="@dimen/spacing_sm"
-            android:textColor="@color/text_primary"
-            android:textColorHint="@color/text_secondary"
-            android:textSize="15sp" />
+            android:layout_gravity="bottom"
+            android:layout_marginHorizontal="6dp"
+            android:layout_weight="1">
+
+            <EditText
+                android:id="@+id/editMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints=""
+                android:background="@drawable/bg_input_field"
+                android:hint="@string/hint_type_message"
+                android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
+                android:maxLines="6"
+                android:minHeight="44dp"
+                android:paddingStart="@dimen/spacing_md"
+                android:paddingEnd="48dp"
+                android:paddingVertical="@dimen/spacing_sm"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:textSize="15sp" />
+
+            <ImageButton
+                android:id="@+id/btnEmoji"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="end|bottom"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/action_emoji"
+                android:padding="6dp"
+                android:src="@drawable/ic_emoji" />
+
+        </FrameLayout>
 
         <ImageButton
             android:id="@+id/btnSend"
             android:layout_width="44dp"
             android:layout_height="44dp"
-            android:layout_gravity="center_vertical"
+            android:layout_gravity="bottom"
             android:background="@drawable/bg_send_button"
             android:contentDescription="@string/action_send"
             android:src="@drawable/ic_send" />

@@ -14,6 +14,9 @@
     <string name="menu_unhide_chat">Unhide chat</string>
     <string name="menu_delete_chat">Delete chat</string>
     <string name="menu_archive_chat">Archive</string>
+    <string name="action_block_number">Block &amp; report spam</string>
+    <string name="action_share">Share</string>
+    <string name="action_view_details">View details</string>
     <string name="menu_mark_read">Mark as read</string>
     <string name="menu_mark_unread">Mark as unread</string>
     <string name="section_hidden_chats">Hidden chats</string>

@@ -48,8 +48,6 @@ class ThreadActivity : AppCompatActivity() {
     private lateinit var emojiPicker: EmojiPickerView
     private lateinit var attachmentScroll: HorizontalScrollView
     private lateinit var attachmentContainer: LinearLayout
-    private lateinit var simIndicatorRow: LinearLayout
-    private lateinit var txtSimLabel: TextView
     private lateinit var toolbar: MaterialToolbar
     private lateinit var messageSelectionBar: View
     private lateinit var txtMessageSelectionCount: TextView
@@ -167,6 +165,36 @@ class ThreadActivity : AppCompatActivity() {
             }
             R.id.action_view_contact -> {
                 viewContact()
+                true
+            }
+            R.id.action_archive_chat -> {
+                lifecycleScope.launch {
+                    val dao = OriginDatabase.getInstance(this@ThreadActivity).threadLockDao()
+                    val existing = dao.getForThread(threadId)
+                    dao.upsert(
+                        (existing ?: com.meharenterprises.originsms.data.db.ThreadLockEntity(threadId = threadId))
+                            .copy(isArchived = true)
+                    )
+                    android.widget.Toast.makeText(this@ThreadActivity, getString(R.string.menu_archive_chat), android.widget.Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                true
+            }
+            R.id.action_block_number -> {
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.action_block_number)
+                    .setMessage(address)
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        lifecycleScope.launch {
+                            OriginDatabase.getInstance(this@ThreadActivity)
+                                .blockedNumberDao()
+                                .add(com.meharenterprises.originsms.data.db.BlockedNumberEntity(number = address))
+                            android.widget.Toast.makeText(this@ThreadActivity, getString(R.string.action_block_number), android.widget.Toast.LENGTH_SHORT).show()
+                            finish()
+                        }
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
                 true
             }
             R.id.action_delete_thread -> {
@@ -316,6 +344,22 @@ class ThreadActivity : AppCompatActivity() {
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
         }
+        findViewById<View>(R.id.btnMessageMore).setOnClickListener {
+            val selected = currentSelectedMessages()
+            if (selected.isEmpty()) return@setOnClickListener
+            val options = arrayOf(
+                getString(R.string.action_share),
+                getString(R.string.action_view_details)
+            )
+            AlertDialog.Builder(this)
+                .setItems(options) { _, index ->
+                    when (index) {
+                        0 -> shareMessages(selected)
+                        1 -> viewMessageDetails(selected.first())
+                    }
+                }
+                .show()
+        }
     }
 
     private fun currentSelectedMessages(): List<Message> {
@@ -333,6 +377,25 @@ class ThreadActivity : AppCompatActivity() {
             messageSelectionBar.visibility = View.GONE
             toolbar.visibility = View.VISIBLE
         }
+    }
+
+    private fun shareMessages(messages: List<Message>) {
+        val text = messages.joinToString("\n") { it.body }
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, text)
+        }
+        startActivity(Intent.createChooser(intent, getString(R.string.action_share)))
+    }
+
+    private fun viewMessageDetails(message: Message) {
+        val time = java.text.SimpleDateFormat("EEE, d MMM yyyy, h:mm a", java.util.Locale.getDefault())
+            .format(java.util.Date(message.dateMillis))
+        AlertDialog.Builder(this)
+            .setTitle(R.string.action_view_details)
+            .setMessage("From: $address\nTo: (me)\nDate: $time\nType: SMS")
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
     private fun forwardMessage(message: Message) {
@@ -450,19 +513,17 @@ class ThreadActivity : AppCompatActivity() {
     }
 
     private fun setupSimIndicator() {
-        simIndicatorRow = findViewById(R.id.simIndicatorRow)
-        txtSimLabel = findViewById(R.id.txtSimLabel)
-
+        // SIM switcher is now triggered by long-pressing the message input
+        // field (like Google Messages), rather than a permanent row that takes
+        // up space. On single-SIM devices this long-press does nothing extra.
         try {
             val subManager = getSystemService(SubscriptionManager::class.java)
             val activeSubscriptions = subManager.activeSubscriptionInfoList
             if (activeSubscriptions != null && activeSubscriptions.size > 1) {
-                simIndicatorRow.visibility = View.VISIBLE
                 val defaultSubId = SubscriptionManager.getDefaultSmsSubscriptionId()
                 viewModel.selectedSubscriptionId = defaultSubId
-                updateSimLabel(activeSubscriptions.indexOfFirst { it.subscriptionId == defaultSubId })
 
-                simIndicatorRow.setOnClickListener {
+                editMessage.setOnLongClickListener {
                     val options = activeSubscriptions.mapIndexed { idx, info ->
                         "SIM ${idx + 1} · ${info.displayName}"
                     }.toTypedArray()
@@ -470,31 +531,22 @@ class ThreadActivity : AppCompatActivity() {
                         it.subscriptionId == viewModel.selectedSubscriptionId
                     }
                     AlertDialog.Builder(this)
-                        .setTitle("Send from")
+                        .setTitle("Send from SIM")
                         .setSingleChoiceItems(options, currentIdx) { dialog, idx ->
                             viewModel.selectedSubscriptionId = activeSubscriptions[idx].subscriptionId
-                            updateSimLabel(idx)
+                            val simName = activeSubscriptions[idx].displayName
+                            android.widget.Toast.makeText(
+                                this, "Sending from $simName", android.widget.Toast.LENGTH_SHORT
+                            ).show()
                             dialog.dismiss()
                         }
                         .setNegativeButton(android.R.string.cancel, null)
                         .show()
+                    true
                 }
-            } else {
-                simIndicatorRow.visibility = View.GONE
             }
         } catch (_: SecurityException) {
-            simIndicatorRow.visibility = View.GONE
-        }
-    }
-
-    private fun updateSimLabel(simIndex: Int) {
-        try {
-            val subManager = getSystemService(SubscriptionManager::class.java)
-            val sub = subManager.activeSubscriptionInfoList?.getOrNull(simIndex)
-            val simName = sub?.displayName ?: "SIM ${simIndex + 1}"
-            txtSimLabel.text = "Sending from $simName · tap to switch"
-        } catch (_: Exception) {
-            txtSimLabel.text = "SIM ${simIndex + 1}"
+            // READ_PHONE_STATE not granted; SIM switcher stays hidden gracefully.
         }
     }
 

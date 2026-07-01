@@ -16,6 +16,10 @@ data class ThreadLockEntity(
     val lockedAtMillis: Long = 0L,
     val isMuted: Boolean = false,
     val isArchived: Boolean = false,
-    val muteUntilMillis: Long = 0L,   // 0 = not muted, -1 = muted indefinitely, >0 = muted until this timestamp
-    val autoUnhideAtMillis: Long = 0L  // 0 = no scheduled unhide
+    val muteUntilMillis: Long = 0L,
+    val autoUnhideAtMillis: Long = 0L,
+    // Daily auto-hide: -1 = disabled, otherwise = hour (0-23) * 60 + minute
+    // The chat will be hidden every day at this time and stays hidden until
+    // manually unhidden from the in-chat 3-dot menu.
+    val dailyHideTimeMinutes: Int = -1
 )

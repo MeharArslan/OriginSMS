@@ -63,14 +63,19 @@ class MessageAdapter(
             it.contentType.startsWith("image/") || it.contentType.startsWith("video/")
         }
 
-        val bubbleAlpha = if (isSelectionMode && isSelected) 0.6f else 1f
+        // Apply a clearly visible highlight instead of the subtle alpha-dim
+        // approach which was hard to see in dark mode.
+        val selectedBg = if (isSelected)
+            androidx.core.content.ContextCompat.getColor(holder.itemView.context, R.color.row_selected_bg)
+        else
+            android.graphics.Color.TRANSPARENT
+        holder.itemView.setBackgroundColor(selectedBg)
 
         when (holder) {
             is SentViewHolder -> {
                 bindAttachment(holder.imgAttachment, firstImageOrVideoAttachment)
                 holder.txtBody.visibility = if (message.body.isBlank()) View.GONE else View.VISIBLE
                 holder.txtBody.text = message.body
-                holder.itemView.alpha = bubbleAlpha
                 holder.txtStatus.text = when (message.box) {
                     MessageBox.FAILED -> holder.itemView.context.getString(R.string.status_failed)
                     MessageBox.OUTBOX, MessageBox.QUEUED -> holder.itemView.context.getString(R.string.status_sending)
@@ -83,7 +88,6 @@ class MessageAdapter(
                 holder.txtBody.visibility = if (message.body.isBlank()) View.GONE else View.VISIBLE
                 holder.txtBody.text = message.body
                 holder.txtStatus.text = time
-                holder.itemView.alpha = bubbleAlpha
                 bindClickHandlers(holder.itemView, message)
             }
         }

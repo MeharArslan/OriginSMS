@@ -125,19 +125,31 @@ class ConversationListActivity : AppCompatActivity() {
      */
     private fun processScheduledAutoActions() {
         lifecycleScope.launch {
-            val dao = com.meharenterprises.originsms.data.db.OriginDatabase.getInstance(this@ConversationListActivity).threadLockDao()
+            val dao = com.meharenterprises.originsms.data.db.OriginDatabase
+                .getInstance(this@ConversationListActivity).threadLockDao()
             val now = System.currentTimeMillis()
+            val cal = java.util.Calendar.getInstance()
+            val currentDayMinutes = cal.get(java.util.Calendar.HOUR_OF_DAY) * 60 +
+                cal.get(java.util.Calendar.MINUTE)
 
-            // Auto-hide: chats scheduled to become hidden at this time
-            dao.getThreadsDueForAutoHide(now).forEach { entry ->
-                dao.upsert(entry.copy(isHidden = true, isLocked = true, autoUnhideAtMillis = 0L))
+            // Daily auto-hide: if current time >= configured time and chat is
+            // not already hidden, hide it. It stays hidden until manually
+            // unhidden via the in-chat 3-dot menu — no auto-unhide.
+            dao.getThreadsWithDailyHide().forEach { entry ->
+                if (entry.dailyHideTimeMinutes >= 0 &&
+                    currentDayMinutes >= entry.dailyHideTimeMinutes &&
+                    !entry.isHidden
+                ) {
+                    dao.upsert(entry.copy(isHidden = true, isLocked = true))
+                }
             }
-            // Auto-unhide: chats scheduled to become visible again
+
+            // One-time scheduled unhide
             dao.getThreadsDueForAutoUnhide(now).forEach { entry ->
                 dao.setHidden(entry.threadId, false)
                 dao.setAutoUnhideAt(entry.threadId, 0L)
             }
-            // Auto-unmute: mute duration expired
+            // Auto-unmute expiry
             dao.getThreadsDueForAutoUnmute(now).forEach { entry ->
                 dao.setMutedUntil(entry.threadId, false, 0L)
             }

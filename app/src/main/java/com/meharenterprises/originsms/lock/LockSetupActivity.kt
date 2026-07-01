@@ -45,8 +45,8 @@ class LockSetupActivity : AppCompatActivity() {
         alsoHide = intent.getBooleanExtra(EXTRA_ALSO_HIDE, false)
 
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
-        toolbar.setNavigationOnClickListener { finish() }
         setSupportActionBar(toolbar)
+        toolbar.setNavigationOnClickListener { finish() }
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         editPin = findViewById(R.id.editPin)

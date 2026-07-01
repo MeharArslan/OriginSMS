@@ -144,6 +144,9 @@ class ThreadActivity : AppCompatActivity() {
                 (lockState.muteUntilMillis == -1L || lockState.muteUntilMillis > System.currentTimeMillis())
             menu.findItem(R.id.action_mute_chat)?.title =
                 getString(if (muted) R.string.action_unmute_chat else R.string.action_mute_chat)
+            menu.findItem(R.id.action_hide_chat)?.title =
+                if (lockState?.isHidden == true) getString(R.string.menu_unhide_chat)
+                else getString(R.string.menu_hide_chat)
         }
         return super.onPrepareOptionsMenu(menu)
     }
@@ -252,21 +255,53 @@ class ThreadActivity : AppCompatActivity() {
     }
 
     private fun confirmHideChat() {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.menu_hide_chat)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                lifecycleScope.launch {
-                    val dao = OriginDatabase.getInstance(this@ThreadActivity).threadLockDao()
-                    val existing = dao.getForThread(threadId)
-                    dao.upsert(
-                        (existing ?: com.meharenterprises.originsms.data.db.ThreadLockEntity(threadId = threadId))
-                            .copy(isHidden = true, isLocked = true)
-                    )
-                    finish()
-                }
+        lifecycleScope.launch {
+            val dao = OriginDatabase.getInstance(this@ThreadActivity).threadLockDao()
+            val existing = dao.getForThread(threadId)
+            val isCurrentlyHidden = existing?.isHidden == true
+
+            if (isCurrentlyHidden) {
+                // Unhide — manual only, clears daily hide timer too
+                AlertDialog.Builder(this@ThreadActivity)
+                    .setTitle(R.string.menu_unhide_chat)
+                    .setMessage(displayName)
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        lifecycleScope.launch {
+                            dao.upsert(
+                                existing!!.copy(
+                                    isHidden = false,
+                                    isLocked = false,
+                                    dailyHideTimeMinutes = -1  // also clear daily timer so it doesn't re-hide
+                                )
+                            )
+                            finish()
+                        }
+                    }
+                    .setNegativeButton("Keep timer") { _, _ ->
+                        // Unhide without clearing daily timer — will re-hide tomorrow at same time
+                        lifecycleScope.launch {
+                            dao.upsert(existing!!.copy(isHidden = false))
+                            finish()
+                        }
+                    }
+                    .show()
+            } else {
+                AlertDialog.Builder(this@ThreadActivity)
+                    .setTitle(R.string.menu_hide_chat)
+                    .setMessage(displayName)
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        lifecycleScope.launch {
+                            dao.upsert(
+                                (existing ?: com.meharenterprises.originsms.data.db.ThreadLockEntity(threadId = threadId))
+                                    .copy(isHidden = true, isLocked = true)
+                            )
+                            finish()
+                        }
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
             }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
+        }
     }
 
     private fun viewContact() {

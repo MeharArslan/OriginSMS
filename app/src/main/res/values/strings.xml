@@ -32,6 +32,11 @@
     <string name="mute_duration_always">Always</string>
     <string name="mute_duration_24h">24 hours</string>
     <string name="mute_duration_8h">8 hours</string>
+    <string name="settings_auto_hide_timer">Auto-hide chat timer</string>
+    <string name="settings_auto_hide_timer_desc">Set contacts whose chats auto-hide after a time period</string>
+    <string name="auto_hide_timer_title">Auto-hide timer for</string>
+    <string name="auto_hide_timer_set">Timer set — chat will auto-hide</string>
+    <string name="auto_hide_timer_disabled">Auto-hide disabled</string>
     <string name="schedule_auto_unhide">Schedule auto-unhide</string>
     <string name="schedule_auto_unhide_confirmed">This chat will unhide automatically</string>
     <string name="schedule_1_hour">In 1 hour</string>

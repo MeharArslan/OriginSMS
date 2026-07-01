@@ -210,17 +210,30 @@ class LockUnlockActivity : AppCompatActivity() {
         recyclerVault.visibility = View.VISIBLE
 
         lifecycleScope.launch {
-            val repository = SmsRepository(this@LockUnlockActivity)
-            val hidden = repository.getConversations().filter { it.isHidden }
+            try {
+                val repository = SmsRepository(this@LockUnlockActivity)
+                val hidden = repository.getConversations().filter { it.isHidden }
 
-            val adapter = ConversationAdapter(
-                onClick = { conversation -> openHiddenThread(conversation) },
-                onLongClick = { conversation -> confirmUnhide(conversation) },
-                selectionModeEnabled = false
-            )
-            recyclerVault.layoutManager = LinearLayoutManager(this@LockUnlockActivity)
-            recyclerVault.adapter = adapter
-            adapter.submitList(hidden)
+                if (hidden.isEmpty()) {
+                    // Show a user-visible message instead of silently showing
+                    // an empty list (which looks like a bug).
+                    txtError.text = "No hidden chats yet.\nHide a chat from the thread's 3-dot menu."
+                    txtError.visibility = View.VISIBLE
+                    return@launch
+                }
+
+                val adapter = ConversationAdapter(
+                    onClick = { conversation -> openHiddenThread(conversation) },
+                    onLongClick = { conversation -> confirmUnhide(conversation) },
+                    selectionModeEnabled = false
+                )
+                recyclerVault.layoutManager = LinearLayoutManager(this@LockUnlockActivity)
+                recyclerVault.adapter = adapter
+                adapter.submitList(hidden)
+            } catch (e: Exception) {
+                txtError.text = "Could not load hidden chats: ${e.message}"
+                txtError.visibility = View.VISIBLE
+            }
         }
     }
 

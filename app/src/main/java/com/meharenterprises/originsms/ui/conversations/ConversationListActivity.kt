@@ -73,6 +73,14 @@ class ConversationListActivity : AppCompatActivity() {
         // returns (and on some OEM builds, which columns are queryable), so
         // always force a fresh load right after the role grant completes.
         viewModel.loadConversations()
+        // The system can take a brief moment to finish exposing the previous
+        // default app's message history through the provider after the role
+        // switch — a short delayed second reload catches that case so older
+        // conversations (e.g. from Google Messages) appear without the user
+        // having to manually pull-to-refresh or reopen the app.
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            viewModel.loadConversations()
+        }, 1500L)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,6 +111,31 @@ class ConversationListActivity : AppCompatActivity() {
         super.onResume()
         ensurePermissionsThenLoad()
         refreshDefaultAppBanner()
+        processScheduledAutoActions()
+    }
+
+    /**
+     * Checks for any thread whose scheduled auto-unhide or auto-unmute time
+     * has passed and clears the corresponding flag. There's no background
+     * job for this — it's deliberately a lightweight check-on-open instead,
+     * since the only consequence of a slightly-late unhide is the chat
+     * staying hidden a few extra minutes until the user next opens the app,
+     * which is an acceptable tradeoff against running a persistent scheduler
+     * for a personal messaging app.
+     */
+    private fun processScheduledAutoActions() {
+        lifecycleScope.launch {
+            val dao = com.meharenterprises.originsms.data.db.OriginDatabase.getInstance(this@ConversationListActivity).threadLockDao()
+            val now = System.currentTimeMillis()
+
+            dao.getThreadsDueForAutoUnhide(now).forEach { entry ->
+                dao.setHidden(entry.threadId, false)
+                dao.setAutoUnhideAt(entry.threadId, 0L)
+            }
+            dao.getThreadsDueForAutoUnmute(now).forEach { entry ->
+                dao.setMutedUntil(entry.threadId, false, 0L)
+            }
+        }
     }
 
     private fun setupToolbar() {

@@ -35,6 +35,15 @@ class NotificationHelper(private val context: Context) {
         // Hidden chats produce no visible notification at all by design.
         if (isHidden) return
 
+        // Respect mute: either muted indefinitely (-1) or muted until a
+        // future timestamp. If the mute window has already passed, treat
+        // the chat as unmuted (the scheduled auto-unmute job will catch up
+        // and clear the flag on its own next pass).
+        val muteUntil = lockState?.muteUntilMillis ?: 0L
+        val isMuted = lockState?.isMuted == true &&
+            (muteUntil == -1L || muteUntil > System.currentTimeMillis())
+        if (isMuted) return
+
         val title = if (isLocked) context.getString(R.string.app_name) else displayName
         val content = if (isLocked) context.getString(R.string.notif_locked_chat_content) else body
 

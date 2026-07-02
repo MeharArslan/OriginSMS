@@ -197,7 +197,11 @@ class SettingsActivity : AppCompatActivity() {
                 com.meharenterprises.originsms.core.SmsRepository(this@SettingsActivity).getConversations()
             }
             if (conversations.isEmpty()) {
-                android.widget.Toast.makeText(this@SettingsActivity, "No chats available", android.widget.Toast.LENGTH_SHORT).show()
+                AlertDialog.Builder(this@SettingsActivity)
+                    .setTitle(R.string.auto_hide_timer_title)
+                    .setMessage("No chats found. Make sure OriginSMS is set as your default SMS app and you have existing conversations.")
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
                 return@launch
             }
             val names = conversations.map { it.displayName }.toTypedArray()

@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_conversation_row"
+    android:foreground="?attr/selectableItemBackground"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingHorizontal="@dimen/spacing_md"

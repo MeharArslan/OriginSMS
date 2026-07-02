@@ -296,9 +296,16 @@ class ConversationListActivity : AppCompatActivity() {
     }
 
     private fun isDefaultSmsApp(): Boolean {
-        val defaultPkg = Telephony.Sms.getDefaultSmsPackage(this) ?: return false
-        val myPkg = packageName.removeSuffix(".debug")
-        return defaultPkg == packageName || defaultPkg == myPkg
+        // RoleManager.isRoleHeld is the most reliable check — it correctly
+        // identifies the app regardless of debug/release package name suffix.
+        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            getSystemService(android.app.role.RoleManager::class.java)
+                .isRoleHeld(android.app.role.RoleManager.ROLE_SMS)
+        } else {
+            // Fallback for older devices: strip .debug suffix before comparing
+            val defaultPkg = android.provider.Telephony.Sms.getDefaultSmsPackage(this) ?: return false
+            defaultPkg == packageName || defaultPkg == packageName.removeSuffix(".debug")
+        }
     }
 
     private fun requestDefaultSmsRole() {

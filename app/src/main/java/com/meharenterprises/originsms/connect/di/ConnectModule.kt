@@ -8,6 +8,8 @@ import com.meharenterprises.originsms.connect.data.remote.api.ConnectApiService
 import com.meharenterprises.originsms.connect.data.remote.socket.ConnectSocketClient
 import com.meharenterprises.originsms.connect.data.repository.AuthRepositoryImpl
 import com.meharenterprises.originsms.connect.data.repository.MessageRepositoryImpl
+import com.meharenterprises.originsms.connect.data.repository.ContactRepositoryImpl
+import com.meharenterprises.originsms.connect.domain.repository.ContactRepository
 import com.meharenterprises.originsms.connect.domain.repository.AuthRepository
 import com.meharenterprises.originsms.connect.domain.repository.MessageRepository
 import dagger.Binds

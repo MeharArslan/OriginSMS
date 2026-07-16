@@ -359,6 +359,7 @@ class SmsRepository(private val context: Context) {
         }
         context.contentResolver.insert(Telephony.Sms.CONTENT_URI, values)
     }
+    }
 
     /**
      * Sends an MMS containing one or more attachment URIs plus optional text.

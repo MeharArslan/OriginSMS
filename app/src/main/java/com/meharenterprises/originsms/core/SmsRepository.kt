@@ -430,10 +430,9 @@ class SmsRepository(private val context: Context) {
         )
     }
 
-    companion object {
-        const val ACTION_SMS_SENT = "com.meharenterprises.originsms.SMS_SENT"
-        const val ACTION_SMS_DELIVERED = "com.meharenterprises.originsms.SMS_DELIVERED"
-        const val ACTION_MMS_SENT = "com.meharenterprises.originsms.MMS_SENT"
-        const val EXTRA_PART_INDEX = "part_index"
-    }
 }
+
+const val ACTION_SMS_SENT = "com.meharenterprises.originsms.SMS_SENT"
+const val ACTION_SMS_DELIVERED = "com.meharenterprises.originsms.SMS_DELIVERED"
+const val ACTION_MMS_SENT = "com.meharenterprises.originsms.MMS_SENT"
+const val EXTRA_PART_INDEX = "part_index"

@@ -23,7 +23,7 @@
         android:layout_marginBottom="40dp"
         android:gravity="center"
         android:text="Secure private messaging"
-        android:textColor="@color/text_secondary"
+        android:textColor="@color/text_secondary_light"
         android:textSize="14sp" />
 
     <!-- Phone input screen -->

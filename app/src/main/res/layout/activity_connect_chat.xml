@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:paddingHorizontal="16dp"
         android:paddingVertical="4dp"
-        android:textColor="@color/text_secondary"
+        android:textColor="@color/text_secondary_light"
         android:textSize="12sp"
         android:textStyle="italic"
         android:visibility="gone" />
@@ -38,7 +38,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/surface_card"
+        android:background="?attr/colorSurface"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="8dp">
@@ -59,7 +59,7 @@
                 android:hint="Message"
                 android:maxLines="4"
                 android:paddingHorizontal="16dp"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/text_primary_light"
                 android:textSize="15sp" />
         </com.google.android.material.card.MaterialCardView>
 

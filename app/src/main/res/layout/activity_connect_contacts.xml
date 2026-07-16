@@ -30,7 +30,7 @@
         android:gravity="center"
         android:padding="32dp"
         android:text="No contacts on Origin Connect yet.\nInvite your friends!"
-        android:textColor="@color/text_secondary"
+        android:textColor="@color/text_secondary_light"
         android:textSize="15sp"
         android:visibility="gone" />
 

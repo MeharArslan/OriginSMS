@@ -29,11 +29,11 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
-    <style name="Widget.OriginSMS.SentBubble">
+    <style name="Widget.OriginSMS.SentBubble" parent="Widget.MaterialComponents.TextView">
         <item name="android:background">@drawable/bg_bubble_sent</item>
     </style>
 
-    <style name="Widget.OriginSMS.ReceivedBubble">
+    <style name="Widget.OriginSMS.ReceivedBubble" parent="Widget.MaterialComponents.TextView">
         <item name="android:background">@drawable/bg_bubble_received</item>
     </style>
 

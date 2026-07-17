@@ -29,12 +29,12 @@ class SmsDeliverReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Telephony.Sms.Intents.SMS_DELIVER_ACTION) return
 
-        val messages = Telephony.Sms.Intents.getMessages(intent)
+        val messages: Array<android.telephony.SmsMessage> = Telephony.Sms.Intents.getMessagesFromIntent(intent) ?: emptyArray()
         if (messages.isEmpty()) return
 
-        val sender = messages[0].originatingAddress ?: return
-        val timestamp = messages[0].timestampMillis
-        val fullBody = messages.joinToString(separator = "") { it.messageBody ?: "" }
+        val sender: String = messages[0].originatingAddress ?: return
+        val timestamp: Long = messages[0].timestampMillis
+        val fullBody: String = messages.joinToString(separator = "") { msg -> msg.messageBody ?: "" }
 
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
@@ -44,12 +44,12 @@ class SmsDeliverReceiver : BroadcastReceiver() {
 
                 if (!isBlocked) {
                     val values = ContentValues().apply {
-                        put(Telephony.Sms.ADDRESS, sender)
-                        put(Telephony.Sms.BODY, fullBody)
-                        put(Telephony.Sms.DATE, timestamp)
-                        put(Telephony.Sms.READ, 0)
-                        put(Telephony.Sms.SEEN, 0)
-                        put(Telephony.Sms.TYPE, Telephony.Sms.MESSAGE_TYPE_INBOX)
+                        put(Telephony.Sms.ADDRESS, sender as String)
+                        put(Telephony.Sms.BODY, fullBody as String)
+                        put(Telephony.Sms.DATE, timestamp as Long)
+                        put(Telephony.Sms.READ, 0 as Int)
+                        put(Telephony.Sms.SEEN, 0 as Int)
+                        put(Telephony.Sms.TYPE, Telephony.Sms.MESSAGE_TYPE_INBOX as Int)
                     }
                     val insertedUri = context.contentResolver.insert(Telephony.Sms.CONTENT_URI, values)
 

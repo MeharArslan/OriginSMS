@@ -13,6 +13,30 @@ class ContactsHelper(private val context: Context) {
 
     private val cache = HashMap<String, ContactInfo>()
 
+    fun getAllContactsWithNumbers(): List<ContactInfo> {
+        val result = mutableListOf<ContactInfo>()
+        try {
+            val cursor = context.contentResolver.query(
+                android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                arrayOf(
+                    android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER,
+                    android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
+                ),
+                null, null, null
+            )
+            cursor?.use { c ->
+                val numIdx = c.getColumnIndex(android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER)
+                val nameIdx = c.getColumnIndex(android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+                while (c.moveToNext()) {
+                    val num = c.getString(numIdx) ?: continue
+                    val name = c.getString(nameIdx) ?: num
+                    result.add(ContactInfo(displayName = name, photoUri = null))
+                }
+            }
+        } catch (_: Exception) {}
+        return result
+    }
+
     fun resolve(rawNumber: String): ContactInfo {
         val key = normalize(rawNumber)
         cache[key]?.let { return it }

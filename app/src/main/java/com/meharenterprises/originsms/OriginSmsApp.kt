@@ -17,6 +17,30 @@ class OriginSmsApp : Application() {
 
     val database: OriginDatabase by lazy { OriginDatabase.getInstance(this) }
 
+    override fun attachBaseContext(base: android.content.Context) {
+        super.attachBaseContext(base)
+        installCrashHandler()
+    }
+
+    private fun installCrashHandler() {
+        Thread.setDefaultUncaughtExceptionHandler { _, throwable ->
+            try {
+                val sw = java.io.StringWriter()
+                throwable.printStackTrace(java.io.PrintWriter(sw))
+                val intent = android.content.Intent(this, CrashActivity::class.java).apply {
+                    putExtra(CrashActivity.EXTRA_TRACE, sw.toString())
+                    addFlags(
+                        android.content.Intent.FLAG_ACTIVITY_NEW_TASK or
+                        android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    )
+                }
+                startActivity(intent)
+            } catch (_: Exception) { }
+            android.os.Process.killProcess(android.os.Process.myPid())
+            kotlin.system.exitProcess(10)
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
         createNotificationChannels()

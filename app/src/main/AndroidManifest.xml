@@ -194,5 +194,11 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <activity
+            android:name=".CrashActivity"
+            android:exported="false"
+            android:process=":crash"
+            android:theme="@android:style/Theme.Material.Light" />
+
     </application>
 </manifest>

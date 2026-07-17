@@ -402,6 +402,7 @@ class SmsRepository(private val context: Context) {
             threadId?.let { put(Telephony.Sms.THREAD_ID, it) }
         }
         context.contentResolver.insert(Telephony.Sms.CONTENT_URI, values)
+    }
 
     suspend fun markThreadRead(threadId: Long) = withContext(Dispatchers.IO) {
         val values = ContentValues().apply { put(Telephony.Sms.READ, 1) }

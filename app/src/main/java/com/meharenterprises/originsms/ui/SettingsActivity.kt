@@ -6,7 +6,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.meharenterprises.originsms.R
-import com.meharenterprises.originsms.connect.ui.splash.OriginConnectActivity
 import com.meharenterprises.originsms.lock.LockSetupActivity
 
 class SettingsActivity : AppCompatActivity() {
@@ -56,12 +55,6 @@ class SettingsActivity : AppCompatActivity() {
             switchBiometric?.toggle()
         }
 
-        // Origin Connect
-        try {
-            val rowOnline = findViewById<android.view.View?>(R.id.rowOnlineMode)
-            rowOnline?.setOnClickListener {
-                startActivity(Intent(this, OriginConnectActivity::class.java))
-            }
-        } catch (_: Exception) {}
+
     }
 }

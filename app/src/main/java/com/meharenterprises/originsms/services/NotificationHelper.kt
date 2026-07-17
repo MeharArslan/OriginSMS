@@ -2,7 +2,7 @@ package com.meharenterprises.originsms.services
 
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.app.RemoteInput
+import androidx.core.app.RemoteInput
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat

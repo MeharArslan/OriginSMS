@@ -34,20 +34,19 @@ class SmsRepository(private val context: Context) {
 
         val projection = arrayOf(
             Telephony.Threads._ID,
-            Telephony.Threads.SNIPPET,
             Telephony.Threads.DATE,
-            Telephony.Threads.READ,
-            Telephony.Threads.MESSAGE_COUNT
+            Telephony.Threads.READ
         )
 
         context.contentResolver.query(
-            Telephony.Threads.CONTENT_URI,
+            Telephony.Threads.CONTENT_URI.buildUpon()
+                .appendQueryParameter("simple", "true").build(),
             projection,
             null, null,
             "${Telephony.Threads.DATE} DESC"
         )?.use { cursor ->
             val idIdx = cursor.getColumnIndex(Telephony.Threads._ID)
-            val snippetIdx = cursor.getColumnIndex(Telephony.Threads.SNIPPET)
+            val snippetIdx = -1
             val dateIdx = cursor.getColumnIndex(Telephony.Threads.DATE)
             val readIdx = cursor.getColumnIndex(Telephony.Threads.READ)
 

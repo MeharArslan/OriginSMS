@@ -1,98 +1,251 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@color/bg_surface"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/bg_light"
-    android:orientation="vertical">
-
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
+    android:layout_height="match_parent">
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/origin_primary"
-        android:theme="@style/Theme.OriginSMS"
-        app:navigationIcon="@drawable/ic_back"
-        app:titleTextColor="@android:color/white" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerMessages"
+        android:layout_height="?attr/actionBarSize">
+        <com.google.android.material.appbar.MaterialToolbar
+            android:theme="@style/Theme.OriginSMS"
+            android:id="@+id/toolbar"
+            android:background="@color/origin_primary"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:contentInsetStart="0dp"
+            app:contentInsetStartWithNavigation="0dp"
+            app:navigationIcon="@drawable/ic_back"
+            app:titleTextColor="@android:color/white">
+            <LinearLayout
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingStart="4dp">
+                <ImageView
+                    android:id="@+id/imgThreadAvatar"
+                    android:background="@drawable/bg_avatar_circle"
+                    android:padding="6dp"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:src="@drawable/ic_person"
+                    android:contentDescription="@null"
+                    android:outlineProvider="background"/>
+                <TextView
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:ellipsize="end"
+                    android:id="@+id/txtThreadTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:layout_weight="1"
+                    android:layout_marginStart="10dp"/>
+            </LinearLayout>
+        </com.google.android.material.appbar.MaterialToolbar>
+        <LinearLayout
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:id="@+id/messageSelectionBar"
+            android:background="@color/origin_primary_dark"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="@dimen/spacing_sm">
+            <ImageButton
+                android:id="@+id/btnCloseMessageSelection"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_close_white"
+                android:contentDescription="@string/action_settings"/>
+            <TextView
+                android:textSize="18sp"
+                android:textColor="@android:color/white"
+                android:id="@+id/txtMessageSelectionCount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/spacing_md"/>
+            <ImageButton
+                android:id="@+id/btnMessageCopy"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_copy"
+                android:contentDescription="@string/action_copy_text"/>
+            <ImageButton
+                android:id="@+id/btnMessageStar"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_star"
+                android:contentDescription="@string/action_star"/>
+            <ImageButton
+                android:id="@+id/btnMessageDelete"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_delete"
+                android:contentDescription="@string/action_delete_message"/>
+            <ImageButton
+                android:id="@+id/btnMessageMore"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_more_vert"
+                android:contentDescription="More"/>
+        </LinearLayout>
+    </FrameLayout>
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:paddingHorizontal="@dimen/spacing_sm"
-        android:paddingVertical="@dimen/spacing_md"
-        app:stackFromEnd="true"
-        tools:listitem="@layout/item_message_sent" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/divider_light" />
-
-    <HorizontalScrollView
-        android:id="@+id/attachmentPreviewScroll"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/surface_light"
-        android:scrollbars="none"
-        android:visibility="gone">
-
+        android:layout_weight="1">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerMessages"
+            android:clipToPadding="false"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="@dimen/spacing_sm"
+            android:paddingVertical="@dimen/spacing_md"/>
         <LinearLayout
-            android:id="@+id/attachmentPreviewContainer"
+            android:gravity="center"
+            android:layout_gravity="bottom|center_horizontal"
+            android:orientation="vertical"
+            android:id="@+id/fabScrollDownWrapper"
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="@dimen/spacing_sm" />
-
-    </HorizontalScrollView>
-
-    <LinearLayout
+            android:layout_marginBottom="12dp">
+            <TextView
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:id="@+id/txtNewMessageCount"
+                android:background="@drawable/bg_new_msg_label"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="3dp"/>
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabScrollDown"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="Scroll to bottom"
+                android:backgroundTint="@color/surface_card"
+                app:elevation="4dp"
+                app:fabCustomSize="40dp"
+                app:fabSize="mini"
+                app:maxImageSize="18dp"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                app:srcCompat="@drawable/ic_arrow_down"
+                app:tint="@color/origin_primary"/>
+        </LinearLayout>
+    </FrameLayout>
+    <View
+        android:background="@color/divider"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/surface_light"
+        android:layout_height="1dp"/>
+    <HorizontalScrollView
+        android:id="@+id/attachmentPreviewScroll"
+        android:background="@color/surface_card"
+        android:visibility="gone"
+        android:scrollbars="none"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:orientation="horizontal"
+            android:id="@+id/attachmentPreviewContainer"
+            android:padding="@dimen/spacing_sm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </HorizontalScrollView>
+    <TextView
+        android:textSize="12sp"
+        android:textColor="@android:color/white"
+        android:gravity="center"
+        android:id="@+id/txtTrashViewBanner"
+        android:background="#ffd32f2f"
+        android:padding="10dp"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <LinearLayout
+        android:orientation="vertical"
+        android:id="@+id/scheduledMsgBanner"
+        android:background="@color/surface_card"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <LinearLayout
         android:gravity="bottom"
         android:orientation="horizontal"
-        android:padding="@dimen/spacing_sm">
-
+        android:id="@+id/composeBarRoot"
+        android:background="@color/surface_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/spacing_sm"
+        android:paddingVertical="6dp">
         <ImageButton
+            android:layout_gravity="bottom"
             android:id="@+id/btnAttach"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:layout_gravity="center_vertical"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/action_attach"
-            android:src="@drawable/ic_attach" />
-
-        <EditText
-            android:id="@+id/editMessage"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="2dp"
+            android:src="@drawable/ic_attach"
+            android:contentDescription="@string/action_attach"/>
+        <FrameLayout
+            android:layout_gravity="bottom"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginHorizontal="@dimen/spacing_sm"
             android:layout_weight="1"
-            android:autofillHints=""
-            android:background="@drawable/bg_input_field"
-            android:hint="@string/hint_type_message"
-            android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
-            android:maxLines="5"
-            android:paddingHorizontal="@dimen/spacing_md"
-            android:paddingVertical="@dimen/spacing_sm"
-            android:textColor="@color/text_primary_light"
-            android:textColorHint="@color/text_secondary_light"
-            android:textSize="15sp" />
-
+            android:layout_marginHorizontal="6dp">
+            <EditText
+                android:textSize="15sp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:id="@+id/editMessage"
+                android:background="@drawable/bg_input_field"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="44dp"
+                android:hint="@string/hint_type_message"
+                android:maxLines="6"
+                android:inputType="textMultiLine"
+                android:paddingStart="@dimen/spacing_md"
+                android:paddingEnd="48dp"
+                android:paddingVertical="@dimen/spacing_sm"
+                android:autofillHints=""/>
+            <ImageButton
+                android:layout_gravity="end|bottom"
+                android:id="@+id/btnEmoji"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="6dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginBottom="4dp"
+                android:src="@drawable/ic_emoji"
+                android:contentDescription="@string/action_emoji"
+                android:layout_marginEnd="4dp"/>
+        </FrameLayout>
         <ImageButton
+            android:layout_gravity="bottom"
             android:id="@+id/btnSend"
+            android:background="@drawable/bg_send_button"
             android:layout_width="44dp"
             android:layout_height="44dp"
-            android:layout_gravity="center_vertical"
-            android:background="@drawable/bg_send_button"
-            android:contentDescription="@string/action_send"
-            android:src="@drawable/ic_send" />
-
+            android:src="@drawable/ic_send"
+            android:contentDescription="@string/action_send"/>
     </LinearLayout>
-
+    <androidx.emoji2.emojipicker.EmojiPickerView
+        android:id="@+id/emojiPickerView"
+        android:background="@color/surface_card"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="280dp"/>
 </LinearLayout>

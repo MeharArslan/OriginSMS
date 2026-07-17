@@ -1,97 +1,199 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rootCoordinator"
+    android:background="@color/bg_surface"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/bg_light">
-
+    android:layout_height="match_parent">
     <com.google.android.material.appbar.AppBarLayout
+        android:theme="@style/Theme.OriginSMS"
+        android:id="@+id/appBarLayout"
+        android:background="@color/origin_primary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/origin_primary"
-        android:theme="@style/Theme.OriginSMS">
-
+        app:elevation="0dp"
+        app:liftOnScroll="false">
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
+            android:background="@android:color/transparent"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/transparent"
             app:title="@string/title_conversations"
-            app:titleTextColor="@android:color/white" />
-
+            app:titleTextColor="@android:color/white"/>
+        <LinearLayout
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:id="@+id/searchBarRow"
+            android:background="@android:color/transparent"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:paddingHorizontal="@dimen/spacing_md">
+            <ImageButton
+                android:id="@+id/btnCloseSearch"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@drawable/ic_back"
+                android:contentDescription="@string/action_settings"
+                app:tint="@android:color/white"/>
+            <EditText
+                android:textSize="16sp"
+                android:textColor="@android:color/white"
+                android:textColorHint="#ccffffff"
+                android:id="@+id/editSearch"
+                android:background="@null"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/action_search"
+                android:maxLines="1"
+                android:layout_weight="1"
+                android:inputType="text"
+                android:imeOptions="actionSearch"
+                android:layout_marginStart="@dimen/spacing_sm"
+                android:autofillHints=""/>
+        </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
-
     <LinearLayout
-        android:id="@+id/defaultAppBanner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:layout_marginTop="?attr/actionBarSize"
-        android:background="@color/origin_accent"
         android:gravity="center_vertical"
+        android:layout_gravity="top"
         android:orientation="horizontal"
-        android:padding="@dimen/spacing_md"
+        android:id="@+id/selectionActionBar"
+        android:background="@color/origin_primary_dark"
         android:visibility="gone"
-        tools:visibility="visible">
-
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:paddingHorizontal="@dimen/spacing_sm">
+        <ImageButton
+            android:id="@+id/btnCloseSelection"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_close_white"
+            android:contentDescription="@string/action_settings"/>
         <TextView
+            android:textSize="18sp"
+            android:textColor="@android:color/white"
+            android:id="@+id/txtSelectionCount"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/default_app_prompt_body"
+            android:layout_marginStart="@dimen/spacing_md"/>
+        <ImageButton
+            android:id="@+id/btnSelectionPin"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_pin"
+            android:contentDescription="@string/action_pin_chat"/>
+        <ImageButton
+            android:id="@+id/btnSelectionArchive"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_archive"
+            android:contentDescription="@string/menu_archive_chat"/>
+        <ImageButton
+            android:id="@+id/btnSelectionDelete"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_delete"
+            android:contentDescription="@string/menu_delete_chat"/>
+        <ImageButton
+            android:id="@+id/btnSelectionMore"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_more_vert"
+            android:contentDescription="More"/>
+    </LinearLayout>
+    <include
+        android:id="@+id/onboardingContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/layout_default_sms_onboarding"/>
+    <LinearLayout
+        android:gravity="center_vertical"
+        android:layout_gravity="top"
+        android:orientation="horizontal"
+        android:id="@+id/defaultAppBanner"
+        android:background="@color/origin_accent"
+        android:padding="@dimen/spacing_md"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="?attr/actionBarSize">
+        <TextView
+            android:textSize="13sp"
             android:textColor="@android:color/white"
-            android:textSize="13sp" />
-
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/default_app_prompt_body"
+            android:layout_weight="1"/>
         <Button
+            android:textColor="@android:color/white"
             android:id="@+id/btnSetDefault"
-            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/action_set_default"
-            android:textColor="@android:color/white" />
-
+            style="@style/Widget.Material3.Button.TextButton"/>
     </LinearLayout>
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerConversations"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:clipToPadding="false"
         android:paddingBottom="88dp"
-        tools:listitem="@layout/item_conversation" />
-
-    <LinearLayout
-        android:id="@+id/emptyState"
+        android:clipToPadding="false"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+    <LinearLayout
         android:gravity="center"
         android:orientation="vertical"
+        android:id="@+id/emptyState"
         android:padding="@dimen/spacing_lg"
-        android:visibility="gone">
-
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
         <TextView
+            android:textSize="15sp"
+            android:textColor="@color/text_secondary"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:gravity="center"
-            android:text="@string/empty_conversations"
-            android:textColor="@color/text_secondary_light"
-            android:textSize="15sp" />
-
+            android:text="@string/empty_conversations"/>
     </LinearLayout>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabNewMessage"
-        android:layout_width="wrap_content"
+    <FrameLayout
+        android:layout_gravity="bottom"
+        android:id="@+id/fabWrapper"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/spacing_lg"
-        android:backgroundTint="@color/origin_accent"
-        android:contentDescription="@string/action_new_message"
-        android:src="@drawable/ic_add"
-        app:tint="@android:color/white" />
-
+        android:layout_margin="16dp">
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:layout_gravity="bottom|center_horizontal"
+            android:id="@+id/fabScrollTop"
+            android:visibility="gone"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:contentDescription="Scroll to top"
+            android:backgroundTint="@color/surface_card"
+            app:elevation="4dp"
+            app:fabCustomSize="40dp"
+            app:fabSize="mini"
+            app:maxImageSize="18dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+            app:srcCompat="@drawable/ic_arrow_up"
+            app:tint="@color/origin_primary"/>
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:textColor="@android:color/white"
+            android:layout_gravity="end|bottom"
+            android:id="@+id/fabNewMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start chat"
+            android:contentDescription="@string/action_new_message"
+            android:backgroundTint="@color/origin_accent"
+            app:elevation="6dp"
+            app:icon="@drawable/ic_sms_compose"
+            app:iconTint="@android:color/white"/>
+    </FrameLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,55 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="?attr/colorSurface"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/bg_light"
-    android:orientation="vertical">
-
+    android:layout_height="match_parent">
     <com.google.android.material.appbar.MaterialToolbar
+        android:theme="@style/Theme.OriginSMS"
         android:id="@+id/toolbar"
+        android:background="@color/origin_primary"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/origin_primary"
-        android:theme="@style/Theme.OriginSMS"
         app:navigationIcon="@drawable/ic_back"
         app:title="@string/settings_blocked_numbers"
-        app:titleTextColor="@android:color/white" />
-
+        app:titleTextColor="@android:color/white"/>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerBlocked"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
             android:paddingBottom="88dp"
-            android:paddingVertical="@dimen/spacing_sm" />
-
-        <TextView
-            android:id="@+id/emptyState"
+            android:clipToPadding="false"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:paddingVertical="@dimen/spacing_sm"/>
+        <TextView
+            android:textColor="@color/text_secondary"
             android:gravity="center"
+            android:id="@+id/emptyState"
             android:padding="@dimen/spacing_lg"
-            android:text="No blocked numbers yet."
-            android:textColor="@color/text_secondary_light"
-            android:visibility="gone" />
-
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="No blocked numbers yet."/>
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:layout_gravity="end|bottom"
             android:id="@+id/fabAddBlocked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/spacing_lg"
-            android:backgroundTint="@color/origin_accent"
-            android:contentDescription="@string/action_grant"
             android:src="@drawable/ic_add"
-            app:tint="@android:color/white" />
-
+            android:contentDescription="@string/action_grant"
+            android:backgroundTint="@color/origin_accent"
+            app:tint="@android:color/white"/>
     </FrameLayout>
-
 </LinearLayout>

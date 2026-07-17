@@ -34,7 +34,6 @@ class SmsRepository(private val context: Context) {
 
         val projection = arrayOf(
             Telephony.Threads._ID,
-            Telephony.Threads.RECIPIENT_IDS,
             Telephony.Threads.SNIPPET,
             Telephony.Threads.DATE,
             Telephony.Threads.READ,

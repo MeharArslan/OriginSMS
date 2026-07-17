@@ -34,19 +34,21 @@ class SmsRepository(private val context: Context) {
 
         val projection = arrayOf(
             Telephony.Threads._ID,
+            Telephony.Threads.RECIPIENT_IDS,
+            Telephony.Threads.SNIPPET,
             Telephony.Threads.DATE,
-            Telephony.Threads.READ
+            Telephony.Threads.READ,
+            Telephony.Threads.MESSAGE_COUNT
         )
 
         context.contentResolver.query(
-            Telephony.Threads.CONTENT_URI.buildUpon()
-                .appendQueryParameter("simple", "true").build(),
+            Telephony.Threads.CONTENT_URI,
             projection,
             null, null,
             "${Telephony.Threads.DATE} DESC"
         )?.use { cursor ->
             val idIdx = cursor.getColumnIndex(Telephony.Threads._ID)
-            val snippetIdx = -1
+            val snippetIdx = cursor.getColumnIndex(Telephony.Threads.SNIPPET)
             val dateIdx = cursor.getColumnIndex(Telephony.Threads.DATE)
             val readIdx = cursor.getColumnIndex(Telephony.Threads.READ)
 
@@ -400,7 +402,6 @@ class SmsRepository(private val context: Context) {
             threadId?.let { put(Telephony.Sms.THREAD_ID, it) }
         }
         context.contentResolver.insert(Telephony.Sms.CONTENT_URI, values)
-    }
 
     suspend fun markThreadRead(threadId: Long) = withContext(Dispatchers.IO) {
         val values = ContentValues().apply { put(Telephony.Sms.READ, 1) }
@@ -429,9 +430,10 @@ class SmsRepository(private val context: Context) {
         )
     }
 
+    companion object {
+        const val ACTION_SMS_SENT = "com.meharenterprises.originsms.SMS_SENT"
+        const val ACTION_SMS_DELIVERED = "com.meharenterprises.originsms.SMS_DELIVERED"
+        const val ACTION_MMS_SENT = "com.meharenterprises.originsms.MMS_SENT"
+        const val EXTRA_PART_INDEX = "part_index"
+    }
 }
-
-const val ACTION_SMS_SENT = "com.meharenterprises.originsms.SMS_SENT"
-const val ACTION_SMS_DELIVERED = "com.meharenterprises.originsms.SMS_DELIVERED"
-const val ACTION_MMS_SENT = "com.meharenterprises.originsms.MMS_SENT"
-const val EXTRA_PART_INDEX = "part_index"

@@ -150,7 +150,7 @@ class SettingsActivity : AppCompatActivity() {
             AlertDialog.Builder(this)
                 .setTitle(R.string.lock_forgot_pin)
                 .setMessage(R.string.lock_reset_warning)
-                .setPositiveButton(android.R.string.ok) { _, _ ->
+                .setPositiveButton(android.R.string.ok) { _: android.content.DialogInterface, _: Int ->
                     val intent = Intent(this, LockUnlockActivity::class.java).apply {
                         putExtra(LockUnlockActivity.EXTRA_UNLOCK_INTENT, LockUnlockActivity.INTENT_REMOVE_LOCK)
                         putExtra(LockUnlockActivity.EXTRA_THREAD_ID, RESET_PIN_SENTINEL_THREAD_ID)
@@ -388,7 +388,7 @@ class SettingsActivity : AppCompatActivity() {
             AlertDialog.Builder(this)
                 .setTitle(R.string.settings_display_name)
                 .setView(container)
-                .setPositiveButton(android.R.string.ok) { _, _ ->
+                .setPositiveButton(android.R.string.ok) { _: android.content.DialogInterface, _: Int ->
                     val name = editText.text.toString().trim()
                     prefs.edit().putString(KEY_DISPLAY_NAME, name).apply()
                     txtValue.text = name.ifBlank { getString(R.string.title_conversations) }

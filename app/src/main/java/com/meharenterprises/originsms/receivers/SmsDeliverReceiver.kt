@@ -29,7 +29,7 @@ class SmsDeliverReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Telephony.Sms.Intents.SMS_DELIVER_ACTION) return
 
-        val messages = Telephony.Sms.Intents.getMessages(intent)
+        val messages = Telephony.Sms.Intents.getMessagesFromIntent(intent)
         if (messages.isEmpty()) return
 
         val sender = messages[0].originatingAddress ?: return

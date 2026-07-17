@@ -5,12 +5,14 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import com.meharenterprises.originsms.data.db.OriginDatabase
+import dagger.hilt.android.HiltAndroidApp
 
 /**
  * Application entry point.
  * Sets up the notification channel and provides a single lazily-created
  * Room database instance for the whole process.
  */
+@HiltAndroidApp
 class OriginSmsApp : Application() {
 
     val database: OriginDatabase by lazy { OriginDatabase.getInstance(this) }

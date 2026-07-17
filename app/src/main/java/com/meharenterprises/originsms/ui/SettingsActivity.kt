@@ -1,7 +1,6 @@
 package com.meharenterprises.originsms.ui
 
 import android.app.role.RoleManager
-import com.meharenterprises.originsms.connect.ui.splash.OriginConnectActivity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -152,9 +151,14 @@ class SettingsActivity : AppCompatActivity() {
         private const val REQUEST_RESET_PIN = 1001
         const val RESET_PIN_SENTINEL_THREAD_ID = -2L
     }
-        // Origin Connect - Online Mode
-        findViewById<android.view.View?>(R.id.rowOnlineMode)?.setOnClickListener {
-            startActivity(Intent(this, OriginConnectActivity::class.java))
+
+    private fun openOriginConnect() {
+        try {
+            val intent = android.content.Intent()
+            intent.setClassName(packageName, "$packageName.connect.ui.splash.OriginConnectActivity")
+            startActivity(intent)
+        } catch (e: Exception) {
+            android.widget.Toast.makeText(this, "Origin Connect coming soon", android.widget.Toast.LENGTH_SHORT).show()
         }
     }
 }

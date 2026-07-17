@@ -7,7 +7,7 @@
     android:background="@color/bg_light"
     android:orientation="vertical">
 
-    <com.google.android.material.appbar.MaterialToolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -24,7 +24,7 @@
         android:clipToPadding="false"
         android:paddingHorizontal="@dimen/spacing_sm"
         android:paddingVertical="@dimen/spacing_md"
-        app:stackFromEnd="true"
+        android:stackFromEnd="true"
         tools:listitem="@layout/item_message_sent" />
 
     <View

@@ -42,4 +42,7 @@
         <item name="cornerSize">16dp</item>
     </style>
 
+    <style name="Widget.OriginSMS" parent="android:Widget" />
+    <style name="Widget.OriginSMS.SentBubble" parent="Widget.OriginSMS" />
+    <style name="Widget.OriginSMS.ReceivedBubble" parent="Widget.OriginSMS" />
 </resources>

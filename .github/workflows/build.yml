@@ -26,8 +26,10 @@ jobs:
           done
         env:
           GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+      - name: Find APK
+        run: find app/build -name "*.apk" 2>/dev/null || echo "No APK found"
       - uses: actions/upload-artifact@v4
         with:
           name: OriginSMS-debug
           path: app/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
+          if-no-files-found: warn

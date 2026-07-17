@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/bg_surface"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -85,7 +86,7 @@
         android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <com.google.android.material.appbar.MaterialToolbar xmlns:app="http://schemas.android.com/apk/res-auto"
+        <com.google.android.material.appbar.MaterialToolbar
             android:theme="@style/Theme.OriginSMS"
             android:id="@+id/vaultToolbar"
             android:background="@color/origin_primary"

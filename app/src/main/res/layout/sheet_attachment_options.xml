@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="@color/surface_card"
     android:padding="@dimen/spacing_md"
@@ -13,7 +14,7 @@
         android:padding="@dimen/spacing_md"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <ImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+        <ImageView
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:src="@drawable/ic_camera"

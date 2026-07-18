@@ -1,19 +1,29 @@
 package com.meharenterprises.originsms.ui
 
 import android.content.Intent
+import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import com.meharenterprises.originsms.R
 import com.meharenterprises.originsms.ui.conversations.ConversationListActivity
 
-/**
- * Minimal launcher entry point. Kept separate from ConversationListActivity
- * so the launcher activity's theme (solid brand color, no UI) can differ from
- * the main screen's theme without any visible flash between them.
- */
 class SplashActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        startActivity(Intent(this, ConversationListActivity::class.java))
-        finish()
+        setContentView(R.layout.activity_splash)
+
+        val logo = findViewById<ImageView>(R.id.imgSplashLogo)
+        val avd = logo.drawable as? AnimatedVectorDrawable
+        avd?.start()
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            startActivity(Intent(this, ConversationListActivity::class.java))
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+            finish()
+        }, 1500L)
     }
 }

@@ -44,6 +44,15 @@ interface ThreadLockDao {
     @Query("UPDATE thread_lock_state SET autoUnhideAtMillis = :timestamp WHERE threadId = :threadId")
     suspend fun setAutoUnhideAt(threadId: Long, timestamp: Long)
 
+    @Query("SELECT * FROM thread_lock_state WHERE deletedAtMillis > 0 ORDER BY deletedAtMillis DESC")
+    suspend fun getTrashedThreads(): List<ThreadLockEntity>
+
+    @Query("UPDATE thread_lock_state SET deletedAtMillis = :millis WHERE threadId = :threadId")
+    suspend fun setDeletedAt(threadId: Long, millis: Long)
+
+    @Query("SELECT * FROM thread_lock_state WHERE deletedAtMillis > 0 AND deletedAtMillis <= :cutoff")
+    suspend fun getThreadsDueForPermanentDeletion(cutoff: Long): List<ThreadLockEntity>
+
     @Query("SELECT * FROM thread_lock_state WHERE dailyHideTimeMinutes >= 0")
     suspend fun getThreadsWithDailyHide(): List<ThreadLockEntity>
 
@@ -61,10 +70,4 @@ interface ThreadLockDao {
 
     @Query("DELETE FROM thread_lock_state WHERE threadId = :threadId")
     suspend fun clear(threadId: Long)
-
-    @Query("SELECT * FROM thread_lock_state WHERE deletedAtMillis > 0")
-    suspend fun getTrashedThreads(): List<ThreadLockEntity>
-
-    @Query("SELECT * FROM thread_lock_state WHERE deletedAtMillis > 0 AND deletedAtMillis <= :cutoff")
-    suspend fun getThreadsDueForPermanentDeletion(cutoff: Long): List<ThreadLockEntity>
 }

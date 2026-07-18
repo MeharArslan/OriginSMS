@@ -1,6 +1,7 @@
 package com.meharenterprises.originsms.ui.compose
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.provider.Telephony
 import android.text.Editable
@@ -8,7 +9,10 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.emoji2.emojipicker.EmojiPickerView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -35,10 +39,25 @@ class ComposeActivity : AppCompatActivity() {
     private lateinit var recyclerContactPicker: RecyclerView
     private lateinit var recyclerMessages: RecyclerView
     private lateinit var contactPickerAdapter: ContactPickerAdapter
+    private lateinit var emojiPicker: EmojiPickerView
     private lateinit var repository: SmsRepository
     private lateinit var contactsHelper: ContactsHelper
 
     private var selectedAddress: String? = null  // set when user taps a contact
+    private var isProgrammaticTextChange = false
+    private var emojiPickerVisible = false
+    private val pendingAttachments = mutableListOf<Uri>()
+
+    private val attachmentPickerLauncher = registerForActivityResult(
+        ActivityResultContracts.PickMultipleVisualMedia(5)
+    ) { uris ->
+        uris.forEach { uri ->
+            try {
+                contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            } catch (_: SecurityException) { }
+            pendingAttachments.add(uri)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,74 +67,168 @@ class ComposeActivity : AppCompatActivity() {
         contactsHelper = ContactsHelper(this)
 
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
-        toolbar.setNavigationOnClickListener { finish() }
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
+        toolbar.setNavigationOnClickListener { finish() }
+        supportActionBar?.title = "Choose Contact"
+        supportActionBar?.setDisplayShowTitleEnabled(true)
 
         editRecipient = findViewById(R.id.editRecipient)
         editMessage = findViewById(R.id.editMessage)
         recyclerContactPicker = findViewById(R.id.recyclerContactPicker)
         recyclerMessages = findViewById(R.id.recyclerMessages)
+        emojiPicker = findViewById(R.id.emojiPickerView)
+
+        // Auto-focus search field and open keyboard like Google Messages
+        editRecipient.post {
+            editRecipient.requestFocus()
+            val imm = getSystemService(android.view.inputmethod.InputMethodManager::class.java)
+            imm?.showSoftInput(editRecipient, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+        }
+
+        // Clear button
+        val btnClear = findViewById<android.widget.ImageView?>(R.id.btnClearRecipient)
+        btnClear?.setOnClickListener { editRecipient.setText("") }
 
         intent.getStringExtra(EXTRA_PREFILL_BODY)?.let { editMessage.setText(it) }
 
-        // Empty message history (no thread yet)
         recyclerMessages.layoutManager = LinearLayoutManager(this).apply { stackFromEnd = true }
         recyclerMessages.adapter = MessageAdapter(onLongPress = {})
 
-        // Contact picker list
         contactPickerAdapter = ContactPickerAdapter { contact ->
-            // User tapped a contact — fill the recipient field and hide picker
             selectedAddress = ContactsHelper.normalize(contact.phoneNumber)
+            isProgrammaticTextChange = true
             editRecipient.setText(contact.displayName)
+            isProgrammaticTextChange = false
             editRecipient.clearFocus()
-            showMessageMode()
+
+            // If a thread already exists for this address, jump straight into
+            // it rather than showing an empty compose-mode message list.
+            lifecycleScope.launch {
+                val existingThreadId = withContext(Dispatchers.IO) {
+                    try {
+                        Telephony.Threads.getOrCreateThreadId(
+                            this@ComposeActivity, selectedAddress!!
+                        )
+                    } catch (_: Exception) { -1L }
+                }
+                // getOrCreateThreadId always returns a value — check if there
+                // are actual messages for that thread id before jumping.
+                val hasMessages = withContext(Dispatchers.IO) {
+                    try {
+                        val cursor = contentResolver.query(
+                            android.provider.Telephony.Sms.CONTENT_URI,
+                            arrayOf(android.provider.Telephony.Sms._ID),
+                            "${android.provider.Telephony.Sms.THREAD_ID} = ?",
+                            arrayOf(existingThreadId.toString()),
+                            null
+                        )
+                        val count = cursor?.count ?: 0
+                        cursor?.close()
+                        count > 0
+                    } catch (_: Exception) { false }
+                }
+
+                if (hasMessages && existingThreadId != -1L) {
+                    // Check if thread is in trash — if so, treat as new conversation
+                    val isDeleted = withContext(Dispatchers.IO) {
+                        val lockState = com.meharenterprises.originsms.data.db.OriginDatabase
+                            .getInstance(this@ComposeActivity)
+                            .threadLockDao().getForThread(existingThreadId)
+                        (lockState?.deletedAtMillis ?: 0L) > 0L
+                    }
+                    if (!isDeleted) {
+                        val contactInfo = withContext(Dispatchers.IO) {
+                            contactsHelper.resolve(selectedAddress!!)
+                        }
+                        val intent = Intent(this@ComposeActivity, ThreadActivity::class.java).apply {
+                            putExtra(ThreadActivity.EXTRA_THREAD_ID, existingThreadId)
+                            putExtra(ThreadActivity.EXTRA_ADDRESS, selectedAddress)
+                            putExtra(ThreadActivity.EXTRA_DISPLAY_NAME, contactInfo.displayName)
+                            getStringExtra(EXTRA_PREFILL_BODY)?.let { putExtra(ThreadActivity.EXTRA_PREFILL_BODY, it) }
+                        }
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        showMessageMode()
+                    }
+                } else {
+                    showMessageMode()
+                }
+            }
         }
         recyclerContactPicker.layoutManager = LinearLayoutManager(this)
         recyclerContactPicker.adapter = contactPickerAdapter
 
-        // Load all contacts in background and populate the picker
         lifecycleScope.launch {
             val contacts = withContext(Dispatchers.IO) { contactsHelper.getAllContactsWithNumbers() }
             contactPickerAdapter.submitContacts(contacts)
         }
 
-        // As the user types, filter the contact list live
         editRecipient.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
             override fun afterTextChanged(s: Editable?) {
+                if (isProgrammaticTextChange) return
                 val query = s?.toString().orEmpty()
-                // If user starts editing after having selected a contact,
-                // clear the selection so we don't send to a stale address
+                // Show/hide clear button
+                findViewById<android.widget.ImageView?>(R.id.btnClearRecipient)?.visibility =
+                    if (query.isNotEmpty()) android.view.View.VISIBLE else android.view.View.GONE
                 if (selectedAddress != null) selectedAddress = null
                 contactPickerAdapter.filter(query)
-                // If nothing typed show full contact list; if typing a pure
-                // number show both the list (filtered) and enable direct send
                 if (recyclerMessages.visibility == View.VISIBLE && query.isNotBlank()) {
                     showContactMode()
                 }
             }
         })
 
-        // Edit-recipient field gains focus → show contact picker
         editRecipient.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) showContactMode()
         }
 
         editMessage.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus && selectedAddress == null) {
-                // User jumped to message body without selecting a contact —
-                // treat whatever is in the recipient field as a raw number
                 val raw = editRecipient.text?.toString().orEmpty().trim()
                 if (raw.isNotBlank()) {
                     selectedAddress = ContactsHelper.normalize(raw)
                     showMessageMode()
                 }
             }
+            if (hasFocus && emojiPickerVisible) hideEmojiPicker()
         }
 
         findViewById<ImageButton>(R.id.btnSend).setOnClickListener { attemptSend() }
+        findViewById<ImageButton>(R.id.btnAttach).setOnClickListener {
+            attachmentPickerLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
+            )
+        }
+
+        setupEmojiPicker()
+    }
+
+    private fun setupEmojiPicker() {
+        val btnEmoji = findViewById<ImageButton>(R.id.btnEmoji)
+        emojiPicker.setOnEmojiPickedListener { emojiViewItem ->
+            val emoji = emojiViewItem.emoji
+            val start = editMessage.selectionStart.coerceAtLeast(0)
+            val end = editMessage.selectionEnd.coerceAtLeast(0)
+            editMessage.text?.replace(minOf(start, end), maxOf(start, end), emoji)
+        }
+        btnEmoji.setOnClickListener {
+            if (emojiPickerVisible) hideEmojiPicker() else showEmojiPicker()
+        }
+    }
+
+    private fun showEmojiPicker() {
+        emojiPickerVisible = true
+        emojiPicker.visibility = View.VISIBLE
+        val imm = getSystemService(android.view.inputmethod.InputMethodManager::class.java)
+        imm.hideSoftInputFromWindow(editMessage.windowToken, 0)
+    }
+
+    private fun hideEmojiPicker() {
+        emojiPickerVisible = false
+        emojiPicker.visibility = View.GONE
     }
 
     private fun showContactMode() {
@@ -126,7 +239,6 @@ class ComposeActivity : AppCompatActivity() {
     private fun showMessageMode() {
         recyclerContactPicker.visibility = View.GONE
         recyclerMessages.visibility = View.VISIBLE
-        // Move focus to the message body
         editMessage.requestFocus()
         val imm = getSystemService(android.view.inputmethod.InputMethodManager::class.java)
         imm.showSoftInput(editMessage, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
@@ -134,14 +246,18 @@ class ComposeActivity : AppCompatActivity() {
 
     private fun attemptSend() {
         val body = editMessage.text?.toString().orEmpty()
-        // Resolve final address — either from contact selection or raw field text
         val destination = selectedAddress?.takeIf { it.isNotBlank() }
             ?: ContactsHelper.normalize(editRecipient.text?.toString().orEmpty())
 
-        if (destination.isBlank() || body.isBlank()) return
+        if (destination.isBlank()) return
+        if (body.isBlank() && pendingAttachments.isEmpty()) return
 
         lifecycleScope.launch {
-            repository.sendSms(destination, body, threadId = null)
+            if (pendingAttachments.isEmpty()) {
+                repository.sendSms(destination, body, threadId = null)
+            } else {
+                repository.sendMms(destination, body, pendingAttachments.toList(), threadId = null)
+            }
             val resolvedThreadId = withContext(Dispatchers.IO) {
                 Telephony.Threads.getOrCreateThreadId(this@ComposeActivity, destination)
             }

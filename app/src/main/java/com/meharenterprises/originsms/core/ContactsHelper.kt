@@ -11,11 +11,12 @@ class ContactsHelper(private val context: Context) {
 
     data class ContactInfo(val displayName: String, val photoUri: String?)
 
-    private val cache = HashMap<String, ContactInfo>()
-
     fun resolve(rawNumber: String): ContactInfo {
         val key = normalize(rawNumber)
-        cache[key]?.let { return it }
+        // Check process-wide static cache first — avoids repeated ContentProvider
+        // queries when multiple ContactsHelper instances are created (e.g. once
+        // per Repository instance which was once per ViewModel init).
+        staticCache[key]?.let { return it }
 
         val uri = android.net.Uri.withAppendedPath(
             ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
@@ -41,11 +42,11 @@ class ContactsHelper(private val context: Context) {
             null
         } ?: ContactInfo(displayName = rawNumber, photoUri = null)
 
-        cache[key] = info
+        staticCache[key] = info
         return info
     }
 
-    fun clearCache() = cache.clear()
+    fun clearCache() = staticCache.clear()
 
     /**
      * Returns every phone-number entry in the device's Contacts provider,
@@ -104,6 +105,10 @@ class ContactsHelper(private val context: Context) {
     )
 
     companion object {
+        // Process-wide cache — survives across ContactsHelper instances so
+        // repeated number lookups hit memory instead of ContentProvider.
+        private val staticCache = java.util.concurrent.ConcurrentHashMap<String, ContactInfo>()
+
         fun normalize(number: String): String = number.filter { it.isDigit() || it == '+' }
     }
 }

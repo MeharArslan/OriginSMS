@@ -15,13 +15,16 @@
     <string name="menu_delete_chat">Delete chat</string>
     <string name="menu_archive_chat">Archive</string>
     <string name="action_block_number">Block &amp; report spam</string>
+    <string name="action_star">Star message</string>
+    <string name="action_unstar">Unstar message</string>
     <string name="action_share">Share</string>
     <string name="action_view_details">View details</string>
+    <string name="settings_trash">Trash</string>
     <string name="settings_display_name">Display name</string>
     <string name="settings_display_name_hint">Enter app display name</string>
     <string name="settings_about">About</string>
-    <string name="settings_branding_developer">Developed by Mehar Arslan</string>
-    <string name="settings_branding_company">Powered by Mehar Enterprises Limited</string>
+    <string name="settings_branding_developer">Developed By: MEHAR ARSLAN</string>
+    <string name="settings_branding_company">Powered By: MEHAR ENTERPRISES LIMITED</string>
     <string name="menu_mark_unread">Mark as unread</string>
     <string name="menu_mark_read">Mark as read</string>
     <string name="action_pin_chat">Pin chat</string>
@@ -106,5 +109,4 @@
     <string name="notif_action_reply">Reply</string>
     <string name="notif_action_mark_read">Mark as read</string>
     <string name="notif_locked_chat_content">New message in a locked chat</string>
-    <string name="action_star">Star</string>
 </resources>

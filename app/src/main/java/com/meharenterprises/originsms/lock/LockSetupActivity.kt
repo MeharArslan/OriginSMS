@@ -45,9 +45,10 @@ class LockSetupActivity : AppCompatActivity() {
         alsoHide = intent.getBooleanExtra(EXTRA_ALSO_HIDE, false)
 
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
-        toolbar.setNavigationOnClickListener { finish() }
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
+        toolbar.setNavigationOnClickListener { finish() }
+        supportActionBar?.title = "Chat Lock"
+        supportActionBar?.setDisplayShowTitleEnabled(true)
 
         editPin = findViewById(R.id.editPin)
         txtStepLabel = findViewById(R.id.txtStepLabel)

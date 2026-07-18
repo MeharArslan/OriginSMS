@@ -30,6 +30,9 @@ class OriginSmsApp : Application() {
 
     val database: OriginDatabase by lazy { OriginDatabase.getInstance(this) }
 
+    // Track which thread is currently open — suppress notifications for it
+    var activeThreadId: Long = -1L
+
     override fun onCreate() {
         super.onCreate()
         com.meharenterprises.originsms.ui.ThemePreferenceManager(this).applyStoredMode()

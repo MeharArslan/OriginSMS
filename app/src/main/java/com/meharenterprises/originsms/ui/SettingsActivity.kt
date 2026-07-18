@@ -38,7 +38,8 @@ class SettingsActivity : AppCompatActivity() {
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
-        supportActionBar?.setDisplayShowTitleEnabled(false)
+        supportActionBar?.title = "Settings"
+        supportActionBar?.setDisplayShowTitleEnabled(true)
 
         switchBiometric = findViewById(R.id.switchBiometric)
         txtChatLockStatus = findViewById(R.id.txtChatLockStatus)
@@ -51,6 +52,8 @@ class SettingsActivity : AppCompatActivity() {
         setupDefaultAppRow()
         setupThemeRow()
         setupAutoHideTimerRow()
+        setupTrashRow()
+        setupGeneralSettingsRow()
         setupBlockedNumbersRow()
         setupDisplayNameRow()
         preloadConversations()
@@ -341,6 +344,18 @@ class SettingsActivity : AppCompatActivity() {
         }
         timePicker.setTitle("Daily auto-hide time for ${conversation.displayName}")
         timePicker.show()
+    }
+
+    private fun setupGeneralSettingsRow() {
+        findViewById<android.view.View>(R.id.rowGeneralSettings).setOnClickListener {
+            startActivity(Intent(this, GeneralSettingsActivity::class.java))
+        }
+    }
+
+    private fun setupTrashRow() {
+        findViewById<android.view.View>(R.id.rowTrash).setOnClickListener {
+            startActivity(Intent(this, TrashActivity::class.java))
+        }
     }
 
     private fun setupBlockedNumbersRow() {

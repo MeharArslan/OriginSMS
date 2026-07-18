@@ -129,6 +129,14 @@
 
     </LinearLayout>
 
+    <!-- Default SMS Onboarding (Google Messages style) -->
+    <include
+        android:id="@+id/onboardingContainer"
+        layout="@layout/layout_default_sms_onboarding"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+         />
+
     <LinearLayout
         android:id="@+id/defaultAppBanner"
         android:layout_width="match_parent"
@@ -189,28 +197,45 @@
 
     </LinearLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabScrollTop"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="96dp"
-        android:backgroundTint="@color/surface_card"
-        android:contentDescription="Scroll to top"
-        android:src="@drawable/ic_arrow_up"
-        android:visibility="gone"
-        app:fabSize="mini"
-        app:tint="@color/origin_primary" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabNewMessage"
-        android:layout_width="wrap_content"
+    <!-- FrameLayout wraps both FABs so center_horizontal works -->
+    <FrameLayout
+        android:id="@+id/fabWrapper"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/spacing_lg"
-        android:backgroundTint="@color/origin_accent"
-        android:contentDescription="@string/action_new_message"
-        android:src="@drawable/ic_add"
-        app:tint="@android:color/white" />
+        android:layout_gravity="bottom"
+        android:layout_margin="16dp">
+
+        <!-- Scroll to top — perfectly centered -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabScrollTop"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_horizontal|bottom"
+            android:backgroundTint="@color/surface_card"
+            android:contentDescription="Scroll to top"
+            android:visibility="gone"
+            app:fabCustomSize="40dp"
+            app:fabSize="mini"
+            app:maxImageSize="18dp"
+            app:srcCompat="@drawable/ic_arrow_up"
+            app:tint="@color/origin_primary"
+            app:elevation="4dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full" />
+
+        <!-- Start chat — right side -->
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/fabNewMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:backgroundTint="@color/origin_accent"
+            android:contentDescription="@string/action_new_message"
+            android:text="Start chat"
+            android:textColor="@android:color/white"
+            app:icon="@drawable/ic_sms_compose"
+            app:iconTint="@android:color/white"
+            app:elevation="6dp" />
+
+    </FrameLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

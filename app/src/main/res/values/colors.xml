@@ -19,13 +19,13 @@
 
     <color name="bubble_sent_light">#3B3486</color>
     <color name="bubble_sent_text_light">#FFFFFF</color>
-    <color name="bubble_received_light">#EFEDF7</color>
+    <color name="bubble_received_light">#E8E5F5</color>
     <color name="bubble_received_text_light">#1B1A22</color>
 
-    <color name="bubble_sent_dark">#6C63B8</color>
+    <color name="bubble_sent_dark">#6B64C4</color>
     <color name="bubble_sent_text_dark">#FFFFFF</color>
-    <color name="bubble_received_dark">#2A2933</color>
-    <color name="bubble_received_text_dark">#F1F0F6</color>
+    <color name="bubble_received_dark">#4A4580</color>
+    <color name="bubble_received_text_dark">#FFFFFF</color>
 
     <color name="locked_chat_tint">#FF6F59</color>
     <color name="unread_badge">#FF6F59</color>
@@ -56,6 +56,5 @@
     <color name="input_field_bg">@color/bubble_received_light</color>
     <color name="input_field_text">@color/text_primary_light</color>
     <color name="input_field_hint">@color/text_secondary_light</color>
-    <color name="switch_thumb_tint">#FFFFFF</color>
-    <color name="switch_track_tint">#6200EE</color>
+    <color name="row_selected_bg">#E8E5F7</color>
 </resources>

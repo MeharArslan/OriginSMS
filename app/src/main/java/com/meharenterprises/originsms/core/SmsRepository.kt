@@ -119,7 +119,7 @@ class SmsRepository(private val context: Context) {
                             isDeleted = (lockState?.deletedAtMillis ?: 0L) > 0L,
                             unreadCount = unreadCounts[threadId] ?: 0,
                             contactPhotoUri = contact.photoUri,
-                            draftText = allDrafts[threadId]?.text?.takeIf { it.isNotBlank() }
+                            draftText = allDrafts[threadId]?.body?.takeIf { it.isNotBlank() }
                         )
                     )
                 }
@@ -530,17 +530,6 @@ class SmsRepository(private val context: Context) {
             "${Telephony.Sms._ID} = ?",
             arrayOf(messageId.toString())
         )
-    }
-
-    suspend fun getThreadIdForAddress(address: String): Long = withContext(Dispatchers.IO) {
-        val cursor = context.contentResolver.query(
-            android.provider.Telephony.Sms.CONTENT_URI,
-            arrayOf(android.provider.Telephony.Sms.THREAD_ID),
-            "${android.provider.Telephony.Sms.ADDRESS} = ?",
-            arrayOf(address),
-            "${android.provider.Telephony.Sms.DATE} DESC LIMIT 1"
-        )
-        cursor?.use { if (it.moveToFirst()) it.getLong(0) else -1L } ?: -1L
     }
 
     companion object {

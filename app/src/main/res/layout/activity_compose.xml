@@ -16,42 +16,61 @@
         app:titleTextColor="@android:color/white"
         xmlns:app="http://schemas.android.com/apk/res-auto" />
 
-    <LinearLayout
+    <!-- Material Design 3 Search Bar — Google Messages style -->
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/surface_card"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="@dimen/spacing_md"
-        android:paddingVertical="@dimen/spacing_sm">
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="10dp"
+        app:cardBackgroundColor="?attr/colorSurfaceVariant"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="0dp"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="To:"
-            android:textColor="@color/text_secondary"
-            android:textSize="15sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp">
 
-        <EditText
-            android:id="@+id/editRecipient"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_sm"
-            android:layout_weight="1"
-            android:autofillHints="phone"
-            android:background="@null"
-            android:hint="Name or phone number"
-            android:inputType="text"
-            android:maxLines="1"
-            android:textColor="@color/text_primary"
-            android:textSize="15sp" />
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_search"
+                android:importantForAccessibility="no"
+                app:tint="@color/text_secondary" />
 
-    </LinearLayout>
+            <EditText
+                android:id="@+id/editRecipient"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:autofillHints="phone"
+                android:background="@null"
+                android:hint="Search contacts or enter number"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:textSize="15sp" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/divider" />
+            <ImageView
+                android:id="@+id/btnClearRecipient"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/ic_close"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:importantForAccessibility="no"
+                android:visibility="gone"
+                app:tint="@color/text_secondary" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -82,35 +101,74 @@
         android:background="@color/surface_card"
         android:gravity="bottom"
         android:orientation="horizontal"
-        android:padding="@dimen/spacing_sm">
+        android:paddingHorizontal="@dimen/spacing_sm"
+        android:paddingVertical="6dp">
 
-        <EditText
-            android:id="@+id/editMessage"
+        <ImageButton
+            android:id="@+id/btnAttach"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="2dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/action_attach"
+            android:src="@drawable/ic_attach" />
+
+        <FrameLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginEnd="@dimen/spacing_sm"
-            android:layout_weight="1"
-            android:autofillHints=""
-            android:background="@drawable/bg_input_field"
-            android:hint="@string/hint_type_message"
-            android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
-            android:maxLines="5"
-            android:paddingHorizontal="@dimen/spacing_md"
-            android:paddingVertical="@dimen/spacing_sm"
-            android:textColor="@color/text_primary"
-            android:textColorHint="@color/text_secondary"
-            android:textSize="15sp" />
+            android:layout_gravity="bottom"
+            android:layout_marginHorizontal="6dp"
+            android:layout_weight="1">
+
+            <EditText
+                android:id="@+id/editMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints=""
+                android:background="@drawable/bg_input_field"
+                android:hint="@string/hint_type_message"
+                android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
+                android:maxLines="6"
+                android:minHeight="44dp"
+                android:paddingStart="@dimen/spacing_md"
+                android:paddingEnd="48dp"
+                android:paddingVertical="@dimen/spacing_sm"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:textSize="15sp" />
+
+            <ImageButton
+                android:id="@+id/btnEmoji"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="end|bottom"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/action_emoji"
+                android:padding="6dp"
+                android:src="@drawable/ic_emoji" />
+
+        </FrameLayout>
 
         <ImageButton
             android:id="@+id/btnSend"
             android:layout_width="44dp"
             android:layout_height="44dp"
-            android:layout_gravity="center_vertical"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="0dp"
             android:background="@drawable/bg_send_button"
             android:contentDescription="@string/action_send"
             android:src="@drawable/ic_send" />
 
     </LinearLayout>
+
+    <androidx.emoji2.emojipicker.EmojiPickerView
+        android:id="@+id/emojiPickerView"
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
+        android:background="@color/surface_card"
+        android:visibility="gone" />
 
 </LinearLayout>

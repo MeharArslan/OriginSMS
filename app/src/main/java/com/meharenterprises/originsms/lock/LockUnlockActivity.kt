@@ -41,6 +41,9 @@ class LockUnlockActivity : AppCompatActivity() {
     private lateinit var btnUnlock: Button
     private lateinit var btnUseBiometric: Button
     private lateinit var recyclerVault: RecyclerView
+    private lateinit var vaultContainer: android.view.View
+    private lateinit var pinContainer: android.view.View
+    private lateinit var txtVaultEmpty: TextView
 
     private var mode: String = INTENT_OPEN_THREAD
     private var threadId: Long = -1L
@@ -76,6 +79,13 @@ class LockUnlockActivity : AppCompatActivity() {
         btnUnlock = findViewById(R.id.btnUnlock)
         btnUseBiometric = findViewById(R.id.btnUseBiometric)
         recyclerVault = findViewById(R.id.recyclerVault)
+        vaultContainer = findViewById(R.id.vaultContainer)
+        pinContainer = findViewById(R.id.pinContainer)
+        txtVaultEmpty = findViewById(R.id.txtVaultEmpty)
+
+        // Vault toolbar back button
+        findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.vaultToolbar)
+            .setNavigationOnClickListener { finish() }
     }
 
     private fun configureForMode() {
@@ -203,23 +213,39 @@ class LockUnlockActivity : AppCompatActivity() {
     }
 
     private fun showVault() {
-        editPin.visibility = View.GONE
-        btnUnlock.visibility = View.GONE
-        btnUseBiometric.visibility = View.GONE
-        txtError.visibility = View.GONE
-        recyclerVault.visibility = View.VISIBLE
+        pinContainer.visibility = View.GONE
+        vaultContainer.visibility = View.VISIBLE
+        recyclerVault.visibility = View.GONE
+        txtVaultEmpty.visibility = View.VISIBLE
+        txtVaultEmpty.text = "Loading hidden chats..."
 
         lifecycleScope.launch {
-            val repository = SmsRepository(this@LockUnlockActivity)
-            val hidden = repository.getConversations().filter { it.isHidden }
+            try {
+                val hidden = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    SmsRepository(this@LockUnlockActivity).getConversations().filter { it.isHidden }
+                }
 
-            val adapter = ConversationAdapter(
-                onClick = { conversation -> openHiddenThread(conversation) },
-                onLongClick = { conversation -> confirmUnhide(conversation) }
-            )
-            recyclerVault.layoutManager = LinearLayoutManager(this@LockUnlockActivity)
-            recyclerVault.adapter = adapter
-            adapter.submitList(hidden)
+                if (hidden.isEmpty()) {
+                    txtVaultEmpty.text = "No hidden chats yet.\nHide a chat from the in-chat 3-dot menu."
+                    txtVaultEmpty.visibility = View.VISIBLE
+                    recyclerVault.visibility = View.GONE
+                    return@launch
+                }
+                txtVaultEmpty.visibility = View.GONE
+                recyclerVault.visibility = View.VISIBLE
+
+                val adapter = ConversationAdapter(
+                    onClick = { conversation -> openHiddenThread(conversation) },
+                    onLongClick = { conversation -> confirmUnhide(conversation) },
+                    selectionModeEnabled = false
+                )
+                recyclerVault.layoutManager = LinearLayoutManager(this@LockUnlockActivity)
+                recyclerVault.adapter = adapter
+                adapter.submitList(hidden)
+            } catch (e: Exception) {
+                txtVaultEmpty.text = "Could not load hidden chats: ${e.message}"
+                txtVaultEmpty.visibility = View.VISIBLE
+            }
         }
     }
 
@@ -233,17 +259,49 @@ class LockUnlockActivity : AppCompatActivity() {
     }
 
     private fun confirmUnhide(conversation: ConversationSummary) {
+        val options = arrayOf(
+            getString(R.string.menu_unhide_chat),
+            getString(R.string.schedule_auto_unhide)
+        )
         AlertDialog.Builder(this)
-            .setTitle(R.string.menu_unhide_chat)
-            .setMessage(conversation.displayName)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                lifecycleScope.launch {
-                    OriginDatabase.getInstance(this@LockUnlockActivity).threadLockDao()
-                        .setHidden(conversation.threadId, false)
-                    showVault()
+            .setTitle(conversation.displayName)
+            .setItems(options) { _, index ->
+                if (index == 0) {
+                    lifecycleScope.launch {
+                        OriginDatabase.getInstance(this@LockUnlockActivity).threadLockDao()
+                            .setHidden(conversation.threadId, false)
+                        showVault()
+                    }
+                } else {
+                    showScheduleUnhideDialog(conversation)
                 }
             }
-            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun showScheduleUnhideDialog(conversation: ConversationSummary) {
+        val options = arrayOf(
+            getString(R.string.schedule_1_hour),
+            getString(R.string.schedule_6_hours),
+            getString(R.string.schedule_24_hours),
+            getString(R.string.schedule_7_days)
+        )
+        val hoursValues = longArrayOf(1, 6, 24, 24 * 7)
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.schedule_auto_unhide)
+            .setItems(options) { _, index ->
+                val unhideAt = System.currentTimeMillis() + hoursValues[index] * 60 * 60 * 1000L
+                lifecycleScope.launch {
+                    OriginDatabase.getInstance(this@LockUnlockActivity).threadLockDao()
+                        .setAutoUnhideAt(conversation.threadId, unhideAt)
+                    android.widget.Toast.makeText(
+                        this@LockUnlockActivity,
+                        getString(R.string.schedule_auto_unhide_confirmed),
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
             .show()
     }
 

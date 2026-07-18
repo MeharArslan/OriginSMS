@@ -28,7 +28,8 @@ class BlockedNumbersActivity : AppCompatActivity() {
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
-        supportActionBar?.setDisplayShowTitleEnabled(false)
+        supportActionBar?.title = "Blocked Numbers"
+        supportActionBar?.setDisplayShowTitleEnabled(true)
 
         adapter = BlockedNumberAdapter(onUnblock = { entity -> unblock(entity) })
         findViewById<RecyclerView>(R.id.recyclerBlocked).apply {

@@ -47,9 +47,22 @@ class ThreadViewModel(application: Application) : AndroidViewModel(application) 
     fun bind(threadId: Long, address: String) {
         currentThreadId = threadId
         currentAddress = address
-        // Mark conversation start time for new chats (threadId=-1)
-        // This is used to filter out old deleted messages from reused threads
-        newChatStartedAt = if (threadId == -1L) System.currentTimeMillis() else 0L
+        if (threadId == -1L) {
+            // New chat — record start time (will be persisted to DB after first send)
+            newChatStartedAt = System.currentTimeMillis()
+        } else {
+            // Load from DB — survives Activity recreation and ContentObserver reloads
+            viewModelScope.launch {
+                val state = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    database.threadLockDao().getForThread(threadId)
+                }
+                newChatStartedAt = state?.newChatStartMillis ?: 0L
+                loadMessages()
+            }
+            loadPersistedScheduled()
+            registerContentObserver()
+            return
+        }
         loadMessages()
         loadPersistedScheduled()
         registerContentObserver()
@@ -96,17 +109,9 @@ class ThreadViewModel(application: Application) : AndroidViewModel(application) 
 
             val allMessages = repository.getMessages(currentThreadId)
 
-            // Filter based on context:
             val filtered = if (newChatStartedAt > 0L) {
-                // New chat — only show messages sent after conversation started
-                // Old trashed messages remain hidden even after thread is untrashed
-                val newMsgs = allMessages.filter { it.dateMillis >= newChatStartedAt - 10000 }
-                if (newMsgs.isNotEmpty()) {
-                    newChatStartedAt = 0L // Active conversation now
-                    newMsgs
-                } else {
-                    emptyList()
-                }
+                // New chat after trash — only show messages from after conversation started
+                allMessages.filter { it.dateMillis >= newChatStartedAt - 10000 }
             } else {
                 allMessages
             }
@@ -217,14 +222,17 @@ class ThreadViewModel(application: Application) : AndroidViewModel(application) 
                 }
                 if (resolvedId != -1L) {
                     currentThreadId = resolvedId
-                    // Untrash this thread — user is actively chatting in it now
                     kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                         val state = database.threadLockDao().getForThread(resolvedId)
-                        if (state?.deletedAtMillis != null && state.deletedAtMillis > 0L) {
-                            // Mark when old conversation was trashed — hide messages before this
-                            // newChatStartedAt already set to System.currentTimeMillis() at bind()
-                            database.threadLockDao().upsert(state.copy(deletedAtMillis = 0L))
-                        }
+                            ?: com.meharenterprises.originsms.data.db.ThreadLockEntity(threadId = resolvedId)
+                        // Untrash + store the start time so old messages stay hidden
+                        // even if Activity is recreated or ContentObserver fires again
+                        database.threadLockDao().upsert(
+                            state.copy(
+                                deletedAtMillis = 0L,
+                                newChatStartMillis = newChatStartedAt
+                            )
+                        )
                     }
                 }
             }

@@ -22,13 +22,21 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Set up Gradle
+      - name: Set up Gradle 8.7
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: "8.7"
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+
+      - name: Restore correct Gradle files
+        run: |
+          python3 -c "import base64; open('settings.gradle.kts','wb').write(base64.b64decode('cGx1Z2luTWFuYWdlbWVudCB7CiAgICByZXBvc2l0b3JpZXMgewogICAgICAgIGdvb2dsZSgpCiAgICAgICAgbWF2ZW5DZW50cmFsKCkKICAgICAgICBncmFkbGVQbHVnaW5Qb3J0YWwoKQogICAgfQp9CmRlcGVuZGVuY3lSZXNvbHV0aW9uTWFuYWdlbWVudCB7CiAgICByZXBvc2l0b3JpZXNNb2RlLnNldChSZXBvc2l0b3JpZXNNb2RlLkZBSUxfT05fUFJPSkVDVF9SRVBPUykKICAgIHJlcG9zaXRvcmllcyB7CiAgICAgICAgZ29vZ2xlKCkKICAgICAgICBtYXZlbkNlbnRyYWwoKQogICAgfQp9Cgpyb290UHJvamVjdC5uYW1lID0gIk9yaWdpblNNUyIKaW5jbHVkZSgiOmFwcCIpCg=='))"
+          python3 -c "import base64; open('build.gradle.kts','wb').write(base64.b64decode('cGx1Z2lucyB7CiAgICBpZCgiY29tLmFuZHJvaWQuYXBwbGljYXRpb24iKSB2ZXJzaW9uICI4LjUuMiIgYXBwbHkgZmFsc2UKICAgIGlkKCJvcmcuamV0YnJhaW5zLmtvdGxpbi5hbmRyb2lkIikgdmVyc2lvbiAiMS45LjI0IiBhcHBseSBmYWxzZQogICAgaWQoImNvbS5nb29nbGUuZGV2dG9vbHMua3NwIikgdmVyc2lvbiAiMS45LjI0LTEuMC4yMCIgYXBwbHkgZmFsc2UKfQoKdGFza3MucmVnaXN0ZXIoImNsZWFuIiwgRGVsZXRlOjpjbGFzcykgewogICAgZGVsZXRlKHJvb3RQcm9qZWN0LmJ1aWxkRGlyKQp9Cg=='))"
+          python3 -c "import base64; open('app/build.gradle.kts','wb').write(base64.b64decode('cGx1Z2lucyB7CiAgICBpZCgiY29tLmFuZHJvaWQuYXBwbGljYXRpb24iKQogICAgaWQoIm9yZy5qZXRicmFpbnMua290bGluLmFuZHJvaWQiKQogICAgaWQoImNvbS5nb29nbGUuZGV2dG9vbHMua3NwIikKfQoKYW5kcm9pZCB7CiAgICBuYW1lc3BhY2UgPSAiY29tLm1laGFyZW50ZXJwcmlzZXMub3JpZ2luc21zIgogICAgY29tcGlsZVNkayA9IDM0CgogICAgZGVmYXVsdENvbmZpZyB7CiAgICAgICAgYXBwbGljYXRpb25JZCA9ICJjb20ubWVoYXJlbnRlcnByaXNlcy5vcmlnaW5zbXMiCiAgICAgICAgbWluU2RrID0gMjYKICAgICAgICB0YXJnZXRTZGsgPSAzNAogICAgICAgIHZlcnNpb25Db2RlID0gMQogICAgICAgIHZlcnNpb25OYW1lID0gIjEuMC4wIgoKICAgICAgICB0ZXN0SW5zdHJ1bWVudGF0aW9uUnVubmVyID0gImFuZHJvaWR4LnRlc3QucnVubmVyLkFuZHJvaWRKVW5pdFJ1bm5lciIKICAgICAgICB2ZWN0b3JEcmF3YWJsZXMudXNlU3VwcG9ydExpYnJhcnkgPSB0cnVlCiAgICB9CgogICAgc2lnbmluZ0NvbmZpZ3MgewogICAgICAgIGNyZWF0ZSgicmVsZWFzZSIpIHsKICAgICAgICAgICAgdmFsIGtleXN0b3JlUGF0aCA9IFN5c3RlbS5nZXRlbnYoIktFWVNUT1JFX1BBVEgiKSA/OiAiIgogICAgICAgICAgICBpZiAoa2V5c3RvcmVQYXRoLmlzTm90RW1wdHkoKSkgewogICAgICAgICAgICAgICAgc3RvcmVGaWxlID0gZmlsZShrZXlzdG9yZVBhdGgpCiAgICAgICAgICAgICAgICBzdG9yZVBhc3N3b3JkID0gU3lzdGVtLmdldGVudigiS0VZU1RPUkVfUEFTU1dPUkQiKSA/OiAiIgogICAgICAgICAgICAgICAga2V5QWxpYXMgPSBTeXN0ZW0uZ2V0ZW52KCJLRVlfQUxJQVMiKSA/OiAiIgogICAgICAgICAgICAgICAga2V5UGFzc3dvcmQgPSBTeXN0ZW0uZ2V0ZW52KCJLRVlfUEFTU1dPUkQiKSA/OiAiIgogICAgICAgICAgICB9CiAgICAgICAgfQogICAgfQoKICAgIGJ1aWxkVHlwZXMgewogICAgICAgIHJlbGVhc2UgewogICAgICAgICAgICBpc01pbmlmeUVuYWJsZWQgPSB0cnVlCiAgICAgICAgICAgIGlzU2hyaW5rUmVzb3VyY2VzID0gdHJ1ZQogICAgICAgICAgICBwcm9ndWFyZEZpbGVzKGdldERlZmF1bHRQcm9ndWFyZEZpbGUoInByb2d1YXJkLWFuZHJvaWQtb3B0aW1pemUudHh0IiksICJwcm9ndWFyZC1ydWxlcy5wcm8iKQogICAgICAgICAgICB2YWwga2V5c3RvcmVQYXRoID0gU3lzdGVtLmdldGVudigiS0VZU1RPUkVfUEFUSCIpID86ICIiCiAgICAgICAgICAgIGlmIChrZXlzdG9yZVBhdGguaXNOb3RFbXB0eSgpKSB7CiAgICAgICAgICAgICAgICBzaWduaW5nQ29uZmlnID0gc2lnbmluZ0NvbmZpZ3MuZ2V0QnlOYW1lKCJyZWxlYXNlIikKICAgICAgICAgICAgfQogICAgICAgIH0KICAgICAgICBkZWJ1ZyB7CiAgICAgICAgICAgIGlzRGVidWdnYWJsZSA9IHRydWUKICAgICAgICB9CiAgICB9CgogICAgY29tcGlsZU9wdGlvbnMgewogICAgICAgIHNvdXJjZUNvbXBhdGliaWxpdHkgPSBKYXZhVmVyc2lvbi5WRVJTSU9OXzE3CiAgICAgICAgdGFyZ2V0Q29tcGF0aWJpbGl0eSA9IEphdmFWZXJzaW9uLlZFUlNJT05fMTcKICAgIH0KICAgIGtvdGxpbk9wdGlvbnMgewogICAgICAgIGp2bVRhcmdldCA9ICIxNyIKICAgIH0KCiAgICBidWlsZEZlYXR1cmVzIHsKICAgICAgICB2aWV3QmluZGluZyA9IHRydWUKICAgIH0KCiAgICBwYWNrYWdpbmcgewogICAgICAgIHJlc291cmNlcy5leGNsdWRlcy5hZGQoIk1FVEEtSU5GLyoiKQogICAgfQp9CgpkZXBlbmRlbmNpZXMgewogICAgaW1wbGVtZW50YXRpb24oImFuZHJvaWR4LmNvcmU6Y29yZS1rdHg6MS4xMy4xIikKICAgIGltcGxlbWVudGF0aW9uKCJhbmRyb2lkeC5hcHBjb21wYXQ6YXBwY29tcGF0OjEuNy4wIikKICAgIGltcGxlbWVudGF0aW9uKCJjb20uZ29vZ2xlLmFuZHJvaWQubWF0ZXJpYWw6bWF0ZXJpYWw6MS4xMi4wIikKICAgIGltcGxlbWVudGF0aW9uKCJhbmRyb2lkeC5jb25zdHJhaW50bGF5b3V0OmNvbnN0cmFpbnRsYXlvdXQ6Mi4xLjQiKQogICAgaW1wbGVtZW50YXRpb24oImFuZHJvaWR4LmNvb3JkaW5hdG9ybGF5b3V0OmNvb3JkaW5hdG9ybGF5b3V0OjEuMi4wIikKICAgIGltcGxlbWVudGF0aW9uKCJhbmRyb2lkeC5yZWN5Y2xlcnZpZXc6cmVjeWNsZXJ2aWV3OjEuMy4yIikKICAgIGltcGxlbWVudGF0aW9uKCJhbmRyb2lkeC5saWZlY3ljbGU6bGlmZWN5Y2xlLXJ1bnRpbWUta3R4OjIuOC40IikKICAgIGltcGxlbWVudGF0aW9uKCJhbmRyb2lkeC5saWZlY3ljbGU6bGlmZWN5Y2xlLXZpZXdtb2RlbC1rdHg6Mi44LjQiKQogICAgaW1wbGVtZW50YXRpb24oImFuZHJvaWR4LmxpZmVjeWNsZTpsaWZlY3ljbGUtbGl2ZWRhdGEta3R4OjIuOC40IikKICAgIGltcGxlbWVudGF0aW9uKCJhbmRyb2lkeC5hY3Rpdml0eTphY3Rpdml0eS1rdHg6MS45LjEiKQogICAgaW1wbGVtZW50YXRpb24oImFuZHJvaWR4LmZyYWdtZW50OmZyYWdtZW50LWt0eDoxLjguMiIpCgogICAgLy8gUm9vbSAocGVyLWNoYXQgbG9jayBtZXRhZGF0YSwgZHJhZnQgY2FjaGUsIGJsb2NrZWQgbnVtYmVycykKICAgIGltcGxlbWVudGF0aW9uKCJhbmRyb2lkeC5yb29tOnJvb20tcnVudGltZToyLjYuMSIpCiAgICBpbXBsZW1lbnRhdGlvbigiYW5kcm9pZHgucm9vbTpyb29tLWt0eDoyLjYuMSIpCiAgICBrc3AoImFuZHJvaWR4LnJvb206cm9vbS1jb21waWxlcjoyLjYuMSIpCgogICAgLy8gQmlvbWV0cmljIGF1dGggZm9yIGNoYXQgbG9jawogICAgaW1wbGVtZW50YXRpb24oImFuZHJvaWR4LmJpb21ldHJpYzpiaW9tZXRyaWM6MS4xLjAiKQoKICAgIC8vIFNlY3VyaXR5IChlbmNyeXB0ZWQgc2hhcmVkIHByZWZzIGZvciBQSU4gaGFzaC9zYWx0KQogICAgaW1wbGVtZW50YXRpb24oImFuZHJvaWR4LnNlY3VyaXR5OnNlY3VyaXR5LWNyeXB0bzoxLjEuMC1hbHBoYTA2IikKCiAgICAvLyBXb3JrTWFuYWdlciAoZGVsYXllZCBtZXNzYWdlIHN0YXR1cyB1cGRhdGVzLCBzY2hlZHVsZWQgc2VuZHMpCiAgICBpbXBsZW1lbnRhdGlvbigiYW5kcm9pZHgud29yazp3b3JrLXJ1bnRpbWUta3R4OjIuOS4xIikKCiAgICAvLyBDb3JvdXRpbmVzCiAgICBpbXBsZW1lbnRhdGlvbigib3JnLmpldGJyYWlucy5rb3RsaW54OmtvdGxpbngtY29yb3V0aW5lcy1hbmRyb2lkOjEuOC4xIikKCiAgICAvLyBJbWFnZSBsb2FkaW5nIChjb250YWN0IHBob3RvcywgTU1TIGF0dGFjaG1lbnRzKQogICAgaW1wbGVtZW50YXRpb24oImlvLmNvaWwta3Q6Y29pbDoyLjYuMCIpCgogICAgLy8gRW1vamkgc3VwcG9ydAogICAgaW1wbGVtZW50YXRpb24oImFuZHJvaWR4LmVtb2ppMjplbW9qaTI6MS40LjAiKQogICAgaW1wbGVtZW50YXRpb24oImFuZHJvaWR4LmVtb2ppMjplbW9qaTItZW1vamlwaWNrZXI6MS40LjAiKQoKICAgIHRlc3RJbXBsZW1lbnRhdGlvbigianVuaXQ6anVuaXQ6NC4xMy4yIikKICAgIGFuZHJvaWRUZXN0SW1wbGVtZW50YXRpb24oImFuZHJvaWR4LnRlc3QuZXh0Omp1bml0OjEuMi4xIikKICAgIGFuZHJvaWRUZXN0SW1wbGVtZW50YXRpb24oImFuZHJvaWR4LnRlc3QuZXNwcmVzc286ZXNwcmVzc28tY29yZTozLjYuMSIpCn0K'))"
+          echo "=== settings.gradle.kts ===" && head -5 settings.gradle.kts
+          echo "=== build.gradle.kts ===" && head -3 build.gradle.kts
 
       - name: Build debug APK
         run: gradle assembleDebug --no-daemon
@@ -39,57 +47,3 @@ jobs:
           name: OriginSMS-debug
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
-
-  build-release:
-    name: Build signed release APK
-    runs-on: ubuntu-latest
-    needs: build-debug
-    if: startsWith(github.ref, 'refs/tags/v')
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: "8.7"
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Decode keystore
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-        run: |
-          echo "$KEYSTORE_BASE64" | base64 -d > release.keystore
-
-      - name: Build signed release APK
-        env:
-          KEYSTORE_PATH: ${{ github.workspace }}/release.keystore
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: gradle assembleRelease --no-daemon
-
-      - name: Remove keystore file
-        if: always()
-        run: rm -f release.keystore
-
-      - name: Upload release APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: OriginSMS-release
-          path: app/build/outputs/apk/release/*.apk
-          if-no-files-found: error
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: app/build/outputs/apk/release/*.apk
-          generate_release_notes: true

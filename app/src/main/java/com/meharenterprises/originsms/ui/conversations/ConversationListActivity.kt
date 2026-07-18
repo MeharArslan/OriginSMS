@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.meharenterprises.originsms.R
 import com.meharenterprises.originsms.core.ConversationSummary
 import com.meharenterprises.originsms.lock.LockSetupActivity
@@ -62,9 +63,10 @@ class ConversationListActivity : AppCompatActivity() {
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { result ->
-        if (result.values.all { it }) {
+        if (result.values.all { it } && isDefaultSmsApp()) {
             viewModel.loadConversations()
         }
+        refreshDefaultAppBanner()
     }
 
     private val roleRequestLauncher = registerForActivityResult(
@@ -165,8 +167,12 @@ class ConversationListActivity : AppCompatActivity() {
             dao.getThreadsDueForAutoUnmute(now).forEach { entry ->
                 dao.setMutedUntil(entry.threadId, false, 0L)
             }
-            viewModel.loadConversations()
+            // Only load if app is default SMS app
+            if (isDefaultSmsApp()) {
+                viewModel.loadConversations()
+            }
         }
+        refreshDefaultAppBanner()
     }
 
     private fun setupToolbar() {
@@ -247,16 +253,20 @@ class ConversationListActivity : AppCompatActivity() {
         }
         findViewById<View>(R.id.btnSelectionDelete).setOnClickListener {
             val ids = adapter.getSelectedThreadIds()
-            AlertDialog.Builder(this)
-                .setTitle(R.string.menu_delete_chat)
-                .setMessage("${getString(R.string.menu_delete_chat)} (${ids.size})")
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    viewModel.moveToTrash(ids)
-                    adapter.clearSelection()
-                    updateSelectionBar()
-                }
-                .setNegativeButton(android.R.string.cancel, null)
-                .show()
+            val count = ids.size
+            val name = if (count == 1) adapter.currentList.firstOrNull { it.threadId in ids }?.displayName ?: "Chat" else "$count chats"
+            showMoveToTrashDialog(name, onConfirm = {
+                viewModel.moveToTrash(ids)
+                adapter.clearSelection()
+                updateSelectionBar()
+                val msg = if (count == 1) "1 chat moved to Trash" else "$count chats moved to Trash"
+                com.google.android.material.snackbar.Snackbar.make(
+                    findViewById(R.id.recyclerConversations), msg,
+                    com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                ).setAction("Undo") {
+                    viewModel.restoreFromTrash(ids)
+                }.show()
+            })
         }
         findViewById<View>(R.id.btnSelectionMore).setOnClickListener { view ->
             val popup = android.widget.PopupMenu(this, view)
@@ -314,28 +324,125 @@ class ConversationListActivity : AppCompatActivity() {
             0, androidx.recyclerview.widget.ItemTouchHelper.LEFT or androidx.recyclerview.widget.ItemTouchHelper.RIGHT
         ) {
             override fun onMove(rv: RecyclerView, vh: RecyclerView.ViewHolder, t: RecyclerView.ViewHolder) = false
+
+            override fun onChildDraw(
+                c: android.graphics.Canvas, rv: RecyclerView, vh: RecyclerView.ViewHolder,
+                dX: Float, dY: Float, actionState: Int, isActive: Boolean
+            ) {
+                val item = vh.itemView
+                val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+                val margin = (20 * resources.displayMetrics.density).toInt()
+                val iconSize = (28 * resources.displayMetrics.density).toInt()
+                val midY = ((item.top + item.bottom) / 2f)
+
+                if (dX > 0) {
+                    // Swipe RIGHT — green Archive background (full width)
+                    paint.color = android.graphics.Color.parseColor("#388E3C")
+                    c.drawRect(item.left.toFloat(), item.top.toFloat(),
+                        item.left + dX.coerceAtLeast(item.width.toFloat()),
+                        item.bottom.toFloat(), paint)
+                    // Archive icon
+                    val archiveIcon = androidx.core.content.ContextCompat.getDrawable(
+                        this@ConversationListActivity, R.drawable.ic_swipe_archive)
+                    archiveIcon?.setTint(android.graphics.Color.WHITE)
+                    val left = item.left + margin
+                    archiveIcon?.setBounds(left, (midY - iconSize/2).toInt(),
+                        left + iconSize, (midY + iconSize/2).toInt())
+                    archiveIcon?.draw(c)
+                } else if (dX < 0) {
+                    // Swipe LEFT — red Delete background (full width)
+                    paint.color = android.graphics.Color.parseColor("#C62828")
+                    c.drawRect(item.right + dX.coerceAtMost(-item.width.toFloat()),
+                        item.top.toFloat(), item.right.toFloat(), item.bottom.toFloat(), paint)
+                    // Delete icon
+                    val deleteIcon = androidx.core.content.ContextCompat.getDrawable(
+                        this@ConversationListActivity, R.drawable.ic_swipe_delete)
+                    deleteIcon?.setTint(android.graphics.Color.WHITE)
+                    val right = item.right - margin
+                    deleteIcon?.setBounds(right - iconSize, (midY - iconSize/2).toInt(),
+                        right, (midY + iconSize/2).toInt())
+                    deleteIcon?.draw(c)
+                }
+                super.onChildDraw(c, rv, vh, dX, dY, actionState, isActive)
+            }
+
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val pos = viewHolder.adapterPosition
                 if (pos < 0) return
                 val conv = adapter.currentList.getOrNull(pos) ?: return
+                // Always reset highlight immediately
+                adapter.notifyItemChanged(pos)
                 val actionKey = if (direction == androidx.recyclerview.widget.ItemTouchHelper.RIGHT)
                     GeneralSettingsActivity.KEY_SWIPE_RIGHT else GeneralSettingsActivity.KEY_SWIPE_LEFT
                 val action = swipePrefs.getInt(actionKey, if (direction == androidx.recyclerview.widget.ItemTouchHelper.RIGHT) 0 else 1)
                 when (action) {
-                    0 -> viewModel.setArchived(setOf(conv.threadId), true)  // Archive
-                    1 -> viewModel.moveToTrash(setOf(conv.threadId))        // Delete→Trash
-                    2 -> viewModel.markRead(conv.threadId)                   // Mark read
-                    // 3 = None — just restore
-                    else -> adapter.notifyItemChanged(pos)
+                    0 -> {
+                        AlertDialog.Builder(this@ConversationListActivity)
+                            .setTitle("Archive chat?")
+                            .setMessage(conv.displayName)
+                            .setPositiveButton("Archive") { _, _ ->
+                                viewModel.setArchived(setOf(conv.threadId), true)
+                                android.widget.Toast.makeText(this@ConversationListActivity,
+                                    "${conv.displayName} archived", android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .show()
+                    }
+                    1 -> {
+                        showMoveToTrashDialog(conv.displayName, onConfirm = {
+                            viewModel.moveToTrash(setOf(conv.threadId))
+                            com.google.android.material.snackbar.Snackbar.make(
+                                findViewById(R.id.recyclerConversations),
+                                "1 chat moved to Trash",
+                                com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                            ).setAction("Undo") {
+                                viewModel.restoreFromTrash(setOf(conv.threadId))
+                            }.show()
+                        })
+                    }
+                    2 -> {
+                        viewModel.markRead(conv.threadId)
+                        android.widget.Toast.makeText(this@ConversationListActivity,
+                            "Marked as read", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                    else -> { /* already notified */ }
                 }
-                if (action == 3) adapter.notifyItemChanged(pos)
             }
         }
         androidx.recyclerview.widget.ItemTouchHelper(swipeCallback).attachToRecyclerView(recycler)
     }
 
+    private fun showMoveToTrashDialog(
+        name: String,
+        onConfirm: () -> Unit,
+        onCancel: (() -> Unit)? = null
+    ) {
+        // Material Design 3 dialog — no Block Number button
+        val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(
+            this, com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog_Centered
+        )
+            .setTitle("Delete conversation?")
+            .setMessage("This conversation will be moved to Trash and can be restored before it is permanently deleted.")
+            .setNegativeButton("Cancel") { d, _ ->
+                d.dismiss()
+                onCancel?.invoke()
+            }
+            .setPositiveButton("Move to Trash") { _, _ ->
+                onConfirm()
+            }
+            .create()
+
+        dialog.show()
+
+        // Style the positive button as filled Material button
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.let { btn ->
+            btn.setTextColor(getColor(R.color.origin_accent))
+        }
+    }
+
     private fun setupFab() {
-        findViewById<FloatingActionButton>(R.id.fabNewMessage).setOnClickListener {
+        val fabNew = findViewById<com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton>(R.id.fabNewMessage)
+        fabNew.setOnClickListener {
             startActivity(Intent(this, ComposeActivity::class.java))
         }
 
@@ -351,6 +458,13 @@ class ConversationListActivity : AppCompatActivity() {
                 val firstVisible = (rv.layoutManager as? LinearLayoutManager)
                     ?.findFirstVisibleItemPosition() ?: 0
                 fabScrollTop.visibility = if (firstVisible > 5) View.VISIBLE else View.GONE
+
+                // Animate FAB: collapse (hide text) when scrolling down, expand when at top
+                if (dy > 10) {
+                    fabNew.shrink() // show only icon
+                } else if (dy < -10 || firstVisible == 0) {
+                    fabNew.extend() // show icon + text
+                }
             }
         })
     }
@@ -360,22 +474,76 @@ class ConversationListActivity : AppCompatActivity() {
     // ------------------------------------------------------------------
 
     private fun setupDefaultAppBanner() {
-        findViewById<View>(R.id.btnSetDefault).setOnClickListener {
+        setupOnboarding()
+    }
+
+    private fun setupOnboarding() {
+        val banner = findViewById<View>(R.id.defaultAppBanner)
+        banner.visibility = View.GONE
+
+        val container = findViewById<android.view.ViewGroup>(R.id.onboardingContainer) ?: return
+
+        // Wire up the onboarding button
+        container.findViewById<View>(R.id.btnSetDefaultOnboarding)?.setOnClickListener {
             requestDefaultSmsRole()
         }
+
+        // Start blob animation
+        container.findViewById<com.meharenterprises.originsms.ui.BlobAnimationView>(R.id.blobBackground)?.startAnimation()
+
+        // Illustration is self-animating via SmsIllustrationView.onDraw
+        // No outer/mid circle views in simplified layout
     }
 
     private fun maybePromptDefaultAppOnFirstLaunch() {
+        // On first launch auto-prompt; after that rely on onboarding button
         val alreadyPrompted = prefs.getBoolean(KEY_PROMPTED_DEFAULT, false)
         if (!alreadyPrompted && !isDefaultSmsApp()) {
             prefs.edit().putBoolean(KEY_PROMPTED_DEFAULT, true).apply()
-            requestDefaultSmsRole()
+            // Don't auto-show dialog — let user tap the button on onboarding screen
         }
     }
 
+    private fun animatePulse(view: View, duration: Long) {
+        val anim = android.animation.ObjectAnimator.ofPropertyValuesHolder(
+            view,
+            android.animation.PropertyValuesHolder.ofFloat("scaleX", 1f, 1.08f, 1f),
+            android.animation.PropertyValuesHolder.ofFloat("scaleY", 1f, 1.08f, 1f)
+        )
+        anim.duration = duration
+        anim.repeatCount = android.animation.ValueAnimator.INFINITE
+        anim.interpolator = android.view.animation.AccelerateDecelerateInterpolator()
+        anim.start()
+    }
+
     private fun refreshDefaultAppBanner() {
-        val banner = findViewById<View>(R.id.defaultAppBanner)
-        banner.visibility = if (isDefaultSmsApp()) View.GONE else View.VISIBLE
+        val onboarding = findViewById<View>(R.id.onboardingContainer) ?: return
+        val recycler = findViewById<View>(R.id.recyclerConversations)
+        val emptyState = findViewById<View>(R.id.emptyState)
+        val fabNew = findViewById<View>(R.id.fabNewMessage)
+        val fabScroll = recycler?.let {
+            (it.parent as? android.view.ViewGroup)?.let { p ->
+                p.findViewById<View>(R.id.fabScrollTop)
+            }
+        }
+
+        if (isDefaultSmsApp()) {
+            if (onboarding.visibility == View.VISIBLE) {
+                onboarding.animate().alpha(0f).setDuration(300)
+                    .withEndAction { onboarding.visibility = View.GONE }.start()
+            }
+            recycler?.visibility = View.VISIBLE
+            findViewById<View>(R.id.fabWrapper)?.visibility = View.VISIBLE
+        } else {
+            recycler?.visibility = View.GONE
+            emptyState?.visibility = View.GONE
+            findViewById<View>(R.id.fabWrapper)?.visibility = View.GONE
+            if (onboarding.visibility != View.VISIBLE) {
+                onboarding.alpha = 0f
+                onboarding.visibility = View.VISIBLE
+                onboarding.animate().alpha(1f).setDuration(400).start()
+            }
+        }
     }
 
     private fun isDefaultSmsApp(): Boolean {
@@ -409,14 +577,20 @@ class ConversationListActivity : AppCompatActivity() {
     }
 
     private fun ensurePermissionsThenLoad() {
+        // Step 1: Request permissions first (regardless of default SMS status)
         val missing = requiredPermissions.filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
         }
-        if (missing.isEmpty()) {
-            viewModel.loadConversations()
-        } else {
+        if (missing.isNotEmpty()) {
             permissionLauncher.launch(missing.toTypedArray())
+            return
         }
+        // Step 2: Check default SMS
+        if (!isDefaultSmsApp()) {
+            refreshDefaultAppBanner()
+            return
+        }
+        viewModel.loadConversations()
     }
 
     private fun openConversation(conversation: ConversationSummary) {

@@ -274,7 +274,7 @@ class ThreadActivity : AppCompatActivity() {
                 true
             }
             R.id.action_delete_thread -> { confirmDeleteThread(); true }
-            R.id.action_star -> { startActivity(android.content.Intent(this, com.meharenterprises.originsms.ui.StarredMessagesActivity::class.java)); true }
+            R.id.action_starred_messages -> { startActivity(android.content.Intent(this, com.meharenterprises.originsms.ui.StarredMessagesActivity::class.java)); true }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -438,10 +438,10 @@ class ThreadActivity : AppCompatActivity() {
                     selected.forEach { msg ->
                         db.starredMessageDao().star(com.meharenterprises.originsms.data.db.StarredMessageEntity(
                             messageId=msg.id, threadId=threadId, address=address,
-                            body=msg.body, dateMillis=msg.dateMs, starredAtMillis=System.currentTimeMillis()
+                            body=msg.body, dateMillis=msg.dateMillis, starredAtMillis=System.currentTimeMillis()
                         ))
                     }
-                    viewModel.refreshMessages()
+                    viewModel.loadMessages()
                 }
             }
             adapter.clearSelection()

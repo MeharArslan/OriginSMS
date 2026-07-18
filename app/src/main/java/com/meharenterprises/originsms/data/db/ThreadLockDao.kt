@@ -61,4 +61,10 @@ interface ThreadLockDao {
 
     @Query("DELETE FROM thread_lock_state WHERE threadId = :threadId")
     suspend fun clear(threadId: Long)
+
+    @Query("SELECT * FROM thread_lock_state WHERE deletedAtMillis > 0")
+    suspend fun getTrashedThreads(): List<ThreadLockEntity>
+
+    @Query("SELECT * FROM thread_lock_state WHERE deletedAtMillis > 0 AND deletedAtMillis <= :cutoff")
+    suspend fun getThreadsDueForPermanentDeletion(cutoff: Long): List<ThreadLockEntity>
 }

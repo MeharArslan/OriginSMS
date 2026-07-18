@@ -532,6 +532,17 @@ class SmsRepository(private val context: Context) {
         )
     }
 
+    suspend fun getThreadIdForAddress(address: String): Long = withContext(Dispatchers.IO) {
+        val cursor = context.contentResolver.query(
+            android.provider.Telephony.Sms.CONTENT_URI,
+            arrayOf(android.provider.Telephony.Sms.THREAD_ID),
+            "${android.provider.Telephony.Sms.ADDRESS} = ?",
+            arrayOf(address),
+            "${android.provider.Telephony.Sms.DATE} DESC LIMIT 1"
+        )
+        cursor?.use { if (it.moveToFirst()) it.getLong(0) else -1L } ?: -1L
+    }
+
     companion object {
         const val ACTION_SMS_SENT = "com.meharenterprises.originsms.SMS_SENT"
         const val ACTION_SMS_DELIVERED = "com.meharenterprises.originsms.SMS_DELIVERED"

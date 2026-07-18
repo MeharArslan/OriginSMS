@@ -95,4 +95,16 @@
         tools:listitem="@layout/item_conversation"
         tools:visibility="visible" />
 
+
+    <com.google.android.material.appbar.MaterialToolbar android:id="@+id/vaultToolbar"
+        android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" android:visibility="gone" />
+    <LinearLayout android:id="@+id/pinContainer"
+        android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+    <LinearLayout android:id="@+id/vaultContainer"
+        android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:orientation="vertical" android:visibility="gone">
+        <TextView android:id="@+id/txtVaultEmpty"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:gravity="center" android:padding="24dp" android:text="No hidden chats" android:visibility="gone" />
+    </LinearLayout>
 </LinearLayout>

@@ -26,6 +26,11 @@
         android:textSize="12sp"
         android:gravity="center" />
 
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="8dp">
+        <Button android:id="@+id/btnRestoreAll" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Restore All" />
+        <Button android:id="@+id/btnDeleteAll" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="4dp" android:text="Delete All" />
+    </LinearLayout>
+    <TextView android:id="@+id/txtTrashSnippet" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:visibility="gone" />
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerTrash"
         android:layout_width="match_parent"

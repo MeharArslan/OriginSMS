@@ -131,7 +131,7 @@ class NotificationHelper(private val context: Context) {
 
     private fun loadContactAvatar(address: String): Bitmap? {
         return try {
-            val contact = ContactsHelper(context).getContactInfo(address)
+            val contact = ContactsHelper(context).resolve(address)
             val photoUri = contact.photoUri ?: return null
             context.contentResolver.openInputStream(Uri.parse(photoUri))?.use { stream ->
                 BitmapFactory.decodeStream(stream)

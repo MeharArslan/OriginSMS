@@ -52,6 +52,12 @@ class LockUnlockActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val mode = com.meharenterprises.originsms.ui.ThemePreferenceManager(this).getCurrentMode()
+        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(when(mode) {
+            com.meharenterprises.originsms.ui.ThemePreferenceManager.ThemeMode.DARK -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+            com.meharenterprises.originsms.ui.ThemePreferenceManager.ThemeMode.LIGHT -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+            else -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        })
         setContentView(R.layout.activity_lock_unlock)
 
         pinManager = PinManager(this)

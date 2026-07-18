@@ -42,7 +42,27 @@
             android:textSize="13sp"
             tools:text="Enabled" />
 
+    
+    <LinearLayout android:id="@+id/rowDisplayName"
+        android:layout_width="match_parent" android:layout_height="56dp"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:paddingStart="16dp" android:paddingEnd="16dp"
+        android:background="?attr/selectableItemBackground">
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:text="Display Name" android:textSize="16sp" />
+        <TextView android:id="@+id/txtDisplayNameValue"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textColor="?android:textColorSecondary" />
     </LinearLayout>
+    <LinearLayout android:id="@+id/rowAutoHideTimer"
+        android:layout_width="match_parent" android:layout_height="56dp"
+        android:orientation="horizontal" android:gravity="center_vertical"
+        android:paddingStart="16dp" android:paddingEnd="16dp"
+        android:background="?attr/selectableItemBackground">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Auto-hide Timer" android:textSize="16sp" />
+    </LinearLayout>
+</LinearLayout>
 
     <View
         android:layout_width="match_parent"

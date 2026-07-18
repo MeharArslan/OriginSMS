@@ -46,4 +46,28 @@
         android:textSize="11sp"
         tools:text="Delivered · 10:42 AM" />
 
+
+        <View android:id="@+id/sentBubbleDrawable"
+            android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+        <ImageView android:id="@+id/imgStarIndicator"
+            android:layout_width="14dp" android:layout_height="14dp"
+            android:src="@drawable/ic_star_filled" android:visibility="gone" />
+        <androidx.cardview.widget.CardView android:id="@+id/cardLinkPreview"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:visibility="gone">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="8dp">
+                <ImageView android:id="@+id/imgLinkPreview"
+                    android:layout_width="match_parent" android:layout_height="80dp"
+                    android:scaleType="centerCrop" android:visibility="gone" />
+                <TextView android:id="@+id/txtLinkTitle"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:textStyle="bold" />
+                <TextView android:id="@+id/txtLinkDesc"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" />
+                <TextView android:id="@+id/txtLinkUrl"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:textColor="@color/origin_primary" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 </LinearLayout>

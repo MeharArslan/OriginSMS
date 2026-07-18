@@ -616,7 +616,7 @@ public final class SettingsActivity extends AppCompatActivity {
             destination$iv$iv.add(it.getDisplayName());
         }
         final ArrayList arrayList = (List) destination$iv$iv;
-        final ?? r6 = new ArrayAdapter<String>(this, arrayList) { // from class: com.meharenterprises.originsms.ui.SettingsActivity$showAutoHideContactPicker$adapter$1
+        final ArrayAdapter<String> r6 = new ArrayAdapter<String>(this, arrayList) { // from class: com.meharenterprises.originsms.ui.SettingsActivity$showAutoHideContactPicker$adapter$1
             /* JADX INFO: Access modifiers changed from: package-private */
             {
                 SettingsActivity settingsActivity = this;

@@ -675,7 +675,7 @@ public final class ConversationListActivity extends AppCompatActivity {
             textView.setText(String.valueOf(count));
             return;
         }
-        ?? r3 = this.selectionActionBar;
+        android.widget.TextView r3 = this.selectionActionBar;
         if (r3 == 0) {
             Intrinsics.throwUninitializedPropertyAccessException("selectionActionBar");
         } else {

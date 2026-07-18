@@ -16,7 +16,10 @@ data class ChatTheme(
     val textSecondary: Int,
     val accentColor: Int,
     val bubbleCornerRadius: Float,
-    val statusBarColor: Int
+    val statusBarColor: Int,
+    val sentBubbleDrawable: Int = android.R.color.transparent,
+    val recvBubbleDrawable: Int = android.R.color.transparent,
+    val chatBackgroundDrawable: Int = android.R.color.transparent
 )
 
 object ChatThemeManager {

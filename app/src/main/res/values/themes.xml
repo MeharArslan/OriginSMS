@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.OriginSMS" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/origin_primary</item>
+        <item name="colorPrimaryVariant">@color/origin_primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/origin_accent</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="android:statusBarColor">@color/origin_primary_dark</item>
+        <item name="android:navigationBarColor">@color/bg_light</item>
+        <item name="android:windowBackground">@color/bg_light</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+    </style>
+
+    <style name="Theme.OriginSMS.Splash" parent="Theme.OriginSMS">
+        <item name="android:windowBackground">@color/origin_primary</item>
+        <item name="android:statusBarColor">@color/origin_primary</item>
+    </style>
+
+    <style name="Theme.OriginSMS.Lock" parent="Theme.OriginSMS">
+        <item name="android:windowBackground">@color/bg_light</item>
+        <item name="android:windowIsTranslucent">false</item>
+    </style>
+
+    <style name="Theme.OriginSMS.Transparent" parent="Theme.OriginSMS">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="ShapeOverlay.AttachmentBubble" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+    <style name="Widget.OriginSMS" parent="android:Widget" />
+    <style name="Widget.OriginSMS.SentBubble" parent="Widget.OriginSMS" />
+    <style name="Widget.OriginSMS.ReceivedBubble" parent="Widget.OriginSMS" />
+</resources>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/origin_primary"
+        android:theme="@style/Theme.OriginSMS"
+        app:navigationIcon="@drawable/ic_back"
+        app:titleTextColor="@android:color/white" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerMessages"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="4dp" />
+
+    <TextView
+        android:id="@+id/txtTypingIndicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="4dp"
+        android:textColor="@color/text_secondary_light"
+        android:textSize="12sp"
+        android:textStyle="italic"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            app:cardCornerRadius="24dp"
+            app:cardBackgroundColor="?attr/colorSurfaceVariant"
+            app:cardElevation="0dp">
+            <EditText
+                android:id="@+id/editMessage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:hint="Message"
+                android:maxLines="4"
+                android:paddingHorizontal="16dp"
+                android:textColor="@color/text_primary_light"
+                android:textSize="15sp" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btnSend"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:backgroundTint="@color/origin_primary"
+            android:contentDescription="Send"
+            android:src="@drawable/ic_send"
+            app:fabCustomSize="48dp"
+            app:maxImageSize="22dp"
+            app:tint="@android:color/white" />
+
+    </LinearLayout>
+</LinearLayout>

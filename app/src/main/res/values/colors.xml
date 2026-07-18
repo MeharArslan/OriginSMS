@@ -56,4 +56,6 @@
     <color name="input_field_bg">@color/bubble_received_light</color>
     <color name="input_field_text">@color/text_primary_light</color>
     <color name="input_field_hint">@color/text_secondary_light</color>
+    <color name="switch_thumb_tint">#FFFFFF</color>
+    <color name="switch_track_tint">#6200EE</color>
 </resources>

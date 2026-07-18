@@ -12,15 +12,15 @@
                 android:fillColor="@color/origin_primary"
                 android:pathData="M60,10 C38,10 20,25 20,43 C20,55 27,65 38,71 L34,92 L56,79 C57.3,79.2 58.6,79.3 60,79.3 C82,79.3 100,64 100,46 C100,28 82,10 60,10 Z" />
             <!-- Dot 1 -->
-            <path android:id="dot1"
+            <path android:name="dot1"
                 android:fillColor="@android:color/white"
                 android:pathData="M40,48 m-7,0 a7,7 0 1,0 14,0 a7,7 0 1,0 -14,0" />
             <!-- Dot 2 -->
-            <path android:id="dot2"
+            <path android:name="dot2"
                 android:fillColor="@android:color/white"
                 android:pathData="M60,48 m-7,0 a7,7 0 1,0 14,0 a7,7 0 1,0 -14,0" />
             <!-- Dot 3 -->
-            <path android:id="dot3"
+            <path android:name="dot3"
                 android:fillColor="@android:color/white"
                 android:pathData="M80,48 m-7,0 a7,7 0 1,0 14,0 a7,7 0 1,0 -14,0" />
         </vector>

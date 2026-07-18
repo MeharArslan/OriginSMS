@@ -273,10 +273,8 @@ class ThreadActivity : AppCompatActivity() {
                     .show()
                 true
             }
-            R.id.action_delete_thread -> {
-                confirmDeleteThread()
-                true
-            }
+            R.id.action_delete_thread -> { confirmDeleteThread(); true }
+            R.id.action_star -> { startActivity(android.content.Intent(this, com.meharenterprises.originsms.ui.StarredMessagesActivity::class.java)); true }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -435,11 +433,16 @@ class ThreadActivity : AppCompatActivity() {
         findViewById<View>(R.id.btnMessageStar).setOnClickListener {
             val selected = currentSelectedMessages()
             if (selected.isNotEmpty()) {
-                android.widget.Toast.makeText(
-                    this,
-                    getString(R.string.action_star) + " (${selected.size})",
-                    android.widget.Toast.LENGTH_SHORT
-                ).show()
+                lifecycleScope.launch {
+                    val db = com.meharenterprises.originsms.data.db.OriginDatabase.getInstance(this@ThreadActivity)
+                    selected.forEach { msg ->
+                        db.starredMessageDao().star(com.meharenterprises.originsms.data.db.StarredMessageEntity(
+                            messageId=msg.id, threadId=threadId, address=address,
+                            body=msg.body, dateMillis=msg.dateMs, starredAtMillis=System.currentTimeMillis()
+                        ))
+                    }
+                    viewModel.refreshMessages()
+                }
             }
             adapter.clearSelection()
             updateMessageSelectionBar()

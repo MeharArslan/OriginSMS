@@ -31,7 +31,6 @@
         android:paddingHorizontal="14dp"
         android:paddingVertical="10dp"
         android:textColor="@color/bubble_received_text_light"
-        android:textIsSelectable="true"
         android:textSize="15sp"
         tools:text="Haan theek hai, main 10 baje pohanch jaunga" />
 

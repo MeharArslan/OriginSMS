@@ -31,7 +31,6 @@
         android:paddingHorizontal="14dp"
         android:paddingVertical="10dp"
         android:textColor="@color/bubble_sent_text_light"
-        android:textIsSelectable="true"
         android:textSize="15sp"
         tools:text="Theek hai bhai, kal subah 10 baje mil lete hain office mein" />
 

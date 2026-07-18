@@ -138,7 +138,21 @@ class MessageAdapter(
                 holder.txtBody.textSize = 15f * textScaleFactor
                 holder.txtBody.visibility = if (message.body.isBlank()) View.GONE else View.VISIBLE
                 holder.txtBody.text = message.body
-                holder.imgStarIndicator?.visibility = if (message.isStarred) View.VISIBLE else View.GONE
+                if (message.isStarred) {
+                    if (holder.imgStarIndicator?.visibility != View.VISIBLE) {
+                        holder.imgStarIndicator?.visibility = View.VISIBLE
+                        holder.imgStarIndicator?.let { img ->
+                            img.alpha = 0f; img.scaleX = 0.3f; img.scaleY = 0.3f
+                            android.animation.AnimatorSet().apply {
+                                playTogether(
+                                    android.animation.ObjectAnimator.ofFloat(img,"alpha",0f,1f),
+                                    android.animation.ObjectAnimator.ofFloat(img,"scaleX",0.3f,1.2f,1f),
+                                    android.animation.ObjectAnimator.ofFloat(img,"scaleY",0.3f,1.2f,1f)
+                                ); duration=350; start()
+                            }
+                        }
+                    }
+                } else { holder.imgStarIndicator?.visibility = View.GONE }
                 // Note: We don't set autoLinkMask here to avoid intercepting long-press
                 val sentStatusText = when (message.box) {
                     MessageBox.FAILED -> holder.itemView.context.getString(R.string.status_failed)
@@ -200,7 +214,21 @@ class MessageAdapter(
                 holder.txtBody.textSize = 15f * textScaleFactor
                 holder.txtBody.visibility = if (message.body.isBlank()) View.GONE else View.VISIBLE
                 holder.txtBody.text = message.body
-                holder.imgStarIndicator?.visibility = if (message.isStarred) View.VISIBLE else View.GONE
+                if (message.isStarred) {
+                    if (holder.imgStarIndicator?.visibility != View.VISIBLE) {
+                        holder.imgStarIndicator?.visibility = View.VISIBLE
+                        holder.imgStarIndicator?.let { img ->
+                            img.alpha = 0f; img.scaleX = 0.3f; img.scaleY = 0.3f
+                            android.animation.AnimatorSet().apply {
+                                playTogether(
+                                    android.animation.ObjectAnimator.ofFloat(img,"alpha",0f,1f),
+                                    android.animation.ObjectAnimator.ofFloat(img,"scaleX",0.3f,1.2f,1f),
+                                    android.animation.ObjectAnimator.ofFloat(img,"scaleY",0.3f,1.2f,1f)
+                                ); duration=350; start()
+                            }
+                        }
+                    }
+                } else { holder.imgStarIndicator?.visibility = View.GONE }
                 // Note: We don't set autoLinkMask here to avoid intercepting long-press
                 holder.txtStatus.text = time
                 // Same Google Messages behavior for received

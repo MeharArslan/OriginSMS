@@ -1,303 +1,186 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:background="@color/bg_surface"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/bg_surface"
+    android:orientation="vertical">
+
     <com.google.android.material.appbar.MaterialToolbar
-        android:theme="@style/Theme.OriginSMS"
         android:id="@+id/toolbar"
-        android:background="@color/origin_primary"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
+        android:background="@color/origin_primary"
+        android:theme="@style/Theme.OriginSMS"
         app:navigationIcon="@drawable/ic_back"
         app:title="@string/settings_title"
-        app:titleTextColor="@android:color/white"/>
+        app:titleTextColor="@android:color/white" />
+
     <LinearLayout
+        android:id="@+id/rowChatLock"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:id="@+id/rowChatLock"
-        android:background="?attr/selectableItemBackground"
-        android:padding="@dimen/spacing_md"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:padding="@dimen/spacing_md">
+
         <TextView
-            android:textSize="16sp"
-            android:textColor="@color/text_primary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="@string/settings_chat_lock"
-            android:layout_weight="1"/>
+            android:textColor="@color/text_primary"
+            android:textSize="16sp" />
+
         <TextView
-            android:textSize="13sp"
-            android:textColor="@color/text_secondary"
             android:id="@+id/txtChatLockStatus"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp"
+            tools:text="Enabled" />
+
     </LinearLayout>
+
     <View
-        android:background="@color/divider"
         android:layout_width="match_parent"
-        android:layout_height="1dp"/>
+        android:layout_height="1dp"
+        android:background="@color/divider" />
+
     <LinearLayout
+        android:id="@+id/rowBiometric"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:id="@+id/rowBiometric"
-        android:padding="@dimen/spacing_md"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:padding="@dimen/spacing_md">
+
         <TextView
-            android:textSize="16sp"
-            android:textColor="@color/text_primary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="@string/lock_enable_biometric_toggle"
-            android:layout_weight="1"/>
+            android:textColor="@color/text_primary"
+            android:textSize="16sp" />
+
         <Switch
             android:id="@+id/switchBiometric"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
+
     <View
-        android:background="@color/divider"
         android:layout_width="match_parent"
-        android:layout_height="1dp"/>
+        android:layout_height="1dp"
+        android:background="@color/divider" />
+
     <LinearLayout
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:id="@+id/rowResetPin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
-        android:padding="@dimen/spacing_md"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:textSize="16sp"
-            android:textColor="@color/text_primary"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/lock_forgot_pin"
-            android:layout_weight="1"/>
-    </LinearLayout>
-    <View
-        android:background="@color/divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"/>
-    <LinearLayout
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:id="@+id/rowDefaultApp"
-        android:background="?attr/selectableItemBackground"
-        android:padding="@dimen/spacing_md"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:padding="@dimen/spacing_md">
+
         <TextView
-            android:textSize="16sp"
-            android:textColor="@color/text_primary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/settings_default_app"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:text="@string/lock_forgot_pin"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider" />
+
+    <LinearLayout
+        android:id="@+id/rowDefaultApp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="@dimen/spacing_md">
+
         <TextView
-            android:textSize="13sp"
-            android:textColor="@color/text_secondary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/settings_default_app"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp" />
+
+        <TextView
             android:id="@+id/txtDefaultAppStatus"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
+
     </LinearLayout>
+
     <View
-        android:background="@color/divider"
         android:layout_width="match_parent"
-        android:layout_height="1dp"/>
+        android:layout_height="1dp"
+        android:background="@color/divider" />
+
     <LinearLayout
+        android:id="@+id/rowTheme"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:id="@+id/rowTheme"
-        android:background="?attr/selectableItemBackground"
-        android:padding="@dimen/spacing_md"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:padding="@dimen/spacing_md">
+
         <TextView
-            android:textSize="16sp"
-            android:textColor="@color/text_primary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="@string/settings_theme"
-            android:layout_weight="1"/>
+            android:textColor="@color/text_primary"
+            android:textSize="16sp" />
+
         <TextView
-            android:textSize="13sp"
-            android:textColor="@color/text_secondary"
             android:id="@+id/txtThemeStatus"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
-    <View
-        android:background="@color/divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"/>
-    <LinearLayout
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:id="@+id/rowAutoHideTimer"
-        android:background="?attr/selectableItemBackground"
-        android:padding="@dimen/spacing_md"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
-            <TextView
-                android:textSize="16sp"
-                android:textColor="@color/text_primary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_auto_hide_timer"/>
-            <TextView
-                android:textSize="12sp"
-                android:textColor="@color/text_secondary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="@string/settings_auto_hide_timer_desc"/>
-        </LinearLayout>
-    </LinearLayout>
-    <View
-        android:background="@color/divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"/>
-    <LinearLayout
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:id="@+id/rowGeneralSettings"
-        android:background="?attr/selectableItemBackground"
-        android:padding="@dimen/spacing_md"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:textSize="16sp"
-            android:textColor="@color/text_primary"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="General"
-            android:layout_weight="1"/>
-        <TextView
-            android:textSize="12sp"
             android:textColor="@color/text_secondary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Themes, bubbles, animations"/>
-    </LinearLayout>
-    <View
-        android:background="@color/divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"/>
-    <LinearLayout
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:id="@+id/rowTrash"
-        android:background="?attr/selectableItemBackground"
-        android:padding="@dimen/spacing_md"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:textSize="16sp"
-            android:textColor="@color/text_primary"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/settings_trash"
-            android:layout_weight="1"/>
-        <TextView
             android:textSize="13sp"
-            android:textColor="@color/text_secondary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="30 days"/>
+            tools:text="System default" />
+
     </LinearLayout>
+
     <View
-        android:background="@color/divider"
         android:layout_width="match_parent"
-        android:layout_height="1dp"/>
+        android:layout_height="1dp"
+        android:background="@color/divider" />
+
     <LinearLayout
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:id="@+id/rowBlockedNumbers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
-        android:padding="@dimen/spacing_md"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:textSize="16sp"
-            android:textColor="@color/text_primary"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/settings_blocked_numbers"
-            android:layout_weight="1"/>
-    </LinearLayout>
-    <View
-        android:background="@color/divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"/>
-    <LinearLayout
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:id="@+id/rowDisplayName"
-        android:background="?attr/selectableItemBackground"
-        android:padding="@dimen/spacing_md"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <LinearLayout
-            android:orientation="vertical"
+        android:padding="@dimen/spacing_md">
+
+        <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
-            <TextView
-                android:textSize="16sp"
-                android:textColor="@color/text_primary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/settings_display_name"/>
-            <TextView
-                android:textSize="12sp"
-                android:textColor="@color/text_secondary"
-                android:id="@+id/txtDisplayNameValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"/>
-        </LinearLayout>
-    </LinearLayout>
-    <View
-        android:background="@color/divider"
-        android:layout_width="match_parent"
-        android:layout_height="8dp"/>
-    <LinearLayout
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="@dimen/spacing_lg"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:textSize="11sp"
-            android:textColor="@color/text_secondary"
-            android:gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/settings_about"/>
-        <TextView
-            android:textSize="12sp"
+            android:layout_weight="1"
+            android:text="@string/settings_blocked_numbers"
             android:textColor="@color/text_primary"
-            android:gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/settings_branding_developer"/>
-        <TextView
-            android:textSize="11sp"
-            android:textColor="@color/text_secondary"
-            android:gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="@string/settings_branding_company"/>
+            android:textSize="16sp" />
+
     </LinearLayout>
+
 </LinearLayout>

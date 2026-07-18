@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.RECEIVE_WAP_PUSH" />
     <uses-permission android:name="android.permission.RECEIVE_MMS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <!-- Contacts for conversation names/photos -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -28,6 +30,15 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <!-- Required on Android 11+ to query which package is the current default SMS
+         app via Telephony.Sms.getDefaultSmsPackage(); without this, package
+         visibility restrictions make that query return inaccurate results. -->
+    <queries>
+        <intent>
+            <action android:name="android.provider.Telephony.SMS_DELIVER" />
+        </intent>
+    </queries>
+
     <application
         android:name=".OriginSmsApp"
         android:allowBackup="false"
@@ -42,19 +53,14 @@
         <!-- ============ UI ACTIVITIES ============ -->
 
         <activity
-            android:name=".ui.SplashActivity"
+            android:name=".ui.conversations.ConversationListActivity"
             android:exported="true"
-            android:theme="@style/Theme.OriginSMS.Splash">
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".ui.conversations.ConversationListActivity"
-            android:exported="false"
-            android:launchMode="singleTop" />
 
         <activity
             android:name=".ui.thread.ThreadActivity"
@@ -72,8 +78,39 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.StarredMessagesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.OriginSMS" />
+
+        <activity
+            android:name=".ui.FontConverterActivity"
+            android:exported="false"
+            android:theme="@style/Theme.OriginSMS" />
+
+        <activity
+            android:name=".ui.DpViewActivity"
+            android:exported="false"
+            android:theme="@style/Theme.OriginSMS" />
+
+        <activity
+            android:name=".ui.ArchivedChatsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.OriginSMS" />
+
+        <activity
+            android:name=".ui.GeneralSettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.OriginSMS" />
+
+        <activity
+            android:name=".ui.TrashActivity"
+            android:exported="false"
+            android:theme="@style/Theme.OriginSMS" />
+
+        <activity
             android:name=".ui.BlockedNumbersActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.OriginSMS" />
 
         <activity
             android:name=".lock.LockUnlockActivity"
@@ -84,7 +121,8 @@
 
         <activity
             android:name=".lock.LockSetupActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.OriginSMS" />
 
         <!-- Handles default "view SMS" / "send to number" intents from other apps -->
         <activity
@@ -193,12 +231,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
-        <activity
-            android:name=".CrashActivity"
-            android:exported="false"
-            android:process=":crash"
-            android:theme="@android:style/Theme.Material.Light" />
 
     </application>
 </manifest>

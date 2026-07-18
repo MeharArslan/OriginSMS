@@ -1,7 +1,11 @@
 package com.meharenterprises.originsms.ui.compose
 
+import android.content.Intent
 import android.os.Bundle
 import android.provider.Telephony
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
@@ -19,17 +23,22 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * Screen for starting a brand-new conversation. Once the first message is
- * sent successfully, the activity hands off to ThreadActivity using the
- * thread ID the system provider assigns, so the rest of the conversation
- * continues in the normal thread UI.
+ * New-message screen with:
+ * - Contact search as-you-type (name or number) backed by ContactsHelper
+ * - Manual number entry still works — just type a number and tap Send
+ * - Once a contact is selected or number confirmed, opens ThreadActivity
  */
 class ComposeActivity : AppCompatActivity() {
 
     private lateinit var editRecipient: EditText
     private lateinit var editMessage: EditText
+    private lateinit var recyclerContactPicker: RecyclerView
+    private lateinit var recyclerMessages: RecyclerView
+    private lateinit var contactPickerAdapter: ContactPickerAdapter
     private lateinit var repository: SmsRepository
     private lateinit var contactsHelper: ContactsHelper
+
+    private var selectedAddress: String? = null  // set when user taps a contact
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,28 +54,91 @@ class ComposeActivity : AppCompatActivity() {
 
         editRecipient = findViewById(R.id.editRecipient)
         editMessage = findViewById(R.id.editMessage)
+        recyclerContactPicker = findViewById(R.id.recyclerContactPicker)
+        recyclerMessages = findViewById(R.id.recyclerMessages)
 
         intent.getStringExtra(EXTRA_PREFILL_BODY)?.let { editMessage.setText(it) }
 
-        // Empty adapter for visual consistency; this screen doesn't show history
-        // since no thread exists yet for a brand-new recipient.
-        findViewById<RecyclerView>(R.id.recyclerMessages).apply {
-            layoutManager = LinearLayoutManager(this@ComposeActivity)
-            adapter = MessageAdapter(onLongPress = {})
+        // Empty message history (no thread yet)
+        recyclerMessages.layoutManager = LinearLayoutManager(this).apply { stackFromEnd = true }
+        recyclerMessages.adapter = MessageAdapter(onLongPress = {})
+
+        // Contact picker list
+        contactPickerAdapter = ContactPickerAdapter { contact ->
+            // User tapped a contact — fill the recipient field and hide picker
+            selectedAddress = ContactsHelper.normalize(contact.phoneNumber)
+            editRecipient.setText(contact.displayName)
+            editRecipient.clearFocus()
+            showMessageMode()
+        }
+        recyclerContactPicker.layoutManager = LinearLayoutManager(this)
+        recyclerContactPicker.adapter = contactPickerAdapter
+
+        // Load all contacts in background and populate the picker
+        lifecycleScope.launch {
+            val contacts = withContext(Dispatchers.IO) { contactsHelper.getAllContactsWithNumbers() }
+            contactPickerAdapter.submitContacts(contacts)
         }
 
-        findViewById<ImageButton>(R.id.btnSend).setOnClickListener {
-            attemptSend()
+        // As the user types, filter the contact list live
+        editRecipient.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+            override fun afterTextChanged(s: Editable?) {
+                val query = s?.toString().orEmpty()
+                // If user starts editing after having selected a contact,
+                // clear the selection so we don't send to a stale address
+                if (selectedAddress != null) selectedAddress = null
+                contactPickerAdapter.filter(query)
+                // If nothing typed show full contact list; if typing a pure
+                // number show both the list (filtered) and enable direct send
+                if (recyclerMessages.visibility == View.VISIBLE && query.isNotBlank()) {
+                    showContactMode()
+                }
+            }
+        })
+
+        // Edit-recipient field gains focus → show contact picker
+        editRecipient.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) showContactMode()
         }
+
+        editMessage.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus && selectedAddress == null) {
+                // User jumped to message body without selecting a contact —
+                // treat whatever is in the recipient field as a raw number
+                val raw = editRecipient.text?.toString().orEmpty().trim()
+                if (raw.isNotBlank()) {
+                    selectedAddress = ContactsHelper.normalize(raw)
+                    showMessageMode()
+                }
+            }
+        }
+
+        findViewById<ImageButton>(R.id.btnSend).setOnClickListener { attemptSend() }
+    }
+
+    private fun showContactMode() {
+        recyclerContactPicker.visibility = View.VISIBLE
+        recyclerMessages.visibility = View.GONE
+    }
+
+    private fun showMessageMode() {
+        recyclerContactPicker.visibility = View.GONE
+        recyclerMessages.visibility = View.VISIBLE
+        // Move focus to the message body
+        editMessage.requestFocus()
+        val imm = getSystemService(android.view.inputmethod.InputMethodManager::class.java)
+        imm.showSoftInput(editMessage, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
     }
 
     private fun attemptSend() {
-        val rawNumber = editRecipient.text?.toString()?.trim().orEmpty()
         val body = editMessage.text?.toString().orEmpty()
+        // Resolve final address — either from contact selection or raw field text
+        val destination = selectedAddress?.takeIf { it.isNotBlank() }
+            ?: ContactsHelper.normalize(editRecipient.text?.toString().orEmpty())
 
-        if (rawNumber.isBlank() || body.isBlank()) return
-
-        val destination = normalizeNumber(rawNumber)
+        if (destination.isBlank() || body.isBlank()) return
 
         lifecycleScope.launch {
             repository.sendSms(destination, body, threadId = null)
@@ -75,7 +147,7 @@ class ComposeActivity : AppCompatActivity() {
             }
             val contactInfo = withContext(Dispatchers.IO) { contactsHelper.resolve(destination) }
 
-            val intent = android.content.Intent(this@ComposeActivity, ThreadActivity::class.java).apply {
+            val intent = Intent(this@ComposeActivity, ThreadActivity::class.java).apply {
                 putExtra(ThreadActivity.EXTRA_THREAD_ID, resolvedThreadId)
                 putExtra(ThreadActivity.EXTRA_ADDRESS, destination)
                 putExtra(ThreadActivity.EXTRA_DISPLAY_NAME, contactInfo.displayName)
@@ -83,10 +155,6 @@ class ComposeActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
-    }
-
-    private fun normalizeNumber(input: String): String {
-        return input.filter { it.isDigit() || it == '+' }
     }
 
     companion object {

@@ -1,30 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:background="?attr/colorSurface"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    android:orientation="vertical">
+
     <com.google.android.material.appbar.MaterialToolbar
-        android:theme="@style/Theme.OriginSMS"
         android:id="@+id/toolbar"
-        android:background="@color/origin_primary"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
+        android:background="@color/origin_primary"
+        android:theme="@style/Theme.OriginSMS"
         app:navigationIcon="@drawable/ic_back"
-        app:titleTextColor="@android:color/white"/>
+        app:titleTextColor="@android:color/white" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerStarred"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1" />
+
     <TextView
-        android:textSize="15sp"
-        android:textColor="?attr/colorOnSurface"
-        android:gravity="center"
         android:id="@+id/emptyStarred"
-        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:text="No starred messages yet.\10Long press a message and tap ⭐ to star it."
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="No starred messages yet.\nLong press a message and tap ⭐ to star it."
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="15sp"
+        android:visibility="gone" />
+
 </LinearLayout>

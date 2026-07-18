@@ -31,64 +31,127 @@ class SmsRepository(private val context: Context) {
 
     suspend fun getConversations(): List<ConversationSummary> = withContext(Dispatchers.IO) {
         val results = mutableListOf<ConversationSummary>()
+        try {
+            // Single query fetching ALL needed columns at once to avoid N+1 queries.
+            // Previously this did 3 separate DB hits per thread (latest msg, contact,
+            // unread count) — with 50 threads that was 150 queries. Now it is 1 query
+            // for all SMS data + 1 bulk Room query for lock states = 2 total, regardless
+            // of how many threads there are.
+            val projection = arrayOf(
+                Telephony.Sms.THREAD_ID,
+                Telephony.Sms.ADDRESS,
+                Telephony.Sms.BODY,
+                Telephony.Sms.DATE,
+                Telephony.Sms.READ,
+                Telephony.Sms.TYPE
+            )
+            // Pre-load ALL lock states in one Room query
+            val allLockStates = database.threadLockDao().getAllLockStates()
+                .associateBy { it.threadId }
 
-        val projection = arrayOf(
-            Telephony.Threads._ID,
-            Telephony.Threads.RECIPIENT_IDS,
-            Telephony.Threads.SNIPPET,
-            Telephony.Threads.DATE,
-            Telephony.Threads.READ,
-            Telephony.Threads.MESSAGE_COUNT
-        )
+            // Pre-load drafts from Room
+            val allDrafts = try {
+                database.draftDao().getAllDrafts().associateBy { it.threadId }
+            } catch (_: Exception) { emptyMap() }
 
-        context.contentResolver.query(
-            Telephony.Threads.CONTENT_URI,
-            projection,
-            null, null,
-            "${Telephony.Threads.DATE} DESC"
-        )?.use { cursor ->
-            val idIdx = cursor.getColumnIndex(Telephony.Threads._ID)
-            val snippetIdx = cursor.getColumnIndex(Telephony.Threads.SNIPPET)
-            val dateIdx = cursor.getColumnIndex(Telephony.Threads.DATE)
-            val readIdx = cursor.getColumnIndex(Telephony.Threads.READ)
+            // One SMS query sorted by date — we keep the first (latest) row per thread
+            context.contentResolver.query(
+                Telephony.Sms.CONTENT_URI,
+                projection,
+                null, null,
+                "${Telephony.Sms.DATE} DESC"
+            )?.use { cursor ->
+                val seenThreadIds = mutableSetOf<Long>()
+                // Track unread counts per thread in one pass
+                val unreadCounts = mutableMapOf<Long, Int>()
+                // First pass: collect unread counts
+                val rows = mutableListOf<Array<Any?>>()
+                val tidIdx = cursor.getColumnIndex(Telephony.Sms.THREAD_ID)
+                val addrIdx = cursor.getColumnIndex(Telephony.Sms.ADDRESS)
+                val bodyIdx = cursor.getColumnIndex(Telephony.Sms.BODY)
+                val dateIdx = cursor.getColumnIndex(Telephony.Sms.DATE)
+                val readIdx = cursor.getColumnIndex(Telephony.Sms.READ)
+                if (tidIdx < 0) return@use
 
-            while (cursor.moveToNext()) {
-                val threadId = cursor.getLong(idIdx)
-                val address = getAddressForThread(threadId) ?: continue
-                val contact = contactsHelper.resolve(address)
-                val lockState = database.threadLockDao().getForThread(threadId)
-                val unreadCount = getUnreadCountForThread(threadId)
+                while (cursor.moveToNext()) {
+                    val threadId = cursor.getLong(tidIdx)
+                    val read = if (readIdx >= 0) cursor.getInt(readIdx) else 1
+                    if (read == 0) unreadCounts[threadId] = (unreadCounts[threadId] ?: 0) + 1
+                    if (seenThreadIds.add(threadId)) {
+                        // First row for this thread = latest message
+                        rows.add(arrayOf(
+                            threadId,
+                            if (addrIdx >= 0) cursor.getString(addrIdx) else "",
+                            if (bodyIdx >= 0) cursor.getString(bodyIdx) ?: "" else "",
+                            if (dateIdx >= 0) cursor.getLong(dateIdx) else 0L,
+                            read
+                        ))
+                    }
+                }
 
-                results.add(
-                    ConversationSummary(
-                        threadId = threadId,
-                        address = address,
-                        displayName = contact.displayName,
-                        snippet = if (snippetIdx >= 0) cursor.getString(snippetIdx).orEmpty() else "",
-                        dateMillis = if (dateIdx >= 0) cursor.getLong(dateIdx) else 0L,
-                        isRead = if (readIdx >= 0) cursor.getInt(readIdx) == 1 else true,
-                        isLocked = lockState?.isLocked == true,
-                        isHidden = lockState?.isHidden == true,
-                        unreadCount = unreadCount,
-                        contactPhotoUri = contact.photoUri
+                // Batch-resolve all addresses in one pass using the static cache.
+                // Contacts already in cache (from a previous load) resolve instantly.
+                // New contacts are looked up once and cached; subsequent loads are free.
+                for (row in rows) {
+                    val threadId = row[0] as Long
+                    val address = (row[1] as? String).orEmpty()
+                    if (address.isBlank()) continue
+                    val body = (row[2] as? String).orEmpty()
+                    val dateMillis = row[3] as Long
+                    val isRead = (row[4] as Int) == 1
+                    val lockState = allLockStates[threadId]
+
+                    // Use cache-first lookup — if not cached yet, resolve will
+                    // do one ContentProvider query and store result in static cache
+                    val contact = contactsHelper.resolve(address)
+                    results.add(
+                        ConversationSummary(
+                            threadId = threadId,
+                            address = address,
+                            displayName = contact.displayName,
+                            snippet = body,
+                            dateMillis = dateMillis,
+                            isRead = isRead,
+                            isLocked = lockState?.isLocked == true,
+                            isHidden = lockState?.isHidden == true,
+                            isMuted = lockState?.isMuted == true,
+                            isArchived = lockState?.isArchived == true,
+                            isDeleted = (lockState?.deletedAtMillis ?: 0L) > 0L,
+                            unreadCount = unreadCounts[threadId] ?: 0,
+                            contactPhotoUri = contact.photoUri,
+                            draftText = allDrafts[threadId]?.text?.takeIf { it.isNotBlank() }
+                        )
                     )
-                )
+                }
             }
+        } catch (e: Exception) {
+            android.util.Log.e("SmsRepo", "getConversations", e)
         }
         results
     }
 
-    private fun getAddressForThread(threadId: Long): String? {
+    private data class LatestMessage(val address: String, val body: String, val dateMillis: Long)
+
+    private fun getLatestMessageForThread(threadId: Long): LatestMessage? {
         context.contentResolver.query(
             Telephony.Sms.CONTENT_URI,
-            arrayOf(Telephony.Sms.ADDRESS),
+            arrayOf(Telephony.Sms.ADDRESS, Telephony.Sms.BODY, Telephony.Sms.DATE),
             "${Telephony.Sms.THREAD_ID} = ?",
             arrayOf(threadId.toString()),
             "${Telephony.Sms.DATE} DESC LIMIT 1"
         )?.use { cursor ->
             if (cursor.moveToFirst()) {
-                val idx = cursor.getColumnIndex(Telephony.Sms.ADDRESS)
-                if (idx >= 0) return cursor.getString(idx)
+                val addrIdx = cursor.getColumnIndex(Telephony.Sms.ADDRESS)
+                val bodyIdx = cursor.getColumnIndex(Telephony.Sms.BODY)
+                val dateIdx = cursor.getColumnIndex(Telephony.Sms.DATE)
+                val address = if (addrIdx >= 0) cursor.getString(addrIdx) else null
+                if (!address.isNullOrBlank()) {
+                    return LatestMessage(
+                        address = address,
+                        body = if (bodyIdx >= 0) cursor.getString(bodyIdx).orEmpty() else "",
+                        dateMillis = if (dateIdx >= 0) cursor.getLong(dateIdx) else 0L
+                    )
+                }
             }
         }
         return null
@@ -317,22 +380,40 @@ class SmsRepository(private val context: Context) {
      * Sends an SMS, splitting into multipart segments if needed, and writes a
      * SENT-box copy to the provider so it appears immediately in the thread.
      * As default SMS app, this app is responsible for persisting its own sent messages.
+     *
+     * On dual-SIM devices, passing a subscriptionId routes the message through
+     * that specific SIM's SmsManager instance; passing null uses the system's
+     * current default SMS subscription.
      */
-    fun sendSms(destinationAddress: String, body: String, threadId: Long?) {
-        val smsManager = context.getSystemService(SmsManager::class.java)
+    fun sendSms(destinationAddress: String, body: String, threadId: Long?, subscriptionId: Int? = null) {
+        val smsManager = if (subscriptionId != null && subscriptionId != -1) {
+            SmsManager.getSmsManagerForSubscriptionId(subscriptionId)
+        } else {
+            context.getSystemService(SmsManager::class.java)
+        }
         val parts = smsManager.divideMessage(body)
 
         val sentIntents = ArrayList<PendingIntent>()
         val deliveredIntents = ArrayList<PendingIntent>()
 
         for (i in parts.indices) {
+            // A monotonically increasing counter guarantees a unique
+            // PendingIntent requestCode per part, per send. The previous
+            // implementation derived the requestCode from
+            // (System.currentTimeMillis() % 100000), which could collide
+            // when multiple messages were sent in quick succession — with
+            // FLAG_UPDATE_CURRENT, a colliding requestCode silently reuses
+            // an existing PendingIntent's extras instead of creating a new
+            // one, which made the wrong message's sent/failed callback fire.
+            val requestCode = nextPendingIntentRequestCode()
+
             val sentIntent = Intent(context, SendStatusReceiver::class.java).apply {
                 action = ACTION_SMS_SENT
                 putExtra(EXTRA_PART_INDEX, i)
             }
             sentIntents.add(
                 PendingIntent.getBroadcast(
-                    context, (System.currentTimeMillis() % 100000).toInt() + i,
+                    context, requestCode,
                     sentIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
             )
@@ -341,7 +422,7 @@ class SmsRepository(private val context: Context) {
             }
             deliveredIntents.add(
                 PendingIntent.getBroadcast(
-                    context, (System.currentTimeMillis() % 100000).toInt() + i + 500,
+                    context, nextPendingIntentRequestCode(),
                     deliveredIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
             )
@@ -383,7 +464,7 @@ class SmsRepository(private val context: Context) {
 
         val sentIntent = Intent(context, SendStatusReceiver::class.java).apply { action = ACTION_MMS_SENT }
         val sentPendingIntent = PendingIntent.getBroadcast(
-            context, (System.currentTimeMillis() % 100000).toInt(),
+            context, nextPendingIntentRequestCode(),
             sentIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
@@ -407,11 +488,31 @@ class SmsRepository(private val context: Context) {
     suspend fun markThreadRead(threadId: Long) = withContext(Dispatchers.IO) {
         val values = ContentValues().apply { put(Telephony.Sms.READ, 1) }
         context.contentResolver.update(
-            Telephony.Sms.CONTENT_URI,
-            values,
+            Telephony.Sms.CONTENT_URI, values,
             "${Telephony.Sms.THREAD_ID} = ? AND ${Telephony.Sms.READ} = 0",
             arrayOf(threadId.toString())
         )
+    }
+
+    suspend fun markThreadUnread(threadId: Long) = withContext(Dispatchers.IO) {
+        // Mark only the latest message as unread so the thread shows an unread indicator
+        val latestId = context.contentResolver.query(
+            Telephony.Sms.CONTENT_URI,
+            arrayOf(Telephony.Sms._ID),
+            "${Telephony.Sms.THREAD_ID} = ?",
+            arrayOf(threadId.toString()),
+            "${Telephony.Sms.DATE} DESC LIMIT 1"
+        )?.use { c ->
+            if (c.moveToFirst()) c.getLong(c.getColumnIndex(Telephony.Sms._ID)) else null
+        }
+        if (latestId != null) {
+            val values = ContentValues().apply { put(Telephony.Sms.READ, 0) }
+            context.contentResolver.update(
+                Telephony.Sms.CONTENT_URI, values,
+                "${Telephony.Sms._ID} = ?",
+                arrayOf(latestId.toString())
+            )
+        }
     }
 
     suspend fun deleteThread(threadId: Long) = withContext(Dispatchers.IO) {
@@ -436,5 +537,12 @@ class SmsRepository(private val context: Context) {
         const val ACTION_SMS_DELIVERED = "com.meharenterprises.originsms.SMS_DELIVERED"
         const val ACTION_MMS_SENT = "com.meharenterprises.originsms.MMS_SENT"
         const val EXTRA_PART_INDEX = "part_index"
+
+        // Shared across all SmsRepository instances in the process so every
+        // PendingIntent requestCode handed to SmsManager is guaranteed unique,
+        // even across rapid successive sends.
+        private val pendingIntentRequestCodeCounter = java.util.concurrent.atomic.AtomicInteger(0)
+
+        private fun nextPendingIntentRequestCode(): Int = pendingIntentRequestCodeCounter.incrementAndGet()
     }
 }

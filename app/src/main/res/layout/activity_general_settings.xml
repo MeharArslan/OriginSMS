@@ -1,369 +1,440 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:background="@color/bg_surface"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/bg_surface"
+    android:orientation="vertical">
+
     <com.google.android.material.appbar.MaterialToolbar
-        android:theme="@style/Theme.OriginSMS"
         android:id="@+id/toolbar"
-        android:background="@color/origin_primary"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
+        android:background="@color/origin_primary"
+        android:theme="@style/Theme.OriginSMS"
         app:navigationIcon="@drawable/ic_back"
         app:title="General"
-        app:titleTextColor="@android:color/white"/>
+        app:titleTextColor="@android:color/white" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
+
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Chat Theme -->
             <TextView
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:textColor="@color/origin_primary"
-                android:background="@color/surface_card"
-                android:padding="12dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="THEME"/>
+                android:background="@color/surface_card"
+                android:padding="12dp"
+                android:text="THEME"
+                android:textColor="@color/origin_primary"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
             <LinearLayout
+                android:id="@+id/rowChatTheme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:id="@+id/rowChatTheme"
-                android:background="?attr/selectableItemBackground"
-                android:padding="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:padding="16dp">
+
                 <LinearLayout
-                    android:orientation="vertical"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
                     <TextView
-                        android:textSize="16sp"
-                        android:textColor="@color/text_primary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Chat theme"/>
+                        android:text="Chat theme"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp" />
+
                     <TextView
-                        android:textSize="12sp"
-                        android:textColor="@color/text_secondary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="Choose from 10 professional designs"/>
+                        android:text="Choose from 10 professional designs"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
                 </LinearLayout>
+
                 <TextView
-                    android:textSize="13sp"
-                    android:textColor="@color/text_secondary"
                     android:id="@+id/txtChatThemeValue"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    tools:text="Classic" />
+
             </LinearLayout>
+
             <View
-                android:background="@color/divider"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"/>
+                android:layout_height="1dp"
+                android:background="@color/divider" />
+
+            <!-- Bubbles -->
             <TextView
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:textColor="@color/origin_primary"
-                android:background="@color/surface_card"
-                android:padding="12dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="CONVERSATION"/>
+                android:background="@color/surface_card"
+                android:padding="12dp"
+                android:text="CONVERSATION"
+                android:textColor="@color/origin_primary"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
             <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:padding="16dp">
+
                 <LinearLayout
-                    android:orientation="vertical"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
                     <TextView
-                        android:textSize="16sp"
-                        android:textColor="@color/text_primary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Bubbles"/>
+                        android:text="Bubbles"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp" />
+
                     <TextView
-                        android:textSize="12sp"
-                        android:textColor="@color/text_secondary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="Show conversations as floating bubbles"/>
+                        android:text="Show conversations as floating bubbles"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
                 </LinearLayout>
+
                 <Switch
                     android:id="@+id/switchBubbles"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:thumbTint="@color/switch_thumb_tint"
-                    app:trackTint="@color/switch_track_tint"/>
+                    app:trackTint="@color/switch_track_tint" />
+
             </LinearLayout>
-            <View
-                android:background="@color/divider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"/>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
+
             <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:padding="16dp">
+
                 <LinearLayout
-                    android:orientation="vertical"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
                     <TextView
-                        android:textSize="16sp"
-                        android:textColor="@color/text_primary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Pinch to zoom"/>
+                        android:text="Pinch to zoom"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp" />
+
                     <TextView
-                        android:textSize="12sp"
-                        android:textColor="@color/text_secondary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="Pinch to zoom conversation text size"/>
+                        android:text="Pinch to zoom conversation text size"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
                 </LinearLayout>
+
                 <Switch
                     android:id="@+id/switchPinchZoom"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:thumbTint="@color/switch_thumb_tint"
-                    app:trackTint="@color/switch_track_tint"/>
+                    app:trackTint="@color/switch_track_tint" />
+
             </LinearLayout>
-            <View
-                android:background="@color/divider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"/>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
+
             <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:padding="16dp">
+
                 <LinearLayout
-                    android:orientation="vertical"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
                     <TextView
-                        android:textSize="16sp"
-                        android:textColor="@color/text_primary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Expressive animations"/>
+                        android:text="Expressive animations"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp" />
+
                     <TextView
-                        android:textSize="12sp"
-                        android:textColor="@color/text_secondary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="Show animated reactions and effects"/>
+                        android:text="Show animated reactions and effects"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
                 </LinearLayout>
+
                 <Switch
                     android:id="@+id/switchAnimations"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:thumbTint="@color/switch_thumb_tint"
-                    app:trackTint="@color/switch_track_tint"/>
+                    app:trackTint="@color/switch_track_tint" />
+
             </LinearLayout>
-            <View
-                android:background="@color/divider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"/>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
+
             <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:padding="16dp">
+
                 <LinearLayout
-                    android:orientation="vertical"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
                     <TextView
-                        android:textSize="16sp"
-                        android:textColor="@color/text_primary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Suggestions and actions"/>
+                        android:text="Suggestions and actions"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp" />
+
                     <TextView
-                        android:textSize="12sp"
-                        android:textColor="@color/text_secondary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="Show smart reply suggestions in conversations"/>
+                        android:text="Show smart reply suggestions in conversations"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
                 </LinearLayout>
+
                 <Switch
                     android:id="@+id/switchSuggestions"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:thumbTint="@color/switch_thumb_tint"
-                    app:trackTint="@color/switch_track_tint"/>
+                    app:trackTint="@color/switch_track_tint" />
+
             </LinearLayout>
-            <View
-                android:background="@color/divider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"/>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
+
+            <!-- Swipe Actions -->
             <TextView
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:textColor="@color/origin_primary"
-                android:background="@color/surface_card"
-                android:padding="12dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="SWIPE ACTIONS"/>
+                android:background="@color/surface_card"
+                android:padding="12dp"
+                android:text="SWIPE ACTIONS"
+                android:textColor="@color/origin_primary"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
             <LinearLayout
+                android:id="@+id/rowSwipeRight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:id="@+id/rowSwipeRight"
-                android:background="?attr/selectableItemBackground"
-                android:padding="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:padding="16dp">
+
                 <TextView
-                    android:textSize="16sp"
-                    android:textColor="@color/text_primary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:text="Swipe right"
-                    android:layout_weight="1"/>
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp" />
+
                 <TextView
-                    android:textSize="13sp"
-                    android:textColor="@color/text_secondary"
                     android:id="@+id/txtSwipeRightValue"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    tools:text="Archive" />
+
             </LinearLayout>
-            <View
-                android:background="@color/divider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"/>
+
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
+
             <LinearLayout
+                android:id="@+id/rowSwipeLeft"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:id="@+id/rowSwipeLeft"
-                android:background="?attr/selectableItemBackground"
-                android:padding="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:padding="16dp">
+
                 <TextView
-                    android:textSize="16sp"
-                    android:textColor="@color/text_primary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:text="Swipe left"
-                    android:layout_weight="1"/>
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp" />
+
                 <TextView
-                    android:textSize="13sp"
-                    android:textColor="@color/text_secondary"
                     android:id="@+id/txtSwipeLeftValue"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    tools:text="Delete" />
+
             </LinearLayout>
+
+            <!-- Font Style -->
             <TextView
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:textColor="@color/origin_primary"
-                android:background="@color/surface_card"
-                android:padding="12dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="FONT STYLE"/>
+                android:background="@color/surface_card"
+                android:padding="12dp"
+                android:text="FONT STYLE"
+                android:textColor="@color/origin_primary"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
             <LinearLayout
+                android:id="@+id/rowFontStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:id="@+id/rowFontStyle"
-                android:background="?attr/selectableItemBackground"
-                android:padding="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:padding="16dp">
+
                 <LinearLayout
-                    android:orientation="vertical"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
                     <TextView
-                        android:textSize="16sp"
-                        android:textColor="@color/text_primary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Font style"/>
+                        android:text="Font style"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp" />
+
                     <TextView
-                        android:textSize="12sp"
-                        android:textColor="@color/text_secondary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="Change app-wide font"/>
+                        android:text="Change app-wide font"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
                 </LinearLayout>
+
                 <TextView
-                    android:textSize="13sp"
-                    android:textColor="@color/text_secondary"
                     android:id="@+id/txtFontValue"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    tools:text="Default" />
+
             </LinearLayout>
+
+            <!-- Keyboard Theme -->
             <TextView
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:textColor="@color/origin_primary"
-                android:background="@color/surface_card"
-                android:padding="12dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="KEYBOARD THEME"/>
+                android:background="@color/surface_card"
+                android:padding="12dp"
+                android:text="KEYBOARD THEME"
+                android:textColor="@color/origin_primary"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
             <LinearLayout
+                android:id="@+id/rowKeyboardTheme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:id="@+id/rowKeyboardTheme"
-                android:background="?attr/selectableItemBackground"
-                android:padding="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:padding="16dp">
+
                 <LinearLayout
-                    android:orientation="vertical"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
                     <TextView
-                        android:textSize="16sp"
-                        android:textColor="@color/text_primary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Keyboard theme"/>
+                        android:text="Keyboard theme"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp" />
+
                     <TextView
-                        android:textSize="12sp"
-                        android:textColor="@color/text_secondary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="Light, Dark, or System default"/>
+                        android:text="Light, Dark, or System default"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
                 </LinearLayout>
+
                 <TextView
-                    android:textSize="13sp"
-                    android:textColor="@color/text_secondary"
                     android:id="@+id/txtKeyboardThemeValue"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    tools:text="System" />
+
             </LinearLayout>
+
         </LinearLayout>
+
     </ScrollView>
+
 </LinearLayout>

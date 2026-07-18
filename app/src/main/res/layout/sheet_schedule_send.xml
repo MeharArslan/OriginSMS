@@ -1,169 +1,195 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:background="@color/surface_card"
-    android:paddingBottom="24dp"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@color/surface_card"
+    android:orientation="vertical"
+    android:paddingBottom="24dp">
+
+    <!-- Handle -->
     <View
-        android:layout_gravity="center_horizontal"
-        android:background="#30000000"
         android:layout_width="40dp"
         android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="8dp"
-        android:backgroundTint="@color/text_secondary"/>
+        android:background="#30000000"
+        android:backgroundTint="@color/text_secondary" />
+
+    <!-- Title -->
     <TextView
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Schedule message"
         android:paddingHorizontal="24dp"
-        android:paddingVertical="12dp"/>
+        android:paddingVertical="12dp"
+        android:text="Schedule message"
+        android:textColor="@color/text_primary"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <!-- Time options -->
     <LinearLayout
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:id="@+id/opt8am"
-        android:background="?attr/selectableItemBackground"
         android:layout_width="match_parent"
         android:layout_height="64dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingHorizontal="24dp">
+
         <ImageView
-            android:background="@drawable/bg_schedule_icon"
-            android:padding="10dp"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:background="@drawable/bg_schedule_icon"
+            android:padding="10dp"
             android:src="@drawable/ic_schedule_morning"
-            app:tint="@color/origin_primary"/>
+            app:tint="@color/origin_primary" />
+
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:layout_weight="1"
-            android:layout_marginStart="16dp">
+            android:orientation="vertical">
+
             <TextView
-                android:textSize="15sp"
-                android:textColor="@color/text_primary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tomorrow morning"/>
+                android:text="Tomorrow morning"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp" />
+
             <TextView
-                android:textSize="13sp"
-                android:textColor="@color/text_secondary"
                 android:id="@+id/txt8amTime"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
         </LinearLayout>
+
     </LinearLayout>
-    <View
-        android:background="@color/divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginHorizontal="24dp"/>
+
+    <View android:layout_width="match_parent" android:layout_height="1dp"
+        android:background="@color/divider" android:layout_marginHorizontal="24dp"/>
+
     <LinearLayout
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:id="@+id/opt1pm"
-        android:background="?attr/selectableItemBackground"
         android:layout_width="match_parent"
         android:layout_height="64dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingHorizontal="24dp">
+
         <ImageView
-            android:background="@drawable/bg_schedule_icon"
-            android:padding="10dp"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:background="@drawable/bg_schedule_icon"
+            android:padding="10dp"
             android:src="@drawable/ic_schedule_afternoon"
-            app:tint="@color/origin_accent"/>
+            app:tint="@color/origin_accent" />
+
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:layout_weight="1"
-            android:layout_marginStart="16dp">
+            android:orientation="vertical">
+
             <TextView
-                android:textSize="15sp"
-                android:textColor="@color/text_primary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tomorrow afternoon"/>
+                android:text="Tomorrow afternoon"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp" />
+
             <TextView
-                android:textSize="13sp"
-                android:textColor="@color/text_secondary"
                 android:id="@+id/txt1pmTime"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
         </LinearLayout>
+
     </LinearLayout>
-    <View
-        android:background="@color/divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginHorizontal="24dp"/>
+
+    <View android:layout_width="match_parent" android:layout_height="1dp"
+        android:background="@color/divider" android:layout_marginHorizontal="24dp"/>
+
     <LinearLayout
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:id="@+id/opt6pm"
-        android:background="?attr/selectableItemBackground"
         android:layout_width="match_parent"
         android:layout_height="64dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingHorizontal="24dp">
+
         <ImageView
-            android:background="@drawable/bg_schedule_icon"
-            android:padding="10dp"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:background="@drawable/bg_schedule_icon"
+            android:padding="10dp"
             android:src="@drawable/ic_schedule_evening"
-            app:tint="#ff6b35"/>
+            app:tint="#FF6B35" />
+
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:layout_weight="1"
-            android:layout_marginStart="16dp">
+            android:orientation="vertical">
+
             <TextView
-                android:textSize="15sp"
-                android:textColor="@color/text_primary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tomorrow evening"/>
+                android:text="Tomorrow evening"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp" />
+
             <TextView
-                android:textSize="13sp"
-                android:textColor="@color/text_secondary"
                 android:id="@+id/txt6pmTime"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
         </LinearLayout>
+
     </LinearLayout>
-    <View
-        android:background="@color/divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginHorizontal="24dp"/>
+
+    <View android:layout_width="match_parent" android:layout_height="1dp"
+        android:background="@color/divider" android:layout_marginHorizontal="24dp"/>
+
     <LinearLayout
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:id="@+id/optCustom"
-        android:background="?attr/selectableItemBackground"
         android:layout_width="match_parent"
         android:layout_height="64dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingHorizontal="24dp">
+
         <ImageView
-            android:background="@drawable/bg_schedule_icon"
-            android:padding="10dp"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:background="@drawable/bg_schedule_icon"
+            android:padding="10dp"
             android:src="@drawable/ic_schedule_custom"
-            app:tint="@color/origin_primary"/>
+            app:tint="@color/origin_primary" />
+
         <TextView
-            android:textSize="15sp"
-            android:textColor="@color/text_primary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Pick date &amp; time"
+            android:layout_marginStart="16dp"
             android:layout_weight="1"
-            android:layout_marginStart="16dp"/>
+            android:text="Pick date &amp; time"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp" />
+
     </LinearLayout>
+
 </LinearLayout>

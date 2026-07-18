@@ -1,94 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/itemRoot"
-    android:background="@drawable/bg_conversation_row"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/bg_conversation_row"
     android:foreground="?attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
     android:paddingHorizontal="@dimen/spacing_md"
     android:paddingVertical="12dp">
+
     <FrameLayout
         android:layout_width="@dimen/avatar_size"
         android:layout_height="@dimen/avatar_size">
+
         <ImageView
             android:id="@+id/imgAvatar"
-            android:background="@drawable/bg_avatar_circle"
-            android:padding="8dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_person"
+            android:background="@drawable/bg_avatar_circle"
             android:contentDescription="@null"
-            android:outlineProvider="background"/>
+            android:outlineProvider="background"
+            android:padding="8dp"
+            android:src="@drawable/ic_person"
+            tools:ignore="ContentDescription" />
+
         <ImageView
-            android:layout_gravity="end|bottom"
             android:id="@+id/imgLockBadge"
-            android:visibility="gone"
             android:layout_width="16dp"
             android:layout_height="16dp"
+            android:layout_gravity="bottom|end"
+            android:contentDescription="@null"
             android:src="@drawable/ic_lock"
-            android:contentDescription="@null"/>
+            android:visibility="gone"
+            tools:ignore="ContentDescription"
+            tools:visibility="visible" />
+
         <ImageView
             android:id="@+id/imgSelectedCheck"
-            android:background="@drawable/bg_avatar_selected_overlay"
-            android:padding="10dp"
-            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@drawable/bg_avatar_selected_overlay"
+            android:contentDescription="@null"
+            android:padding="10dp"
             android:src="@drawable/ic_check"
-            android:contentDescription="@null"/>
+            android:visibility="gone"
+            tools:ignore="ContentDescription"
+            tools:visibility="visible" />
+
     </FrameLayout>
+
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_md"
         android:layout_weight="1"
-        android:layout_marginStart="@dimen/spacing_md">
+        android:orientation="vertical">
+
         <TextView
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary"
-            android:ellipsize="end"
             android:id="@+id/txtName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLines="1"/>
-        <TextView
-            android:textSize="14sp"
-            android:textColor="@color/text_secondary"
             android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="Ali Raza" />
+
+        <TextView
             android:id="@+id/txtSnippet"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:maxLines="1"/>
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            tools:text="Theek hai, kal milte hain" />
+
     </LinearLayout>
+
     <LinearLayout
-        android:gravity="end"
-        android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/spacing_sm">
+        android:layout_marginStart="@dimen/spacing_sm"
+        android:gravity="end"
+        android:orientation="vertical">
+
         <TextView
-            android:textSize="12sp"
-            android:textColor="@color/text_secondary"
             android:id="@+id/txtTime"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            tools:text="10:42 AM" />
+
         <TextView
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            android:gravity="center"
             android:id="@+id/txtUnreadBadge"
-            android:background="@drawable/bg_unread_badge"
-            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
+            android:background="@drawable/bg_unread_badge"
+            android:gravity="center"
             android:minWidth="20dp"
             android:minHeight="20dp"
-            android:paddingHorizontal="6dp"/>
+            android:paddingHorizontal="6dp"
+            android:textColor="@android:color/white"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:text="3"
+            tools:visibility="visible" />
+
     </LinearLayout>
+
 </LinearLayout>

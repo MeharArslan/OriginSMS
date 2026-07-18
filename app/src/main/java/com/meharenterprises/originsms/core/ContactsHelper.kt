@@ -47,6 +47,62 @@ class ContactsHelper(private val context: Context) {
 
     fun clearCache() = cache.clear()
 
+    /**
+     * Returns every phone-number entry in the device's Contacts provider,
+     * sorted by display name. Used by the new-message contact picker.
+     * Each contact with multiple numbers produces one entry per number,
+     * since a conversation thread is keyed by a single address.
+     */
+    fun getAllContactsWithNumbers(): List<PickableContact> {
+        val results = mutableListOf<PickableContact>()
+        val projection = arrayOf(
+            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+            ContactsContract.CommonDataKinds.Phone.NUMBER,
+            ContactsContract.CommonDataKinds.Phone.PHOTO_URI,
+            ContactsContract.CommonDataKinds.Phone.CONTACT_ID
+        )
+
+        try {
+            context.contentResolver.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                projection,
+                null, null,
+                "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} ASC"
+            )?.use { cursor ->
+                val nameIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+                val numberIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                val photoIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI)
+                val idIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID)
+
+                while (cursor.moveToNext()) {
+                    val name = if (nameIdx >= 0) cursor.getString(nameIdx) else null
+                    val number = if (numberIdx >= 0) cursor.getString(numberIdx) else null
+                    if (number.isNullOrBlank()) continue
+
+                    results.add(
+                        PickableContact(
+                            contactId = if (idIdx >= 0) cursor.getLong(idIdx) else -1L,
+                            displayName = name ?: number,
+                            phoneNumber = number,
+                            photoUri = if (photoIdx >= 0) cursor.getString(photoIdx) else null
+                        )
+                    )
+                }
+            }
+        } catch (_: SecurityException) {
+            // No READ_CONTACTS permission — caller gets an empty list and
+            // falls back to manual number entry only.
+        }
+        return results
+    }
+
+    data class PickableContact(
+        val contactId: Long,
+        val displayName: String,
+        val phoneNumber: String,
+        val photoUri: String?
+    )
+
     companion object {
         fun normalize(number: String): String = number.filter { it.isDigit() || it == '+' }
     }

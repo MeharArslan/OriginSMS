@@ -1,15 +1,24 @@
 package com.meharenterprises.originsms.data.db
-import androidx.room.*
+
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Query
+import androidx.room.Upsert
+
 @Dao
 interface DraftDao {
-    @Query("SELECT * FROM drafts WHERE threadId = :threadId LIMIT 1")
+    @Upsert
+    suspend fun saveDraft(entity: DraftEntity)
+
+    @Query("SELECT * FROM drafts WHERE threadId = :threadId")
     suspend fun getDraft(threadId: Long): DraftEntity?
+
     @Query("SELECT * FROM drafts")
     suspend fun getAllDrafts(): List<DraftEntity>
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun saveDraft(draft: DraftEntity)
+
+    @Delete
+    suspend fun deleteDraft(entity: DraftEntity)
+
     @Query("DELETE FROM drafts WHERE threadId = :threadId")
     suspend fun clearDraft(threadId: Long)
-    @Delete
-    suspend fun deleteDraft(draft: DraftEntity)
 }

@@ -20,5 +20,9 @@ data class Message(
     val type: MessageType,
     val box: MessageBox,
     val isRead: Boolean,
-    val attachments: List<Attachment> = emptyList()
-)
+    val attachments: List<Attachment> = emptyList(),
+    val isStarred: Boolean = false
+) {
+    // For fake scheduled messages (id < 0), dateMillis IS the scheduled time
+    fun scheduledTimeOrDate(): Long = dateMillis
+}

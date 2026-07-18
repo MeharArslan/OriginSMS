@@ -1,80 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_light"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:background="?attr/colorSurface"
-    android:padding="@dimen/spacing_lg"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:padding="@dimen/spacing_lg">
+
     <com.google.android.material.appbar.MaterialToolbar
-        android:theme="@style/Theme.OriginSMS"
         android:id="@+id/toolbar"
-        android:background="@color/origin_primary"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
+        android:background="@color/origin_primary"
+        android:theme="@style/Theme.OriginSMS"
         app:navigationIcon="@drawable/ic_back"
         app:title="@string/lock_title_setup"
-        app:titleTextColor="@android:color/white"/>
+        app:titleTextColor="@android:color/white" />
+
     <ImageView
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_marginTop="@dimen/spacing_lg"
+        android:contentDescription="@null"
         android:src="@drawable/ic_lock"
-        android:contentDescription="@null"/>
+        tools:ignore="ContentDescription" />
+
     <TextView
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
-        android:gravity="center"
         android:id="@+id/txtStepLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_md"
-        android:text="@string/lock_create_pin"/>
-    <EditText
-        android:textSize="28sp"
-        android:textColor="@color/text_primary"
         android:gravity="center"
+        android:text="@string/lock_create_pin"
+        android:textColor="@color/text_primary_light"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <EditText
         android:id="@+id/editPin"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_lg"
-        android:maxLength="8"
+        android:autofillHints=""
+        android:gravity="center"
         android:inputType="numberPassword"
         android:letterSpacing="0.5"
-        android:autofillHints=""/>
+        android:maxLength="8"
+        android:textColor="@color/text_primary_light"
+        android:textSize="28sp" />
+
     <TextView
-        android:textSize="13sp"
-        android:textColor="@color/error_red"
-        android:gravity="center"
         android:id="@+id/txtError"
-        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_sm"/>
+        android:layout_marginTop="@dimen/spacing_sm"
+        android:gravity="center"
+        android:textColor="@color/error_red"
+        android:textSize="13sp"
+        android:visibility="gone" />
+
     <Button
         android:id="@+id/btnContinue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_lg"
-        android:text="@string/action_continue"
-        android:backgroundTint="@color/origin_primary"/>
+        android:backgroundTint="@color/origin_primary"
+        android:text="@string/action_continue" />
+
     <LinearLayout
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_lg">
+        android:layout_marginTop="@dimen/spacing_lg"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
         <TextView
-            android:textSize="14sp"
-            android:textColor="@color/text_primary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="@string/lock_enable_biometric_toggle"
-            android:layout_weight="1"/>
+            android:textColor="@color/text_primary_light"
+            android:textSize="14sp" />
+
         <Switch
             android:id="@+id/switchBiometric"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
+
 </LinearLayout>

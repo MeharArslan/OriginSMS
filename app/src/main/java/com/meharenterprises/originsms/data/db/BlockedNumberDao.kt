@@ -1,7 +1,6 @@
 package com.meharenterprises.originsms.data.db
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
@@ -19,19 +18,8 @@ interface BlockedNumberDao {
 
     @Query("SELECT * FROM blocked_numbers ORDER BY blockedAtMillis DESC")
     fun observeAll(): Flow<List<BlockedNumberEntity>>
+
+    @Query("SELECT * FROM blocked_numbers WHERE normalizedNumber = :number LIMIT 1")
+    suspend fun getByNumber(number: String): BlockedNumberEntity?
 }
 
-@Dao
-interface DraftDao {
-    @Upsert
-    suspend fun saveDraft(entity: DraftEntity)
-
-    @Query("SELECT * FROM drafts WHERE threadId = :threadId")
-    suspend fun getDraft(threadId: Long): DraftEntity?
-
-    @Delete
-    suspend fun deleteDraft(entity: DraftEntity)
-
-    @Query("DELETE FROM drafts WHERE threadId = :threadId")
-    suspend fun clearDraft(threadId: Long)
-}

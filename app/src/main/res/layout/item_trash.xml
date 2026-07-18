@@ -1,72 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:background="?attr/selectableItemBackground"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
     android:paddingHorizontal="16dp"
     android:paddingVertical="14dp">
+
+    <!-- Checkbox (shown in selection mode) -->
     <CheckBox
         android:id="@+id/cbTrashSelect"
-        android:focusable="false"
-        android:visibility="gone"
-        android:clickable="false"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"/>
+        android:layout_marginEnd="8dp"
+        android:clickable="false"
+        android:focusable="false"
+        android:visibility="gone" />
+
+    <!-- Avatar -->
     <ImageView
         android:id="@+id/imgTrashAvatar"
-        android:background="@drawable/bg_avatar_circle"
-        android:padding="10dp"
         android:layout_width="52dp"
         android:layout_height="52dp"
-        android:src="@drawable/ic_person"
-        android:contentDescription="@null"/>
+        android:background="@drawable/bg_avatar_circle"
+        android:contentDescription="@null"
+        android:padding="10dp"
+        android:src="@drawable/ic_person" />
+
+    <!-- Info -->
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
         android:layout_weight="1"
-        android:layout_marginStart="14dp">
+        android:orientation="vertical">
+
         <TextView
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary"
-            android:ellipsize="end"
             android:id="@+id/txtTrashName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLines="1"/>
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
         <TextView
-            android:textSize="13sp"
-            android:textColor="@color/text_secondary"
             android:id="@+id/txtMsgCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"/>
+            android:layout_marginTop="3dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
+
     </LinearLayout>
+
+    <!-- Right: days left chip + date -->
     <LinearLayout
-        android:gravity="end|center_vertical"
-        android:orientation="vertical"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:gravity="end|center_vertical"
+        android:orientation="vertical">
+
         <TextView
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
             android:id="@+id/txtDaysLeft"
-            android:background="@drawable/bg_days_left_chip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_days_left_chip"
             android:paddingHorizontal="8dp"
-            android:paddingVertical="3dp"/>
-        <TextView
+            android:paddingVertical="3dp"
+            android:textColor="@android:color/white"
             android:textSize="11sp"
-            android:textColor="@color/text_secondary"
+            android:textStyle="bold" />
+
+        <TextView
             android:id="@+id/txtTrashDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"/>
+            android:layout_marginTop="4dp"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp" />
+
     </LinearLayout>
+
 </LinearLayout>

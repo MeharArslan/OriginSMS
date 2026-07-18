@@ -1,45 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/onboardingRoot"
-    android:background="?attr/colorSurface"
-    android:visibility="gone"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    android:visibility="gone">
+
+    <!-- Subtle animated background blobs (very light, like Google Messages) -->
     <com.meharenterprises.originsms.ui.BlobAnimationView
         android:id="@+id/blobBackground"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
+
+    <!-- Main content — vertically centered exactly like Google Messages -->
     <LinearLayout
-        android:gravity="center"
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
         android:paddingHorizontal="32dp">
+
+        <!-- Large illustration — takes ~45% of screen height like Google Messages -->
         <com.meharenterprises.originsms.ui.SmsIllustrationView
             android:id="@+id/smsIllustration"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginBottom="32dp"
-            android:layout_weight="0.45"/>
+            android:layout_weight="0.45"
+            android:layout_marginBottom="32dp" />
+
+        <!-- Subtitle — same typography as Google Messages -->
         <TextView
-            android:textSize="16sp"
-            android:textColor="@color/text_primary"
-            android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
+            android:gravity="center"
             android:text="To use OriginSMS, make it your default SMS app."
-            android:lineSpacingMultiplier="1.4"/>
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:lineSpacingMultiplier="1.4" />
+
+        <!-- Set Default Button — large rounded, same as Google Messages green button -->
         <com.google.android.material.button.MaterialButton
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
             android:id="@+id/btnSetDefaultOnboarding"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="Set default SMS app"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
             app:backgroundTint="@color/origin_primary"
             app:cornerRadius="28dp"
-            app:elevation="0dp"/>
+            app:elevation="0dp" />
+
     </LinearLayout>
+
 </FrameLayout>

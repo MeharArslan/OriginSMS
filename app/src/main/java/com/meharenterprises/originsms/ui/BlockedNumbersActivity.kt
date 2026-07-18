@@ -26,8 +26,8 @@ class BlockedNumbersActivity : AppCompatActivity() {
         setContentView(R.layout.activity_blocked_numbers)
 
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
-        toolbar.setNavigationOnClickListener { finish() }
         setSupportActionBar(toolbar)
+        toolbar.setNavigationOnClickListener { finish() }
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         adapter = BlockedNumberAdapter(onUnblock = { entity -> unblock(entity) })

@@ -1,75 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:background="@color/surface_card"
-    android:padding="@dimen/spacing_md"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@color/surface_card"
+    android:orientation="vertical"
+    android:padding="@dimen/spacing_md">
+
     <LinearLayout
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:id="@+id/optionCamera"
-        android:background="?attr/selectableItemBackground"
-        android:padding="@dimen/spacing_md"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="@dimen/spacing_md">
+
         <ImageView
             android:layout_width="28dp"
             android:layout_height="28dp"
+            android:contentDescription="@null"
             android:src="@drawable/ic_camera"
-            android:contentDescription="@null"
-            app:tint="@color/origin_primary"/>
+            app:tint="@color/origin_primary"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
+
         <TextView
-            android:textSize="16sp"
-            android:textColor="@color/text_primary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_md"
             android:text="@string/action_camera"
-            android:layout_marginStart="@dimen/spacing_md"/>
+            android:textColor="@color/text_primary"
+            android:textSize="16sp" />
+
     </LinearLayout>
+
     <LinearLayout
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:id="@+id/optionGallery"
-        android:background="?attr/selectableItemBackground"
-        android:padding="@dimen/spacing_md"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <ImageView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:src="@drawable/ic_gallery"
-            android:contentDescription="@null"
-            app:tint="@color/origin_primary"/>
-        <TextView
-            android:textSize="16sp"
-            android:textColor="@color/text_primary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/action_gallery"
-            android:layout_marginStart="@dimen/spacing_md"/>
-    </LinearLayout>
-    <LinearLayout
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:id="@+id/optionFile"
-        android:background="?attr/selectableItemBackground"
-        android:padding="@dimen/spacing_md"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:padding="@dimen/spacing_md">
+
         <ImageView
             android:layout_width="28dp"
             android:layout_height="28dp"
-            android:src="@drawable/ic_file"
             android:contentDescription="@null"
-            app:tint="@color/origin_primary"/>
+            android:src="@drawable/ic_gallery"
+            app:tint="@color/origin_primary"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
+
         <TextView
-            android:textSize="16sp"
-            android:textColor="@color/text_primary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/action_file"
-            android:layout_marginStart="@dimen/spacing_md"/>
+            android:layout_marginStart="@dimen/spacing_md"
+            android:text="@string/action_gallery"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp" />
+
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/optionFile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="@dimen/spacing_md">
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_file"
+            app:tint="@color/origin_primary"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:text="@string/action_file"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
 </LinearLayout>

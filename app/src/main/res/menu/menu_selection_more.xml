@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_mark_read"
-        android:title="@string/menu_mark_read"/>
+        android:title="@string/menu_mark_read" />
     <item
         android:id="@+id/action_mark_unread"
-        android:title="@string/menu_mark_unread"/>
+        android:title="@string/menu_mark_unread" />
     <item
         android:id="@+id/action_block_selected"
-        android:title="@string/action_block_number"/>
+        android:title="@string/action_block_number" />
 </menu>

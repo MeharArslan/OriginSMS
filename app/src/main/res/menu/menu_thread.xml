@@ -1,41 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
-        android:icon="@drawable/ic_call"
         android:id="@+id/action_call"
+        android:icon="@drawable/ic_call"
         android:title="@string/action_call"
         app:iconTint="@android:color/white"
-        app:showAsAction="always"/>
-    <item
-        android:icon="@drawable/ic_more_vert"
-        android:id="@+id/action_overflow"
-        android:title="More"
-        app:showAsAction="always">
-        <menu>
-            <item
-                android:id="@+id/action_mute_chat"
-                android:title="@string/action_mute_chat"/>
-            <item
-                android:id="@+id/action_starred_messages"
-                android:title="Starred messages"/>
-            <item
-                android:id="@+id/action_change_theme"
-                android:title="Change theme"/>
-            <item
-                android:id="@+id/action_hide_chat"
-                android:title="@string/menu_hide_chat"/>
-            <item
-                android:id="@+id/action_view_contact"
-                android:title="@string/action_view_contact"/>
-            <item
-                android:id="@+id/action_archive_chat"
-                android:title="@string/menu_archive_chat"/>
-            <item
-                android:id="@+id/action_block_number"
-                android:title="@string/action_block_number"/>
-            <item
-                android:id="@+id/action_delete_thread"
-                android:title="@string/menu_delete_chat"/>
-        </menu>
-    </item>
+        app:showAsAction="always" />
+
 </menu>

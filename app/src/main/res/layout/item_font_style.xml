@@ -1,71 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:background="?attr/selectableItemBackground"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:orientation="vertical"
     android:paddingHorizontal="16dp"
     android:paddingVertical="10dp">
+
     <LinearLayout
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:orientation="vertical">
+
             <TextView
-                android:textSize="18sp"
-                android:textColor="@color/text_primary"
-                android:ellipsize="end"
                 android:id="@+id/txtFontPreview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="1"/>
+                android:textSize="18sp"
+                android:textColor="@color/text_primary"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
             <TextView
-                android:textSize="11sp"
-                android:textColor="@color/text_secondary"
                 android:id="@+id/txtFontStyleName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"/>
+                android:layout_marginTop="2dp"
+                android:textSize="11sp"
+                android:textColor="@color/text_secondary" />
+
         </LinearLayout>
+
         <TextView
-            android:textSize="18sp"
-            android:textColor="@color/origin_accent"
             android:id="@+id/txtFontSelected"
-            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="✓"
-            android:layout_marginEnd="8dp"/>
+            android:textColor="@color/origin_accent"
+            android:textSize="18sp"
+            android:layout_marginEnd="8dp"
+            android:visibility="gone" />
+
         <TextView
-            android:textSize="12sp"
-            android:textColor="@color/origin_primary"
             android:id="@+id/btnFontCopy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:background="@drawable/bg_avatar_circle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="5dp"
             android:text="Copy"
-            android:layout_marginEnd="6dp"
-            android:paddingHorizontal="10dp"
-            android:paddingVertical="5dp"/>
-        <TextView
+            android:textColor="@color/origin_primary"
             android:textSize="12sp"
-            android:textColor="@android:color/white"
+            android:layout_marginEnd="6dp" />
+
+        <TextView
             android:id="@+id/btnFontApply"
-            android:background="@drawable/bg_bubble_sent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Apply"
+            android:background="@drawable/bg_bubble_sent"
             android:paddingHorizontal="10dp"
-            android:paddingVertical="5dp"/>
+            android:paddingVertical="5dp"
+            android:text="Apply"
+            android:textColor="@android:color/white"
+            android:textSize="12sp" />
+
     </LinearLayout>
+
     <View
-        android:background="@color/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="8dp"/>
+        android:background="@color/divider"
+        android:layout_marginTop="8dp" />
+
 </LinearLayout>

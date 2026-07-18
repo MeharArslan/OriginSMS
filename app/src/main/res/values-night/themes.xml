@@ -9,8 +9,14 @@
         <item name="colorOnSecondary">@color/white</item>
         <item name="android:statusBarColor">@color/bg_dark</item>
         <item name="android:navigationBarColor">@color/bg_dark</item>
-        <item name="android:windowBackground">@color/bg_dark</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
         <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+        <item name="actionOverflowButtonStyle">@style/OriginSMS.OverflowButtonStyle</item>
+    </style>
+
+    <style name="OriginSMS.OverflowButtonStyle" parent="Widget.AppCompat.ActionButton.Overflow">
+        <item name="srcCompat">@drawable/ic_more_vert</item>
+        <item name="android:src">@drawable/ic_more_vert</item>
     </style>
 
     <style name="Theme.OriginSMS.Splash" parent="Theme.OriginSMS">
@@ -19,7 +25,7 @@
     </style>
 
     <style name="Theme.OriginSMS.Lock" parent="Theme.OriginSMS">
-        <item name="android:windowBackground">@color/bg_dark</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
     </style>
 
     <style name="Theme.OriginSMS.Transparent" parent="Theme.OriginSMS">

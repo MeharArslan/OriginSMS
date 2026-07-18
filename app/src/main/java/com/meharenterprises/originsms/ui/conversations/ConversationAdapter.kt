@@ -12,18 +12,25 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.meharenterprises.originsms.R
 import com.meharenterprises.originsms.core.ConversationSummary
+import com.meharenterprises.originsms.ui.DpViewActivity
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
 class ConversationAdapter(
     private val onClick: (ConversationSummary) -> Unit,
-    private val onLongClick: (ConversationSummary, View) -> Unit
+    private val onLongClick: (ConversationSummary) -> Unit,
+    private val selectionModeEnabled: Boolean = true
 ) : ListAdapter<ConversationSummary, ConversationAdapter.ViewHolder>(DIFF) {
+
+    private val selectedThreadIds = mutableSetOf<Long>()
+    var isSelectionMode: Boolean = false
+        private set
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imgAvatar: ImageView = itemView.findViewById(R.id.imgAvatar)
         val imgLockBadge: ImageView = itemView.findViewById(R.id.imgLockBadge)
+        val imgSelectedCheck: ImageView = itemView.findViewById(R.id.imgSelectedCheck)
         val txtName: TextView = itemView.findViewById(R.id.txtName)
         val txtSnippet: TextView = itemView.findViewById(R.id.txtSnippet)
         val txtTime: TextView = itemView.findViewById(R.id.txtTime)
@@ -38,16 +45,32 @@ class ConversationAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
         val context = holder.itemView.context
+        val isSelected = selectedThreadIds.contains(item.threadId)
 
         holder.txtName.text = item.displayName
-        holder.txtSnippet.text = if (item.isLocked) {
-            context.getString(R.string.notif_locked_chat_content)
+        if (!item.draftText.isNullOrBlank()) {
+            // Show draft with red "Draft:" prefix
+            val spannable = android.text.SpannableString("Draft: ${item.draftText}")
+            spannable.setSpan(
+                android.text.style.ForegroundColorSpan(android.graphics.Color.RED),
+                0, 6,
+                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            holder.txtSnippet.text = spannable
         } else {
-            item.snippet
+            holder.txtSnippet.text = if (item.isLocked) {
+                context.getString(R.string.notif_locked_chat_content)
+            } else {
+                item.snippet
+            }
         }
         holder.txtTime.text = formatTimestamp(item.dateMillis)
 
         holder.imgLockBadge.visibility = if (item.isLocked) View.VISIBLE else View.GONE
+        holder.imgSelectedCheck.visibility = if (isSelected) View.VISIBLE else View.GONE
+        // Google Messages style: only avatar gets the circular selection indicator,
+        // the row background stays transparent (no full-row highlight)
+        holder.itemView.isActivated = false
 
         if (item.unreadCount > 0 && !item.isLocked) {
             holder.txtUnreadBadge.visibility = View.VISIBLE
@@ -57,32 +80,85 @@ class ConversationAdapter(
             holder.txtUnreadBadge.visibility = View.GONE
         }
 
-        if (item.contactPhotoUri != null) {
-            try {
-                val uri = Uri.parse(item.contactPhotoUri)
-                context.contentResolver.openInputStream(uri)?.use { stream ->
-                    val bitmap = BitmapFactory.decodeStream(stream)
-                    if (bitmap != null) {
-                        holder.imgAvatar.setImageBitmap(bitmap)
-                        holder.imgAvatar.scaleType = ImageView.ScaleType.CENTER_CROP
-                        holder.imgAvatar.setPadding(0, 0, 0, 0)
+        if (!isSelected) {
+            if (item.contactPhotoUri != null) {
+                try {
+                    val uri = Uri.parse(item.contactPhotoUri)
+                    context.contentResolver.openInputStream(uri)?.use { stream ->
+                        val bitmap = BitmapFactory.decodeStream(stream)
+                        if (bitmap != null) {
+                            holder.imgAvatar.setImageBitmap(bitmap)
+                            holder.imgAvatar.scaleType = ImageView.ScaleType.CENTER_CROP
+                            holder.imgAvatar.setPadding(0, 0, 0, 0)
+                            holder.imgAvatar.clipToOutline = true
+                        }
                     }
+                } catch (_: Exception) {
+                    holder.imgAvatar.setImageResource(R.drawable.ic_person)
                 }
-            } catch (_: Exception) {
+            } else {
                 holder.imgAvatar.setImageResource(R.drawable.ic_person)
+                holder.imgAvatar.scaleType = ImageView.ScaleType.CENTER_INSIDE
+                val pad = (8 * context.resources.displayMetrics.density).toInt()
+                holder.imgAvatar.setPadding(pad, pad, pad, pad)
             }
-        } else {
-            holder.imgAvatar.setImageResource(R.drawable.ic_person)
-            holder.imgAvatar.scaleType = ImageView.ScaleType.CENTER_INSIDE
-            val pad = (8 * context.resources.displayMetrics.density).toInt()
-            holder.imgAvatar.setPadding(pad, pad, pad, pad)
         }
 
-        holder.itemView.setOnClickListener { onClick(item) }
+        // Avatar tap → full-screen DP preview (Google Messages style)
+        holder.imgAvatar.setOnClickListener {
+            if (!isSelectionMode) {
+                val uri = item.contactPhotoUri
+                if (uri != null) {
+                    val intent = android.content.Intent(holder.itemView.context, DpViewActivity::class.java).apply {
+                        putExtra("photoUri", uri)
+                        putExtra("displayName", item.displayName)
+                    }
+                    holder.itemView.context.startActivity(intent)
+                }
+            }
+        }
+
+        holder.itemView.setOnClickListener {
+            if (isSelectionMode) {
+                toggleSelection(item.threadId)
+                onLongClick(item)  // notify activity to update bar even when deselecting
+            } else {
+                onClick(item)
+            }
+        }
         holder.itemView.setOnLongClickListener {
-            onLongClick(item, holder.itemView)
+            if (!selectionModeEnabled) {
+                onLongClick(item)
+            } else if (!isSelectionMode) {
+                isSelectionMode = true
+                selectedThreadIds.add(item.threadId)
+                notifyDataSetChanged()
+                onLongClick(item)
+            }
             true
         }
+    }
+
+    private fun toggleSelection(threadId: Long) {
+        if (selectedThreadIds.contains(threadId)) {
+            selectedThreadIds.remove(threadId)
+        } else {
+            selectedThreadIds.add(threadId)
+        }
+        if (selectedThreadIds.isEmpty()) {
+            isSelectionMode = false
+        }
+        notifyDataSetChanged()
+    }
+
+    fun getSelectedThreadIds(): Set<Long> = selectedThreadIds.toSet()
+
+    fun getSelectedCount(): Int = selectedThreadIds.size
+
+    fun clearSelection() {
+        selectedThreadIds.clear()
+        isSelectionMode = false
+        notifyDataSetChanged()
     }
 
     private fun formatTimestamp(millis: Long): String {

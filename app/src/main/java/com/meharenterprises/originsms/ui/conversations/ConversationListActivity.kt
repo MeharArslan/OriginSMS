@@ -3,16 +3,21 @@ package com.meharenterprises.originsms.ui.conversations
 import android.Manifest
 import android.app.role.RoleManager
 import android.content.Intent
+import com.meharenterprises.originsms.ui.ArchivedChatsActivity
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Telephony
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
@@ -23,20 +28,32 @@ import com.meharenterprises.originsms.lock.LockSetupActivity
 import com.meharenterprises.originsms.lock.LockUnlockActivity
 import com.meharenterprises.originsms.lock.PinManager
 import com.meharenterprises.originsms.ui.SettingsActivity
+import com.meharenterprises.originsms.ui.GeneralSettingsActivity
 import com.meharenterprises.originsms.ui.compose.ComposeActivity
 import com.meharenterprises.originsms.ui.thread.ThreadActivity
+import kotlinx.coroutines.launch
 
 class ConversationListActivity : AppCompatActivity() {
 
     private lateinit var viewModel: ConversationListViewModel
     private lateinit var adapter: ConversationAdapter
     private lateinit var pinManager: PinManager
+    private lateinit var prefs: SharedPreferences
+
+    private lateinit var searchBarRow: View
+    private lateinit var editSearch: android.widget.EditText
+    private lateinit var selectionActionBar: View
+    private lateinit var txtSelectionCount: android.widget.TextView
+    private lateinit var toolbar: MaterialToolbar
+
+    private var searchModeActive = false
 
     private val requiredPermissions = buildList {
         add(Manifest.permission.SEND_SMS)
         add(Manifest.permission.RECEIVE_SMS)
         add(Manifest.permission.READ_SMS)
         add(Manifest.permission.READ_CONTACTS)
+        add(Manifest.permission.READ_PHONE_STATE)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             add(Manifest.permission.POST_NOTIFICATIONS)
         }
@@ -54,16 +71,31 @@ class ConversationListActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) {
         refreshDefaultAppBanner()
+        // Becoming the default SMS app changes what the Telephony provider
+        // returns (and on some OEM builds, which columns are queryable), so
+        // always force a fresh load right after the role grant completes.
+        viewModel.loadConversations()
+        // The system can take a brief moment to finish exposing the previous
+        // default app's message history through the provider after the role
+        // switch — a short delayed second reload catches that case so older
+        // conversations (e.g. from Google Messages) appear without the user
+        // having to manually pull-to-refresh or reopen the app.
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            viewModel.loadConversations()
+        }, 1500L)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_conversation_list)
         pinManager = PinManager(this)
+        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
 
         viewModel = ViewModelProvider(this)[ConversationListViewModel::class.java]
 
         setupToolbar()
+        setupSearchBar()
+        setupSelectionActionBar()
         setupRecyclerView()
         setupFab()
         setupDefaultAppBanner()
@@ -73,38 +105,270 @@ class ConversationListActivity : AppCompatActivity() {
             findViewById<View>(R.id.emptyState).visibility =
                 if (list.isEmpty()) View.VISIBLE else View.GONE
         }
+
+        maybePromptDefaultAppOnFirstLaunch()
     }
 
     override fun onResume() {
         super.onResume()
         ensurePermissionsThenLoad()
         refreshDefaultAppBanner()
+        processScheduledAutoActions()
+        // Refresh display name instantly in case it was changed in Settings
+        val displayName = prefs.getString(KEY_DISPLAY_NAME, null)
+        toolbar.title = if (!displayName.isNullOrBlank()) displayName
+                        else getString(R.string.title_conversations)
+    }
+
+    /**
+     * Checks for any thread whose scheduled auto-unhide or auto-unmute time
+     * has passed and clears the corresponding flag. There's no background
+     * job for this — it's deliberately a lightweight check-on-open instead,
+     * since the only consequence of a slightly-late unhide is the chat
+     * staying hidden a few extra minutes until the user next opens the app,
+     * which is an acceptable tradeoff against running a persistent scheduler
+     * for a personal messaging app.
+     */
+    private fun processScheduledAutoActions() {
+        lifecycleScope.launch {
+            val dao = com.meharenterprises.originsms.data.db.OriginDatabase
+                .getInstance(this@ConversationListActivity).threadLockDao()
+            val now = System.currentTimeMillis()
+            val cal = java.util.Calendar.getInstance()
+            val currentDayMinutes = cal.get(java.util.Calendar.HOUR_OF_DAY) * 60 +
+                cal.get(java.util.Calendar.MINUTE)
+            val thirtyDaysAgo = now - (30L * 24 * 60 * 60 * 1000)
+
+            // Auto-permanently-delete trashed chats older than 30 days
+            dao.getThreadsDueForPermanentDeletion(thirtyDaysAgo).forEach { entry ->
+                com.meharenterprises.originsms.core.SmsRepository(this@ConversationListActivity)
+                    .deleteThread(entry.threadId)
+                dao.clear(entry.threadId)
+            }
+
+            // Daily auto-hide
+            dao.getThreadsWithDailyHide().forEach { entry ->
+                if (entry.dailyHideTimeMinutes >= 0 &&
+                    currentDayMinutes >= entry.dailyHideTimeMinutes &&
+                    !entry.isHidden
+                ) {
+                    dao.upsert(entry.copy(isHidden = true, isLocked = true))
+                }
+            }
+
+            // One-time scheduled unhide
+            dao.getThreadsDueForAutoUnhide(now).forEach { entry ->
+                dao.setHidden(entry.threadId, false)
+                dao.setAutoUnhideAt(entry.threadId, 0L)
+            }
+            // Auto-unmute expiry
+            dao.getThreadsDueForAutoUnmute(now).forEach { entry ->
+                dao.setMutedUntil(entry.threadId, false, 0L)
+            }
+            viewModel.loadConversations()
+        }
     }
 
     private fun setupToolbar() {
-        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
+        toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayShowTitleEnabled(false)
+        supportActionBar?.setDisplayShowTitleEnabled(true)
+        val displayName = prefs.getString(KEY_DISPLAY_NAME, null)
+        toolbar.title = if (!displayName.isNullOrBlank()) displayName else getString(R.string.title_conversations)
+    }
+
+    // ------------------------------------------------------------------
+    // Search
+    // ------------------------------------------------------------------
+
+    private fun setupSearchBar() {
+        searchBarRow = findViewById(R.id.searchBarRow)
+        editSearch = findViewById(R.id.editSearch)
+
+        findViewById<View>(R.id.btnCloseSearch).setOnClickListener { exitSearchMode() }
+
+        editSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+            override fun afterTextChanged(s: Editable?) {
+                val query = s?.toString().orEmpty()
+                // WhatsApp-style: if the typed text matches the PIN exactly,
+                // open the hidden-chats vault and clear the search field so
+                // the PIN is never visible in the UI for more than a moment.
+                if (query.length >= 4 && pinManager.verifyPin(query)) {
+                    editSearch.setText("")
+                    exitSearchMode()
+                    openHiddenChatsVault()
+                    return
+                }
+                viewModel.setSearchQuery(query)
+            }
+        })
+    }
+
+    private fun enterSearchMode() {
+        searchModeActive = true
+        toolbar.visibility = View.GONE
+        searchBarRow.visibility = View.VISIBLE
+        editSearch.requestFocus()
+        val imm = getSystemService(android.view.inputmethod.InputMethodManager::class.java)
+        imm.showSoftInput(editSearch, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    private fun exitSearchMode() {
+        searchModeActive = false
+        editSearch.setText("")
+        viewModel.setSearchQuery("")
+        searchBarRow.visibility = View.GONE
+        toolbar.visibility = View.VISIBLE
+    }
+
+    // ------------------------------------------------------------------
+    // Multi-select action bar
+    // ------------------------------------------------------------------
+
+    private fun setupSelectionActionBar() {
+        selectionActionBar = findViewById(R.id.selectionActionBar)
+        txtSelectionCount = findViewById(R.id.txtSelectionCount)
+
+        findViewById<View>(R.id.btnCloseSelection).setOnClickListener {
+            adapter.clearSelection()
+            updateSelectionBar()
+        }
+        findViewById<View>(R.id.btnSelectionPin).setOnClickListener {
+            viewModel.setPinned(adapter.getSelectedThreadIds(), true)
+            adapter.clearSelection()
+            updateSelectionBar()
+        }
+        findViewById<View>(R.id.btnSelectionArchive).setOnClickListener {
+            viewModel.setArchived(adapter.getSelectedThreadIds(), true)
+            adapter.clearSelection()
+            updateSelectionBar()
+        }
+        findViewById<View>(R.id.btnSelectionDelete).setOnClickListener {
+            val ids = adapter.getSelectedThreadIds()
+            AlertDialog.Builder(this)
+                .setTitle(R.string.menu_delete_chat)
+                .setMessage("${getString(R.string.menu_delete_chat)} (${ids.size})")
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    viewModel.moveToTrash(ids)
+                    adapter.clearSelection()
+                    updateSelectionBar()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
+        findViewById<View>(R.id.btnSelectionMore).setOnClickListener { view ->
+            val popup = android.widget.PopupMenu(this, view)
+            popup.menuInflater.inflate(R.menu.menu_selection_more, popup.menu)
+            popup.setOnMenuItemClickListener { item ->
+                val ids = adapter.getSelectedThreadIds()
+                when (item.itemId) {
+                    R.id.action_mark_read -> {
+                        viewModel.markReadMultiple(ids)
+                        adapter.clearSelection(); updateSelectionBar(); true
+                    }
+                    R.id.action_mark_unread -> {
+                        viewModel.markUnreadMultiple(ids)
+                        adapter.clearSelection(); updateSelectionBar(); true
+                    }
+                    R.id.action_block_selected -> {
+                        viewModel.blockSelectedThreads(ids, this)
+                        adapter.clearSelection(); updateSelectionBar(); true
+                    }
+                    else -> false
+                }
+            }
+            popup.show()
+        }
+    }
+
+    private fun updateSelectionBar() {
+        val count = adapter.getSelectedCount()
+        if (count > 0) {
+            selectionActionBar.visibility = View.VISIBLE
+            txtSelectionCount.text = count.toString()
+        } else {
+            selectionActionBar.visibility = View.GONE
+        }
     }
 
     private fun setupRecyclerView() {
         val recycler = findViewById<RecyclerView>(R.id.recyclerConversations)
         adapter = ConversationAdapter(
-            onClick = { conversation -> openConversation(conversation) },
-            onLongClick = { conversation, anchor -> showConversationMenu(conversation, anchor) }
+            onClick = { conversation ->
+                if (adapter.isSelectionMode) {
+                    updateSelectionBar()
+                } else {
+                    openConversation(conversation)
+                }
+            },
+            onLongClick = { updateSelectionBar() }
         )
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.adapter = adapter
+
+        // Swipe actions
+        val swipePrefs = getSharedPreferences(GeneralSettingsActivity.PREFS_NAME, MODE_PRIVATE)
+        val swipeCallback = object : androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback(
+            0, androidx.recyclerview.widget.ItemTouchHelper.LEFT or androidx.recyclerview.widget.ItemTouchHelper.RIGHT
+        ) {
+            override fun onMove(rv: RecyclerView, vh: RecyclerView.ViewHolder, t: RecyclerView.ViewHolder) = false
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val pos = viewHolder.adapterPosition
+                if (pos < 0) return
+                val conv = adapter.currentList.getOrNull(pos) ?: return
+                val actionKey = if (direction == androidx.recyclerview.widget.ItemTouchHelper.RIGHT)
+                    GeneralSettingsActivity.KEY_SWIPE_RIGHT else GeneralSettingsActivity.KEY_SWIPE_LEFT
+                val action = swipePrefs.getInt(actionKey, if (direction == androidx.recyclerview.widget.ItemTouchHelper.RIGHT) 0 else 1)
+                when (action) {
+                    0 -> viewModel.setArchived(setOf(conv.threadId), true)  // Archive
+                    1 -> viewModel.moveToTrash(setOf(conv.threadId))        // Delete→Trash
+                    2 -> viewModel.markRead(conv.threadId)                   // Mark read
+                    // 3 = None — just restore
+                    else -> adapter.notifyItemChanged(pos)
+                }
+                if (action == 3) adapter.notifyItemChanged(pos)
+            }
+        }
+        androidx.recyclerview.widget.ItemTouchHelper(swipeCallback).attachToRecyclerView(recycler)
     }
 
     private fun setupFab() {
         findViewById<FloatingActionButton>(R.id.fabNewMessage).setOnClickListener {
             startActivity(Intent(this, ComposeActivity::class.java))
         }
+
+        val fabScrollTop = findViewById<FloatingActionButton>(R.id.fabScrollTop)
+        val recycler = findViewById<RecyclerView>(R.id.recyclerConversations)
+
+        fabScrollTop.setOnClickListener {
+            recycler.smoothScrollToPosition(0)
+        }
+
+        recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
+                val firstVisible = (rv.layoutManager as? LinearLayoutManager)
+                    ?.findFirstVisibleItemPosition() ?: 0
+                fabScrollTop.visibility = if (firstVisible > 5) View.VISIBLE else View.GONE
+            }
+        })
     }
+
+    // ------------------------------------------------------------------
+    // Default SMS app banner + auto-prompt
+    // ------------------------------------------------------------------
 
     private fun setupDefaultAppBanner() {
         findViewById<View>(R.id.btnSetDefault).setOnClickListener {
+            requestDefaultSmsRole()
+        }
+    }
+
+    private fun maybePromptDefaultAppOnFirstLaunch() {
+        val alreadyPrompted = prefs.getBoolean(KEY_PROMPTED_DEFAULT, false)
+        if (!alreadyPrompted && !isDefaultSmsApp()) {
+            prefs.edit().putBoolean(KEY_PROMPTED_DEFAULT, true).apply()
             requestDefaultSmsRole()
         }
     }
@@ -115,7 +379,16 @@ class ConversationListActivity : AppCompatActivity() {
     }
 
     private fun isDefaultSmsApp(): Boolean {
-        return Telephony.Sms.getDefaultSmsPackage(this) == packageName
+        // RoleManager.isRoleHeld is the most reliable check — it correctly
+        // identifies the app regardless of debug/release package name suffix.
+        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            getSystemService(android.app.role.RoleManager::class.java)
+                .isRoleHeld(android.app.role.RoleManager.ROLE_SMS)
+        } else {
+            // Fallback for older devices: strip .debug suffix before comparing
+            val defaultPkg = android.provider.Telephony.Sms.getDefaultSmsPackage(this) ?: return false
+            defaultPkg == packageName || defaultPkg == packageName.removeSuffix(".debug")
+        }
     }
 
     private fun requestDefaultSmsRole() {
@@ -171,83 +444,6 @@ class ConversationListActivity : AppCompatActivity() {
         }
     }
 
-    private fun showConversationMenu(conversation: ConversationSummary, anchor: View) {
-        val popup = androidx.appcompat.widget.PopupMenu(this, anchor)
-        popup.menu.add(
-            if (conversation.isLocked) getString(R.string.menu_unlock_chat) else getString(R.string.menu_lock_chat)
-        ).setOnMenuItemClickListener {
-            onLockToggleRequested(conversation)
-            true
-        }
-        popup.menu.add(getString(R.string.menu_hide_chat)).setOnMenuItemClickListener {
-            onHideRequested(conversation)
-            true
-        }
-        popup.menu.add(
-            if (conversation.unreadCount > 0) getString(R.string.menu_mark_read) else getString(R.string.menu_mark_unread)
-        ).setOnMenuItemClickListener {
-            viewModel.markRead(conversation.threadId)
-            true
-        }
-        popup.menu.add(getString(R.string.menu_delete_chat)).setOnMenuItemClickListener {
-            confirmDelete(conversation)
-            true
-        }
-        popup.show()
-    }
-
-    private fun onLockToggleRequested(conversation: ConversationSummary) {
-        if (conversation.isLocked) {
-            val intent = Intent(this, LockUnlockActivity::class.java).apply {
-                putExtra(LockUnlockActivity.EXTRA_THREAD_ID, conversation.threadId)
-                putExtra(LockUnlockActivity.EXTRA_ADDRESS, conversation.address)
-                putExtra(LockUnlockActivity.EXTRA_DISPLAY_NAME, conversation.displayName)
-                putExtra(LockUnlockActivity.EXTRA_UNLOCK_INTENT, LockUnlockActivity.INTENT_REMOVE_LOCK)
-            }
-            startActivity(intent)
-        } else {
-            if (pinManager.hasPinConfigured()) {
-                viewModel.setLocked(conversation.threadId, true)
-            } else {
-                val intent = Intent(this, LockSetupActivity::class.java).apply {
-                    putExtra(LockSetupActivity.EXTRA_THREAD_ID_TO_LOCK, conversation.threadId)
-                }
-                startActivity(intent)
-            }
-        }
-    }
-
-    private fun onHideRequested(conversation: ConversationSummary) {
-        if (!pinManager.hasPinConfigured()) {
-            AlertDialog.Builder(this)
-                .setTitle(R.string.lock_title_setup)
-                .setMessage(R.string.lock_reset_warning)
-                .setPositiveButton(R.string.action_grant) { _, _ ->
-                    val intent = Intent(this, LockSetupActivity::class.java).apply {
-                        putExtra(LockSetupActivity.EXTRA_THREAD_ID_TO_LOCK, conversation.threadId)
-                        putExtra(LockSetupActivity.EXTRA_ALSO_HIDE, true)
-                    }
-                    startActivity(intent)
-                }
-                .setNegativeButton(android.R.string.cancel, null)
-                .show()
-            return
-        }
-        viewModel.setLocked(conversation.threadId, true)
-        viewModel.setHidden(conversation.threadId, true)
-    }
-
-    private fun confirmDelete(conversation: ConversationSummary) {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.menu_delete_chat)
-            .setMessage(conversation.displayName)
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                viewModel.deleteThread(conversation.threadId)
-            }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-    }
-
     override fun onCreateOptionsMenu(menu: android.view.Menu): Boolean {
         menuInflater.inflate(R.menu.menu_conversation_list, menu)
         return true
@@ -255,15 +451,30 @@ class ConversationListActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.action_search -> {
+                enterSearchMode()
+                true
+            }
             R.id.action_settings -> {
                 startActivity(Intent(this, SettingsActivity::class.java))
                 true
             }
-            R.id.action_hidden_chats -> {
-                openHiddenChatsVault()
+            R.id.action_archived_chats -> {
+                openArchivedChats()
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onBackPressed() {
+        when {
+            adapter.getSelectedCount() > 0 -> {
+                adapter.clearSelection()
+                updateSelectionBar()
+            }
+            searchModeActive -> exitSearchMode()
+            else -> super.onBackPressed()
         }
     }
 
@@ -272,5 +483,15 @@ class ConversationListActivity : AppCompatActivity() {
             putExtra(LockUnlockActivity.EXTRA_UNLOCK_INTENT, LockUnlockActivity.INTENT_OPEN_VAULT)
         }
         startActivity(intent)
+    }
+
+    private fun openArchivedChats() {
+        startActivity(android.content.Intent(this, ArchivedChatsActivity::class.java))
+    }
+
+    companion object {
+        private const val PREFS_NAME = "origin_sms_app_prefs"
+        private const val KEY_PROMPTED_DEFAULT = "prompted_default_on_launch"
+        const val KEY_DISPLAY_NAME = "display_name"
     }
 }

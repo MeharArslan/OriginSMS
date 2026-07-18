@@ -33,6 +33,8 @@ class GeneralSettingsActivity : AppCompatActivity() {
         setupSuggestions()
         setupSwipeActions()
         setupTheme()
+        setupFont()
+        setupKeyboardTheme()
     }
 
     private fun setupBubbles() {
@@ -171,6 +173,38 @@ class GeneralSettingsActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupFont() {
+        val txtCurrent = findViewById<TextView?>(R.id.txtFontValue)
+        val currentIdx = prefs.getInt(KEY_FONT, 0)
+        txtCurrent?.text = GeneralSettingsActivity.FONTS.getOrElse(currentIdx) { "Default" }
+
+        findViewById<View?>(R.id.rowFontStyle)?.setOnClickListener {
+            startActivity(android.content.Intent(this, FontConverterActivity::class.java))
+        }
+    }
+
+    private fun setupKeyboardTheme() {
+        val themes = arrayOf("System default", "Light", "Dark")
+        val txtVal = findViewById<android.widget.TextView?>(R.id.txtKeyboardThemeValue)
+        val current = prefs.getInt(KEY_KEYBOARD_THEME, 0)
+        txtVal?.text = themes[current]
+
+        findViewById<View?>(R.id.rowKeyboardTheme)?.setOnClickListener {
+            val cur = prefs.getInt(KEY_KEYBOARD_THEME, 0)
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Keyboard Theme")
+                .setSingleChoiceItems(themes, cur) { dialog, index ->
+                    prefs.edit().putInt(KEY_KEYBOARD_THEME, index).apply()
+                    txtVal?.text = themes[index]
+                    dialog.dismiss()
+                    android.widget.Toast.makeText(this,
+                        "Keyboard theme: ${themes[index]}", android.widget.Toast.LENGTH_SHORT).show()
+                }
+                .setNegativeButton(android.R.string.cancel, null)
+                .show()
+        }
+    }
+
     companion object {
         const val PREFS_NAME = "origin_sms_general_prefs"
         const val KEY_BUBBLES = "bubbles_enabled"
@@ -179,5 +213,29 @@ class GeneralSettingsActivity : AppCompatActivity() {
         const val KEY_SUGGESTIONS = "suggestions_enabled"
         const val KEY_SWIPE_RIGHT = "swipe_right_action"
         const val KEY_SWIPE_LEFT = "swipe_left_action"
+        const val KEY_FONT = "app_font"
+        const val KEY_KEYBOARD_THEME = "keyboard_theme"
+
+        val FONTS = arrayOf(
+            "Default",
+            "Serif (Elegant)",
+            "Monospace (Code)",
+            "Sans-Serif Condensed",
+            "Cursive (Casual)"
+        )
+
+        val FONT_TYPEFACES = arrayOf(
+            android.graphics.Typeface.DEFAULT,
+            android.graphics.Typeface.SERIF,
+            android.graphics.Typeface.MONOSPACE,
+            android.graphics.Typeface.create("sans-serif-condensed", android.graphics.Typeface.NORMAL),
+            android.graphics.Typeface.create("cursive", android.graphics.Typeface.NORMAL)
+        )
+
+        fun getSelectedFont(context: android.content.Context): android.graphics.Typeface {
+            val idx = context.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+                .getInt(KEY_FONT, 0)
+            return FONT_TYPEFACES.getOrElse(idx) { android.graphics.Typeface.DEFAULT }
+        }
     }
 }

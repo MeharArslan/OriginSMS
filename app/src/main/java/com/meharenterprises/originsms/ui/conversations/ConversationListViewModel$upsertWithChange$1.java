@@ -1,6 +1,5 @@
 package com.meharenterprises.originsms.ui.conversations;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
 import kotlin.Metadata;
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.jvm.internal.ContinuationImpl;
@@ -8,7 +7,7 @@ import kotlin.coroutines.jvm.internal.DebugMetadata;
 
 /* JADX INFO: Access modifiers changed from: package-private */
 /* compiled from: ConversationListViewModel.kt */
-@Metadata(k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+@Metadata(k = 3, mv = {1, 9, 0}, xi = 48)
 @DebugMetadata(c = "com.meharenterprises.originsms.ui.conversations.ConversationListViewModel", f = "ConversationListViewModel.kt", i = {0, 0, 0}, l = {79, 80}, m = "upsertWithChange", n = {"this", "change", "threadId"}, s = {"L$0", "L$1", "J$0"})
 /* loaded from: classes11.dex */
 public final class ConversationListViewModel$upsertWithChange$1 extends ContinuationImpl {

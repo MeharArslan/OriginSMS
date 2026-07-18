@@ -1,7 +1,6 @@
 package com.meharenterprises.originsms.ui.conversations;
 
 import android.view.View;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import com.google.android.material.snackbar.Snackbar;
 import com.meharenterprises.originsms.R;
 import com.meharenterprises.originsms.core.ConversationSummary;
@@ -13,7 +12,7 @@ import kotlin.jvm.internal.Intrinsics;
 import kotlin.jvm.internal.Lambda;
 
 /* compiled from: ConversationListActivity.kt */
-@Metadata(d1 = {"\u0000\b\n\u0000\n\u0002\u0010\u0002\n\u0000\u0010\u0000\u001a\u00020\u0001H\n¢\u0006\u0002\b\u0002"}, d2 = {"<anonymous>", "", "invoke"}, k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+@Metadata(d1 = {"\u0000\b\n\u0000\n\u0002\u0010\u0002\n\u0000\u0010\u0000\u001a\u00020\u0001H\n¢\u0006\u0002\b\u0002"}, d2 = {"<anonymous>", "", "invoke"}, k = 3, mv = {1, 9, 0}, xi = 48)
 /* loaded from: classes11.dex */
 final class ConversationListActivity$setupRecyclerView$swipeCallback$1$onSwiped$2 extends Lambda implements Function0<Unit> {
     final /* synthetic */ ConversationSummary $conv;

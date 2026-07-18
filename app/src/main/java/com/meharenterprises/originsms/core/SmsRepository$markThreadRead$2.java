@@ -3,7 +3,6 @@ package com.meharenterprises.originsms.core;
 import android.content.ContentValues;
 import android.content.Context;
 import android.provider.Telephony;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import kotlin.Metadata;
 import kotlin.ResultKt;
 import kotlin.Unit;
@@ -17,7 +16,7 @@ import kotlinx.coroutines.CoroutineScope;
 
 /* JADX INFO: Access modifiers changed from: package-private */
 /* compiled from: SmsRepository.kt */
-@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\b\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\b\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = 48)
 @DebugMetadata(c = "com.meharenterprises.originsms.core.SmsRepository$markThreadRead$2", f = "SmsRepository.kt", i = {}, l = {}, m = "invokeSuspend", n = {}, s = {})
 /* loaded from: classes8.dex */
 public final class SmsRepository$markThreadRead$2 extends SuspendLambda implements Function2<CoroutineScope, Continuation<? super Integer>, Object> {

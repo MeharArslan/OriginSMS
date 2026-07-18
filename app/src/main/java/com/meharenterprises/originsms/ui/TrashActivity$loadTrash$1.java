@@ -1,6 +1,5 @@
 package com.meharenterprises.originsms.ui;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
 import com.meharenterprises.originsms.data.db.OriginDatabase;
 import com.meharenterprises.originsms.data.db.ThreadLockEntity;
 import java.util.LinkedHashMap;
@@ -24,7 +23,7 @@ import kotlinx.coroutines.CoroutineScope;
 
 /* JADX INFO: Access modifiers changed from: package-private */
 /* compiled from: TrashActivity.kt */
-@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = 48)
 @DebugMetadata(c = "com.meharenterprises.originsms.ui.TrashActivity$loadTrash$1", f = "TrashActivity.kt", i = {1}, l = {148, 151}, m = "invokeSuspend", n = {"allConvs"}, s = {"L$0"})
 /* loaded from: classes3.dex */
 public final class TrashActivity$loadTrash$1 extends SuspendLambda implements Function2<CoroutineScope, Continuation<? super Unit>, Object> {
@@ -191,7 +190,7 @@ public final class TrashActivity$loadTrash$1 extends SuspendLambda implements Fu
 
     /* JADX INFO: Access modifiers changed from: package-private */
     /* compiled from: TrashActivity.kt */
-    @Metadata(d1 = {"\u0000\u000e\n\u0000\n\u0002\u0010$\n\u0002\u0010\t\n\u0002\u0018\u0002\u0010\u0000\u001a\u000e\u0012\u0004\u0012\u00020\u0002\u0012\u0004\u0012\u00020\u00020\u0001*\u00020\u0003H\u008a@"}, d2 = {"<anonymous>", "", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+    @Metadata(d1 = {"\u0000\u000e\n\u0000\n\u0002\u0010$\n\u0002\u0010\t\n\u0002\u0018\u0002\u0010\u0000\u001a\u000e\u0012\u0004\u0012\u00020\u0002\u0012\u0004\u0012\u00020\u00020\u0001*\u00020\u0003H\u008a@"}, d2 = {"<anonymous>", "", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = 48)
     @DebugMetadata(c = "com.meharenterprises.originsms.ui.TrashActivity$loadTrash$1$1", f = "TrashActivity.kt", i = {}, l = {152}, m = "invokeSuspend", n = {}, s = {})
     /* renamed from: com.meharenterprises.originsms.ui.TrashActivity$loadTrash$1$1, reason: invalid class name */
     /* loaded from: classes3.dex */

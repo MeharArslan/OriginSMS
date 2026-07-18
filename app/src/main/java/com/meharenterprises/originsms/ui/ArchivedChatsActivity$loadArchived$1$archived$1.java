@@ -1,6 +1,5 @@
 package com.meharenterprises.originsms.ui;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
 import com.meharenterprises.originsms.core.ConversationSummary;
 import com.meharenterprises.originsms.core.SmsRepository;
 import java.util.ArrayList;
@@ -19,7 +18,7 @@ import kotlinx.coroutines.CoroutineScope;
 import kotlinx.coroutines.internal.LockFreeTaskQueueCore;
 
 /* compiled from: ArchivedChatsActivity.kt */
-@Metadata(d1 = {"\u0000\u000e\n\u0000\n\u0002\u0010 \n\u0002\u0018\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\b\u0012\u0004\u0012\u00020\u00020\u0001*\u00020\u0003H\u008a@"}, d2 = {"<anonymous>", "", "Lcom/meharenterprises/originsms/core/ConversationSummary;", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+@Metadata(d1 = {"\u0000\u000e\n\u0000\n\u0002\u0010 \n\u0002\u0018\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\b\u0012\u0004\u0012\u00020\u00020\u0001*\u00020\u0003H\u008a@"}, d2 = {"<anonymous>", "", "Lcom/meharenterprises/originsms/core/ConversationSummary;", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = 48)
 @DebugMetadata(c = "com.meharenterprises.originsms.ui.ArchivedChatsActivity$loadArchived$1$archived$1", f = "ArchivedChatsActivity.kt", i = {}, l = {LockFreeTaskQueueCore.CLOSED_SHIFT}, m = "invokeSuspend", n = {}, s = {})
 /* loaded from: classes3.dex */
 final class ArchivedChatsActivity$loadArchived$1$archived$1 extends SuspendLambda implements Function2<CoroutineScope, Continuation<? super List<? extends ConversationSummary>>, Object> {

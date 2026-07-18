@@ -1,6 +1,5 @@
 package com.meharenterprises.originsms.ui.thread;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.Observer;
 import kotlin.Function;
 import kotlin.Metadata;
@@ -9,7 +8,7 @@ import kotlin.jvm.internal.FunctionAdapter;
 import kotlin.jvm.internal.Intrinsics;
 
 /* compiled from: ThreadActivity.kt */
-@Metadata(k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+@Metadata(k = 3, mv = {1, 9, 0}, xi = 48)
 /* loaded from: classes10.dex */
 final class ThreadActivity$sam$androidx_lifecycle_Observer$0 implements Observer, FunctionAdapter {
     private final /* synthetic */ Function1 function;

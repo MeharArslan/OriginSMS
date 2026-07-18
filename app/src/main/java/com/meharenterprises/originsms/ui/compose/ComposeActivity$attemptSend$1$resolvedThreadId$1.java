@@ -1,7 +1,6 @@
 package com.meharenterprises.originsms.ui.compose;
 
 import android.provider.Telephony;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import kotlin.Metadata;
 import kotlin.ResultKt;
 import kotlin.Unit;
@@ -14,7 +13,7 @@ import kotlin.jvm.functions.Function2;
 import kotlinx.coroutines.CoroutineScope;
 
 /* compiled from: ComposeActivity.kt */
-@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\t\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\t\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = 48)
 @DebugMetadata(c = "com.meharenterprises.originsms.ui.compose.ComposeActivity$attemptSend$1$resolvedThreadId$1", f = "ComposeActivity.kt", i = {}, l = {}, m = "invokeSuspend", n = {}, s = {})
 /* loaded from: classes7.dex */
 final class ComposeActivity$attemptSend$1$resolvedThreadId$1 extends SuspendLambda implements Function2<CoroutineScope, Continuation<? super Long>, Object> {

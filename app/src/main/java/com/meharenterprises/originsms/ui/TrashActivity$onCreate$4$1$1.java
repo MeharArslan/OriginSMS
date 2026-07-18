@@ -1,6 +1,5 @@
 package com.meharenterprises.originsms.ui;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
 import com.meharenterprises.originsms.ui.TrashActivity;
 import java.util.Set;
 import kotlin.Metadata;
@@ -18,7 +17,7 @@ import kotlinx.coroutines.Dispatchers;
 
 /* JADX INFO: Access modifiers changed from: package-private */
 /* compiled from: TrashActivity.kt */
-@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = 48)
 @DebugMetadata(c = "com.meharenterprises.originsms.ui.TrashActivity$onCreate$4$1$1", f = "TrashActivity.kt", i = {}, l = {82}, m = "invokeSuspend", n = {}, s = {})
 /* loaded from: classes3.dex */
 public final class TrashActivity$onCreate$4$1$1 extends SuspendLambda implements Function2<CoroutineScope, Continuation<? super Unit>, Object> {
@@ -46,7 +45,7 @@ public final class TrashActivity$onCreate$4$1$1 extends SuspendLambda implements
 
     /* JADX INFO: Access modifiers changed from: package-private */
     /* compiled from: TrashActivity.kt */
-    @Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+    @Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = 48)
     @DebugMetadata(c = "com.meharenterprises.originsms.ui.TrashActivity$onCreate$4$1$1$1", f = "TrashActivity.kt", i = {0}, l = {84, 85}, m = "invokeSuspend", n = {"tid"}, s = {"J$0"})
     /* renamed from: com.meharenterprises.originsms.ui.TrashActivity$onCreate$4$1$1$1, reason: invalid class name */
     /* loaded from: classes3.dex */

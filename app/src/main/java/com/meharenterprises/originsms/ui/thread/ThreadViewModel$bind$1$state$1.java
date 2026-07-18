@@ -1,6 +1,5 @@
 package com.meharenterprises.originsms.ui.thread;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
 import com.meharenterprises.originsms.data.db.OriginDatabase;
 import com.meharenterprises.originsms.data.db.ThreadLockEntity;
 import kotlin.Metadata;
@@ -14,7 +13,7 @@ import kotlin.jvm.functions.Function2;
 import kotlinx.coroutines.CoroutineScope;
 
 /* compiled from: ThreadViewModel.kt */
-@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0018\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u0004\u0018\u00010\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "Lcom/meharenterprises/originsms/data/db/ThreadLockEntity;", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0018\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u0004\u0018\u00010\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "Lcom/meharenterprises/originsms/data/db/ThreadLockEntity;", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = 48)
 @DebugMetadata(c = "com.meharenterprises.originsms.ui.thread.ThreadViewModel$bind$1$state$1", f = "ThreadViewModel.kt", i = {}, l = {57}, m = "invokeSuspend", n = {}, s = {})
 /* loaded from: classes10.dex */
 final class ThreadViewModel$bind$1$state$1 extends SuspendLambda implements Function2<CoroutineScope, Continuation<? super ThreadLockEntity>, Object> {

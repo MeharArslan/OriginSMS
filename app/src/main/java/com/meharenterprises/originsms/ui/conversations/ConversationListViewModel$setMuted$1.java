@@ -1,7 +1,6 @@
 package com.meharenterprises.originsms.ui.conversations;
 
 import androidx.constraintlayout.core.motion.utils.TypedValues;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import com.meharenterprises.originsms.data.db.OriginDatabase;
 import com.meharenterprises.originsms.data.db.ThreadLockDao;
 import java.util.Iterator;
@@ -17,7 +16,7 @@ import kotlin.jvm.functions.Function2;
 import kotlinx.coroutines.CoroutineScope;
 
 /* compiled from: ConversationListViewModel.kt */
-@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = 48)
 @DebugMetadata(c = "com.meharenterprises.originsms.ui.conversations.ConversationListViewModel$setMuted$1", f = "ConversationListViewModel.kt", i = {}, l = {TypedValues.TYPE_TARGET}, m = "invokeSuspend", n = {}, s = {})
 /* loaded from: classes11.dex */
 final class ConversationListViewModel$setMuted$1 extends SuspendLambda implements Function2<CoroutineScope, Continuation<? super Unit>, Object> {

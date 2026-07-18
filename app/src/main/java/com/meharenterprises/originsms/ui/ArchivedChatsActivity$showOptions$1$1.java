@@ -1,7 +1,6 @@
 package com.meharenterprises.originsms.ui;
 
 import android.widget.Toast;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import com.meharenterprises.originsms.core.ConversationSummary;
 import kotlin.Metadata;
 import kotlin.ResultKt;
@@ -17,7 +16,7 @@ import kotlinx.coroutines.Dispatchers;
 
 /* JADX INFO: Access modifiers changed from: package-private */
 /* compiled from: ArchivedChatsActivity.kt */
-@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = 48)
 @DebugMetadata(c = "com.meharenterprises.originsms.ui.ArchivedChatsActivity$showOptions$1$1", f = "ArchivedChatsActivity.kt", i = {}, l = {86}, m = "invokeSuspend", n = {}, s = {})
 /* loaded from: classes3.dex */
 public final class ArchivedChatsActivity$showOptions$1$1 extends SuspendLambda implements Function2<CoroutineScope, Continuation<? super Unit>, Object> {
@@ -45,7 +44,7 @@ public final class ArchivedChatsActivity$showOptions$1$1 extends SuspendLambda i
 
     /* JADX INFO: Access modifiers changed from: package-private */
     /* compiled from: ArchivedChatsActivity.kt */
-    @Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+    @Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = 48)
     @DebugMetadata(c = "com.meharenterprises.originsms.ui.ArchivedChatsActivity$showOptions$1$1$1", f = "ArchivedChatsActivity.kt", i = {0}, l = {88, 89}, m = "invokeSuspend", n = {"dao"}, s = {"L$0"})
     /* renamed from: com.meharenterprises.originsms.ui.ArchivedChatsActivity$showOptions$1$1$1, reason: invalid class name */
     /* loaded from: classes3.dex */

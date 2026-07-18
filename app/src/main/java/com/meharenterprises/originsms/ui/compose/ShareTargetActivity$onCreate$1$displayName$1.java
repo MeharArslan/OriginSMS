@@ -1,6 +1,5 @@
 package com.meharenterprises.originsms.ui.compose;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
 import com.meharenterprises.originsms.core.ContactsHelper;
 import kotlin.Metadata;
 import kotlin.ResultKt;
@@ -14,7 +13,7 @@ import kotlinx.coroutines.CoroutineScope;
 
 /* JADX INFO: Access modifiers changed from: package-private */
 /* compiled from: ShareTargetActivity.kt */
-@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\u000e\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\u000e\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = 48)
 @DebugMetadata(c = "com.meharenterprises.originsms.ui.compose.ShareTargetActivity$onCreate$1$displayName$1", f = "ShareTargetActivity.kt", i = {}, l = {}, m = "invokeSuspend", n = {}, s = {})
 /* loaded from: classes7.dex */
 public final class ShareTargetActivity$onCreate$1$displayName$1 extends SuspendLambda implements Function2<CoroutineScope, Continuation<? super String>, Object> {

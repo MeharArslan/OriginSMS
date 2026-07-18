@@ -1,7 +1,6 @@
 package com.meharenterprises.originsms.services;
 
 import android.content.Context;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import com.meharenterprises.originsms.data.db.OriginDatabase;
 import com.meharenterprises.originsms.data.db.ThreadLockEntity;
 import kotlin.Metadata;
@@ -16,7 +15,7 @@ import kotlinx.coroutines.CoroutineScope;
 
 /* JADX INFO: Access modifiers changed from: package-private */
 /* compiled from: NotificationHelper.kt */
-@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0018\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u0004\u0018\u00010\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "Lcom/meharenterprises/originsms/data/db/ThreadLockEntity;", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0018\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u0004\u0018\u00010\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "Lcom/meharenterprises/originsms/data/db/ThreadLockEntity;", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = 48)
 @DebugMetadata(c = "com.meharenterprises.originsms.services.NotificationHelper$showIncomingMessageNotification$lockState$1", f = "NotificationHelper.kt", i = {}, l = {41}, m = "invokeSuspend", n = {}, s = {})
 /* loaded from: classes5.dex */
 public final class NotificationHelper$showIncomingMessageNotification$lockState$1 extends SuspendLambda implements Function2<CoroutineScope, Continuation<? super ThreadLockEntity>, Object> {

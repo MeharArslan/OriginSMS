@@ -1,6 +1,5 @@
 package com.meharenterprises.originsms.core;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
 import java.util.List;
 import kotlin.Metadata;
 import kotlin.Unit;
@@ -12,7 +11,7 @@ import kotlinx.coroutines.CoroutineScope;
 
 /* JADX INFO: Access modifiers changed from: package-private */
 /* compiled from: SmsRepository.kt */
-@Metadata(d1 = {"\u0000\u000e\n\u0000\n\u0002\u0010!\n\u0002\u0018\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\b\u0012\u0004\u0012\u00020\u00020\u0001*\u00020\u0003H\u008a@"}, d2 = {"<anonymous>", "", "Lcom/meharenterprises/originsms/core/ConversationSummary;", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+@Metadata(d1 = {"\u0000\u000e\n\u0000\n\u0002\u0010!\n\u0002\u0018\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\b\u0012\u0004\u0012\u00020\u00020\u0001*\u00020\u0003H\u008a@"}, d2 = {"<anonymous>", "", "Lcom/meharenterprises/originsms/core/ConversationSummary;", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = 48)
 @DebugMetadata(c = "com.meharenterprises.originsms.core.SmsRepository$getConversations$2", f = "SmsRepository.kt", i = {0, 0, 1, 1, 1}, l = {72, 77}, m = "invokeSuspend", n = {"results", "projection", "results", "projection", "allLockStates"}, s = {"L$0", "L$1", "L$0", "L$1", "L$2"})
 /* loaded from: classes8.dex */
 public final class SmsRepository$getConversations$2 extends SuspendLambda implements Function2<CoroutineScope, Continuation<? super List<ConversationSummary>>, Object> {

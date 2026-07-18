@@ -1,6 +1,5 @@
 package com.meharenterprises.originsms.ui.thread;
 
-import androidx.constraintlayout.widget.ConstraintLayout;
 import kotlin.Metadata;
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.jvm.internal.ContinuationImpl;
@@ -8,7 +7,7 @@ import kotlin.coroutines.jvm.internal.DebugMetadata;
 
 /* JADX INFO: Access modifiers changed from: package-private */
 /* compiled from: ThreadViewModel.kt */
-@Metadata(k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+@Metadata(k = 3, mv = {1, 9, 0}, xi = 48)
 @DebugMetadata(c = "com.meharenterprises.originsms.ui.thread.ThreadViewModel", f = "ThreadViewModel.kt", i = {}, l = {301}, m = "getDraft", n = {}, s = {})
 /* loaded from: classes10.dex */
 public final class ThreadViewModel$getDraft$1 extends ContinuationImpl {

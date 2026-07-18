@@ -1,7 +1,6 @@
 package com.meharenterprises.originsms.ui;
 
 import android.widget.Toast;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.text.HtmlCompat;
 import com.meharenterprises.originsms.ui.TrashActivity;
 import java.util.Set;
@@ -21,7 +20,7 @@ import kotlinx.coroutines.internal.LockFreeTaskQueueCore;
 
 /* JADX INFO: Access modifiers changed from: package-private */
 /* compiled from: TrashActivity.kt */
-@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+@Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = 48)
 @DebugMetadata(c = "com.meharenterprises.originsms.ui.TrashActivity$onCreate$3$1", f = "TrashActivity.kt", i = {}, l = {LockFreeTaskQueueCore.CLOSED_SHIFT}, m = "invokeSuspend", n = {}, s = {})
 /* loaded from: classes3.dex */
 public final class TrashActivity$onCreate$3$1 extends SuspendLambda implements Function2<CoroutineScope, Continuation<? super Unit>, Object> {
@@ -49,7 +48,7 @@ public final class TrashActivity$onCreate$3$1 extends SuspendLambda implements F
 
     /* JADX INFO: Access modifiers changed from: package-private */
     /* compiled from: TrashActivity.kt */
-    @Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = ConstraintLayout.LayoutParams.Table.LAYOUT_CONSTRAINT_VERTICAL_CHAINSTYLE)
+    @Metadata(d1 = {"\u0000\n\n\u0000\n\u0002\u0010\u0002\n\u0002\u0018\u0002\u0010\u0000\u001a\u00020\u0001*\u00020\u0002H\u008a@"}, d2 = {"<anonymous>", "", "Lkotlinx/coroutines/CoroutineScope;"}, k = 3, mv = {1, 9, 0}, xi = 48)
     @DebugMetadata(c = "com.meharenterprises.originsms.ui.TrashActivity$onCreate$3$1$1", f = "TrashActivity.kt", i = {}, l = {HtmlCompat.FROM_HTML_MODE_COMPACT, 64}, m = "invokeSuspend", n = {}, s = {})
     /* renamed from: com.meharenterprises.originsms.ui.TrashActivity$onCreate$3$1$1, reason: invalid class name */
     /* loaded from: classes3.dex */

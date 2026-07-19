@@ -646,23 +646,17 @@ class ThreadActivity : AppCompatActivity() {
         }
 
         // Scroll down FAB
-        val fabWrapper = findViewById<android.widget.FrameLayout?>(R.id.fabScrollWrapper)
         val fabDown = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton?>(R.id.fabScrollDown)
-        val txtUnread = findViewById<android.widget.TextView?>(R.id.txtUnreadCount)
-        var unreadBelow = 0
         recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
                 val lm2 = rv.layoutManager as? LinearLayoutManager ?: return
                 val lastVisible = lm2.findLastVisibleItemPosition()
                 val total = adapter.itemCount
-                val atBottom = total == 0 || lastVisible >= total - 3
-                fabWrapper?.visibility = if (!atBottom) android.view.View.VISIBLE else android.view.View.GONE
-                if (atBottom) { unreadBelow = 0; txtUnread?.visibility = android.view.View.GONE }
+                fabDown?.visibility = if (total > 0 && lastVisible < total - 3)
+                    android.view.View.VISIBLE else android.view.View.GONE
             }
         })
         fabDown?.setOnClickListener {
-            unreadBelow = 0
-            txtUnread?.visibility = android.view.View.GONE
             recycler.smoothScrollToPosition(adapter.itemCount - 1)
         }
 

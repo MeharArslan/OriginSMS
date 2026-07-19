@@ -430,24 +430,10 @@ class ThreadActivity : AppCompatActivity() {
             adapter.clearSelection()
             updateMessageSelectionBar()
         }
-        findViewById<View>(R.id.btnMessageStar).setOnClickListener {
+                findViewById<View>(R.id.btnMessageStar).setOnClickListener {
             val selected = currentSelectedMessages()
             if (selected.isNotEmpty()) {
-                lifecycleScope.launch {
-                    val db = com.meharenterprises.originsms.data.db.OriginDatabase.getInstance(this@ThreadActivity)
-                    val starredIds = db.starredMessageDao().getAllIds().toSet()
-                    selected.forEach { msg ->
-                        if (starredIds.contains(msg.id)) {
-                            db.starredMessageDao().unstar(msg.id)
-                        } else {
-                            db.starredMessageDao().star(com.meharenterprises.originsms.data.db.StarredMessageEntity(
-                                messageId=msg.id, threadId=threadId, address=address,
-                                body=msg.body, dateMillis=msg.dateMillis, starredAtMillis=System.currentTimeMillis()
-                            ))
-                        }
-                    }
-                    viewModel.loadMessages()
-                }
+                selected.forEach { msg -> viewModel.toggleStar(msg) }
             }
             adapter.clearSelection()
             updateMessageSelectionBar()

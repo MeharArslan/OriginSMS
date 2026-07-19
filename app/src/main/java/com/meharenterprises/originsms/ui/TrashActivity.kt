@@ -220,7 +220,8 @@ class TrashActivity : AppCompatActivity() {
             else 30L
 
             holder.txtName.text = conv.displayName
-            holder.txtSnippet.text = conv.snippet.take(80).ifBlank { "No messages" }
+            holder.txtSnippet.text = ""
+            holder.txtSnippet.visibility = android.view.View.GONE
             holder.txtDate.text = if (deletedAt > 0L)
                 SimpleDateFormat("MMM d", Locale.getDefault()).format(Date(deletedAt)) else ""
             holder.txtDaysLeft.text = if (daysLeft > 0) "$daysLeft days" else "Expires today"

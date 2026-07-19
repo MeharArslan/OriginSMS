@@ -53,7 +53,9 @@ class SmsDeliverReceiver : BroadcastReceiver() {
                     }
                     val insertedUri = context.contentResolver.insert(Telephony.Sms.CONTENT_URI, values)
 
-                    val contactName = ContactsHelper(context).resolve(sender).displayName
+                    val helper = ContactsHelper(context)
+                    helper.clearCache()
+                    val contactName = helper.resolve(sender).displayName
                     NotificationHelper(context).showIncomingMessageNotification(
                         address = sender,
                         displayName = contactName,

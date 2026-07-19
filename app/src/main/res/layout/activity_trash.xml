@@ -1,51 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="?attr/colorSurface"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/bg_surface"
-    android:orientation="vertical">
-
+    android:layout_height="match_parent">
     <com.google.android.material.appbar.MaterialToolbar
+        android:theme="@style/Theme.OriginSMS"
         android:id="@+id/toolbar"
+        android:background="@color/origin_primary"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/origin_primary"
-        android:theme="@style/Theme.OriginSMS"
         app:navigationIcon="@drawable/ic_back"
         app:title="Trash"
-        app:titleTextColor="@android:color/white" />
-
-    <TextView
+        app:titleTextColor="@android:color/white"/>
+    <LinearLayout
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:id="@+id/selectionBar"
+        android:background="@color/origin_primary"
+        android:visibility="gone"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/surface_card"
-        android:padding="@dimen/spacing_md"
-        android:text="Swipe right to restore · Swipe left to delete permanently · Tap to open"
-        android:textColor="@color/text_secondary"
-        android:textSize="12sp"
-        android:gravity="center" />
-
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="8dp">
-        <Button android:id="@+id/btnRestoreAll" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginEnd="4dp" android:text="Restore All" />
-        <Button android:id="@+id/btnDeleteAll" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="4dp" android:text="Delete All" />
+        android:layout_height="56dp"
+        android:paddingHorizontal="8dp">
+        <ImageButton
+            android:id="@+id/btnCloseSelection"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_close"
+            android:tint="@android:color/white"
+            android:contentDescription="Close"/>
+        <TextView
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:id="@+id/txtSelectionCount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="0 selected"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"/>
+        <ImageButton
+            android:id="@+id/btnSelectionRestore"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_restore_all"
+            android:tint="@android:color/white"
+            android:contentDescription="Restore"/>
+        <ImageButton
+            android:id="@+id/btnSelectionDelete"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_delete_all"
+            android:tint="#ffff8080"
+            android:contentDescription="Delete permanently"/>
     </LinearLayout>
-    <TextView android:id="@+id/txtTrashSnippet" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:visibility="gone" />
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerTrash"
+        android:clipToPadding="false"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
-
+        android:layout_weight="1"/>
     <TextView
+        android:textSize="16sp"
+        android:textColor="@color/text_secondary"
+        android:gravity="center"
         android:id="@+id/emptyTrash"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="center"
         android:text="Trash is empty"
-        android:textColor="@color/text_secondary"
-        android:textSize="15sp"
-        android:visibility="gone" />
-
+        android:layout_weight="1"/>
 </LinearLayout>

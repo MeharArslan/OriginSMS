@@ -1,23 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!--
-        Semantic, theme-aware aliases. Same names as values/colors.xml but
-        pointing at the dark-mode palette. Any view that uses these semantic
-        names (instead of the old hardcoded _light/_dark suffixed colors)
-        automatically gets the correct color when the system is in dark mode,
-        without any code-level if/else needed.
-    -->
     <color name="bg_surface">@color/bg_dark</color>
+    <color name="bubble_received_bg">@color/bubble_received_dark</color>
+    <color name="bubble_received_text">@color/bubble_received_text_dark</color>
+    <color name="bubble_sent_bg">@color/bubble_sent_dark</color>
+    <color name="bubble_sent_text">@color/bubble_sent_text_dark</color>
+    <color name="divider">@color/divider_dark</color>
+    <color name="input_field_bg">@color/bubble_received_dark</color>
+    <color name="input_field_hint">@color/text_secondary_dark</color>
+    <color name="input_field_text">@color/text_primary_dark</color>
+    <color name="row_selected_bg">#332d5c</color>
     <color name="surface_card">@color/surface_dark</color>
     <color name="text_primary">@color/text_primary_dark</color>
     <color name="text_secondary">@color/text_secondary_dark</color>
-    <color name="bubble_sent_bg">@color/bubble_sent_dark</color>
-    <color name="bubble_sent_text">@color/bubble_sent_text_dark</color>
-    <color name="bubble_received_bg">@color/bubble_received_dark</color>
-    <color name="bubble_received_text">@color/bubble_received_text_dark</color>
-    <color name="divider">@color/divider_dark</color>
-    <color name="input_field_bg">@color/bubble_received_dark</color>
-    <color name="input_field_text">@color/text_primary_dark</color>
-    <color name="input_field_hint">@color/text_secondary_dark</color>
-    <color name="row_selected_bg">#332D5C</color>
 </resources>

@@ -646,9 +646,9 @@ class ThreadActivity : AppCompatActivity() {
         }
 
         // Scroll down FAB
-        val fabDown = binding.fabScrollDown
-        val fabWrapper = binding.fabScrollWrapper
-        val txtUnread = binding.txtUnreadCount
+        val fabWrapper = findViewById<android.widget.FrameLayout?>(R.id.fabScrollWrapper)
+        val fabDown = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton?>(R.id.fabScrollDown)
+        val txtUnread = findViewById<android.widget.TextView?>(R.id.txtUnreadCount)
         var unreadBelow = 0
         recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {

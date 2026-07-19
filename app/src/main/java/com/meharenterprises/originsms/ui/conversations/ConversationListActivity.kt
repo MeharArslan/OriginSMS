@@ -652,11 +652,19 @@ class ConversationListActivity : AppCompatActivity() {
         }
     }
 
+    private val vaultLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            viewModel.loadConversations()
+        }
+    }
+
     private fun openHiddenChatsVault() {
         val intent = Intent(this, LockUnlockActivity::class.java).apply {
             putExtra(LockUnlockActivity.EXTRA_UNLOCK_INTENT, LockUnlockActivity.INTENT_OPEN_VAULT)
         }
-        startActivity(intent)
+        vaultLauncher.launch(intent)
     }
 
     private fun openArchivedChats() {

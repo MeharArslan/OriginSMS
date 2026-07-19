@@ -276,6 +276,7 @@ class LockUnlockActivity : AppCompatActivity() {
                     lifecycleScope.launch {
                         OriginDatabase.getInstance(this@LockUnlockActivity).threadLockDao()
                             .setHidden(conversation.threadId, false)
+                        setResult(RESULT_OK)
                         showVault()
                     }
                 } else {

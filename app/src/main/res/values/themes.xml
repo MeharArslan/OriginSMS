@@ -28,6 +28,7 @@
 
     <style name="Theme.OriginSMS.Lock" parent="Theme.OriginSMS">
         <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowBackground">?attr/colorSurface</item>
     </style>
 
     <style name="Theme.OriginSMS.Transparent" parent="Theme.OriginSMS">

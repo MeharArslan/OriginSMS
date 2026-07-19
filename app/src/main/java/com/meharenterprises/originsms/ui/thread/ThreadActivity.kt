@@ -435,11 +435,16 @@ class ThreadActivity : AppCompatActivity() {
             if (selected.isNotEmpty()) {
                 lifecycleScope.launch {
                     val db = com.meharenterprises.originsms.data.db.OriginDatabase.getInstance(this@ThreadActivity)
+                    val starredIds = db.starredMessageDao().getAllIds().toSet()
                     selected.forEach { msg ->
-                        db.starredMessageDao().star(com.meharenterprises.originsms.data.db.StarredMessageEntity(
-                            messageId=msg.id, threadId=threadId, address=address,
-                            body=msg.body, dateMillis=msg.dateMillis, starredAtMillis=System.currentTimeMillis()
-                        ))
+                        if (starredIds.contains(msg.id)) {
+                            db.starredMessageDao().unstar(msg.id)
+                        } else {
+                            db.starredMessageDao().star(com.meharenterprises.originsms.data.db.StarredMessageEntity(
+                                messageId=msg.id, threadId=threadId, address=address,
+                                body=msg.body, dateMillis=msg.dateMillis, starredAtMillis=System.currentTimeMillis()
+                            ))
+                        }
                     }
                     viewModel.loadMessages()
                 }
@@ -645,19 +650,35 @@ class ThreadActivity : AppCompatActivity() {
             recycler.itemAnimator = null
         }
 
-        // Scroll down FAB
+        // Scroll down FAB with unread badge
+        val fabWrapper = findViewById<android.view.View?>(R.id.fabScrollDownWrapper)
         val fabDown = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton?>(R.id.fabScrollDown)
+        val txtNewMsgCount = findViewById<android.widget.TextView?>(R.id.txtNewMessageCount)
+        var unreadBelowFold = 0
         recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
                 val lm2 = rv.layoutManager as? LinearLayoutManager ?: return
                 val lastVisible = lm2.findLastVisibleItemPosition()
                 val total = adapter.itemCount
-                fabDown?.visibility = if (total > 0 && lastVisible < total - 3)
-                    android.view.View.VISIBLE else android.view.View.GONE
+                val atBottom = total == 0 || lastVisible >= total - 3
+                fabWrapper?.visibility = if (!atBottom) android.view.View.VISIBLE else android.view.View.GONE
+                if (atBottom) { unreadBelowFold = 0; txtNewMsgCount?.visibility = android.view.View.GONE }
             }
         })
+        viewModel.messages.observe(this) { msgs ->
+            val lm2 = recycler.layoutManager as? LinearLayoutManager
+            val lastVisible = lm2?.findLastVisibleItemPosition() ?: -1
+            if (msgs.size > 0 && lastVisible < msgs.size - 3) {
+                unreadBelowFold++
+                txtNewMsgCount?.text = if (unreadBelowFold > 99) "99+" else "$unreadBelowFold new"
+                txtNewMsgCount?.visibility = android.view.View.VISIBLE
+            }
+        }
         fabDown?.setOnClickListener {
-            recycler.smoothScrollToPosition(adapter.itemCount - 1)
+            unreadBelowFold = 0
+            txtNewMsgCount?.visibility = android.view.View.GONE
+            val last = adapter.itemCount - 1
+            if (last >= 0) recycler.smoothScrollToPosition(last)
         }
 
         // Pinch to zoom toggle

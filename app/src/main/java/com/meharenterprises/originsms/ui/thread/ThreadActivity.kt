@@ -1054,42 +1054,9 @@ class ThreadActivity : AppCompatActivity() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        viewModel.saveDraft(editMessage.text?.toString().orEmpty())
-    }
+    
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.loadMessages()
-        // Auto-cancel notification when user opens the chat
-        if (threadId != -1L) {
-            com.meharenterprises.originsms.services.NotificationHelper(this).cancel(threadId)
-        }
-        // Re-register handlers for persisted scheduled messages
-        viewModel.scheduledEntries.value?.forEach { entry ->
-            if (!scheduledMessages.containsKey(entry.key)) {
-                val delay = entry.scheduledAtMillis - System.currentTimeMillis()
-                if (delay > 0) {
-                    val handler = android.os.Handler(android.os.Looper.getMainLooper())
-                    scheduledMessages[entry.key] = Pair(entry.scheduledAtMillis, handler)
-                    handler.postDelayed({
-                        scheduledMessages.remove(entry.key)
-                        viewModel.deleteScheduledPlaceholder(entry.key)
-                        viewModel.sendMessage(entry.text)
-                    }, delay)
-                }
-            }
-        }
-        if (threadId != -1L) {
-            lifecycleScope.launch {
-                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    com.meharenterprises.originsms.core.SmsRepository(applicationContext)
-                        .markThreadRead(threadId)
-                }
-            }
-        }
-    }
+    
 
     override fun onBackPressed() {
         if (adapter.getSelectedCount() > 0) {

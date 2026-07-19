@@ -46,16 +46,16 @@
     -->
     <color name="bg_surface">@color/bg_light</color>
     <color name="surface_card">@color/surface_light</color>
-    <color name="text_primary">@color/text_primary_light</color>
-    <color name="text_secondary">@color/text_secondary_light</color>
+    <color name="text_primary">@color/text_primary</color>
+    <color name="text_secondary">@color/text_secondary</color>
     <color name="bubble_sent_bg">@color/bubble_sent_light</color>
     <color name="bubble_sent_text">@color/bubble_sent_text_light</color>
     <color name="bubble_received_bg">@color/bubble_received_light</color>
     <color name="bubble_received_text">@color/bubble_received_text_light</color>
     <color name="divider">@color/divider_light</color>
     <color name="input_field_bg">@color/bubble_received_light</color>
-    <color name="input_field_text">@color/text_primary_light</color>
-    <color name="input_field_hint">@color/text_secondary_light</color>
+    <color name="input_field_text">@color/text_primary</color>
+    <color name="input_field_hint">@color/text_secondary</color>
     <color name="row_selected_bg">#E8E5F7</color>
     <color name="switch_thumb_tint">#FFFFFF</color>
     <color name="switch_track_tint">#6200EE</color>

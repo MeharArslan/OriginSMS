@@ -312,6 +312,30 @@ class LockUnlockActivity : AppCompatActivity() {
             .show()
     }
 
+    private val autoUnhideHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val autoUnhideRunnable = object : Runnable {
+        override fun run() {
+            if (!isFinishing) {
+                lifecycleScope.launch {
+                    val now = System.currentTimeMillis()
+                    val dao = OriginDatabase.getInstance(this@LockUnlockActivity).threadLockDao()
+                    val expired = dao.getThreadsDueForAutoUnhide(now)
+                    if (expired.isNotEmpty()) {
+                        expired.forEach { entry ->
+                            dao.setHidden(entry.threadId, false)
+                            dao.setAutoUnhideAt(entry.threadId, 0L)
+                        }
+                        setResult(RESULT_OK)
+                        showVault()
+                    }
+                }
+                autoUnhideHandler.postDelayed(this, 30_000L)
+            }
+        }
+    }
+    override fun onResume() { super.onResume(); autoUnhideHandler.post(autoUnhideRunnable) }
+    override fun onPause() { super.onPause(); autoUnhideHandler.removeCallbacks(autoUnhideRunnable) }
+
     companion object {
         const val EXTRA_THREAD_ID = "extra_thread_id"
         const val EXTRA_ADDRESS = "extra_address"

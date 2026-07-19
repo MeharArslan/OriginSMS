@@ -33,7 +33,10 @@ class NotificationHelper(private val context: Context) {
         body: String,
         threadId: Long
     ) {
-        val lockState = runBlocking {
+        try {
+            if (com.meharenterprises.originsms.ui.thread.ThreadActivity.activeThreadId == threadId) return
+        } catch (_: Exception) {}
+                val lockState = runBlocking {
             OriginDatabase.getInstance(context).threadLockDao().getForThread(threadId)
         }
         val isLocked = lockState?.isLocked == true
@@ -48,10 +51,27 @@ class NotificationHelper(private val context: Context) {
         val title  = if (isLocked) context.getString(R.string.app_name) else displayName
         val content = if (isLocked) context.getString(R.string.notif_locked_chat_content) else body
 
-        // --- Point 1: keep last 5 messages per thread ---
-        val history = messageHistory.getOrPut(threadId) { ArrayDeque() }
-        history.addLast(Pair(content, System.currentTimeMillis()))
-        while (history.size > 5) history.removeFirst()
+        val history: List<Pair<String, Long>> = try {
+            val cur = context.contentResolver.query(
+                android.provider.Telephony.Sms.CONTENT_URI,
+                arrayOf(android.provider.Telephony.Sms.BODY, android.provider.Telephony.Sms.DATE),
+                "${android.provider.Telephony.Sms.THREAD_ID} = ?",
+                arrayOf(threadId.toString()),
+                "${android.provider.Telephony.Sms.DATE} DESC LIMIT 5"
+            )
+            val msgs = mutableListOf<Pair<String, Long>>()
+            cur?.use { while (it.moveToNext()) {
+                val b = it.getColumnIndex(android.provider.Telephony.Sms.BODY)
+                val d = it.getColumnIndex(android.provider.Telephony.Sms.DATE)
+                if (b >= 0 && d >= 0) msgs.add(Pair(if (isLocked) context.getString(R.string.notif_locked_chat_content) else it.getString(b), it.getLong(d)))
+            }}
+            msgs.reversed()
+        } catch (_: Exception) {
+            val m = messageHistory.getOrPut(threadId) { ArrayDeque() }
+            m.addLast(Pair(content, System.currentTimeMillis()))
+            while (m.size > 5) m.removeFirst()
+            m.toList()
+        }
 
         val contentIntent = if (isLocked) {
             Intent(context, LockUnlockActivity::class.java).apply {

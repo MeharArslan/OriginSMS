@@ -141,6 +141,11 @@ class MessageAdapter(
                 if (message.isStarred) {
                     if (holder.imgStarIndicator?.visibility != View.VISIBLE) {
                         holder.imgStarIndicator?.visibility = View.VISIBLE
+                        // Floating star bubbles animation
+                        val act = holder.itemView.context
+                        if (act is com.meharenterprises.originsms.ui.thread.ThreadActivity) {
+                            act.showFloatingStarAnimation(holder.itemView)
+                        }
                         holder.imgStarIndicator?.let { img ->
                             img.alpha = 0f; img.scaleX = 0.3f; img.scaleY = 0.3f
                             android.animation.AnimatorSet().apply {
@@ -217,6 +222,11 @@ class MessageAdapter(
                 if (message.isStarred) {
                     if (holder.imgStarIndicator?.visibility != View.VISIBLE) {
                         holder.imgStarIndicator?.visibility = View.VISIBLE
+                        // Floating star bubbles animation
+                        val act = holder.itemView.context
+                        if (act is com.meharenterprises.originsms.ui.thread.ThreadActivity) {
+                            act.showFloatingStarAnimation(holder.itemView)
+                        }
                         holder.imgStarIndicator?.let { img ->
                             img.alpha = 0f; img.scaleX = 0.3f; img.scaleY = 0.3f
                             android.animation.AnimatorSet().apply {

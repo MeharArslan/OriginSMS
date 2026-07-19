@@ -36,7 +36,7 @@
             android:gravity="center"
             android:padding="@dimen/spacing_lg"
             android:text="No blocked numbers yet."
-            android:textColor="@color/text_secondary_light"
+            android:textColor="@color/text_secondary"
             android:visibility="gone" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton

@@ -904,8 +904,13 @@ class ThreadActivity : AppCompatActivity() {
             )
         }
         val combined = (messages + fakeScheduled).sortedBy { it.dateMillis }
+        val lmCheck = recycler.layoutManager as? LinearLayoutManager
+        val lastVis = lmCheck?.findLastVisibleItemPosition() ?: -1
+        val wasAtBottom = lastVis < 0 || lastVis >= adapter.itemCount - 3
         adapter.submitList(combined) {
-            if (combined.isNotEmpty()) recycler.scrollToPosition(combined.size - 1)
+            if (combined.isNotEmpty() && wasAtBottom) {
+                recycler.scrollToPosition(combined.size - 1)
+            }
         }
     }
 
@@ -1100,7 +1105,36 @@ class ThreadActivity : AppCompatActivity() {
         clipboard.setPrimaryClip(ClipData.newPlainText("message", text))
     }
 
+    fun showFloatingStarAnimation(anchorView: android.view.View) {
+        val root = window.decorView.rootView as? android.view.ViewGroup ?: return
+        val rnd = java.util.Random()
+        val loc = IntArray(2); anchorView.getLocationInWindow(loc)
+        val sx = loc[0].toFloat() + anchorView.width / 2f
+        val sy = loc[1].toFloat()
+        listOf("⭐","✨","⭐","✨","⭐").forEachIndexed { i, star ->
+            val tv = android.widget.TextView(this).apply { text = star; textSize = 22f; alpha = 0f }
+            root.addView(tv)
+            tv.x = sx + rnd.nextInt(80) - 40f; tv.y = sy
+            android.animation.AnimatorSet().apply {
+                val d = (i * 80L)
+                playTogether(
+                    android.animation.ObjectAnimator.ofFloat(tv,"alpha",0f,1f,1f,0f).apply{duration=900;startDelay=d},
+                    android.animation.ObjectAnimator.ofFloat(tv,"translationY",0f,-220f).apply{duration=900;startDelay=d},
+                    android.animation.ObjectAnimator.ofFloat(tv,"translationX",0f,(rnd.nextInt(60)-30).toFloat()).apply{duration=900;startDelay=d},
+                    android.animation.ObjectAnimator.ofFloat(tv,"scaleX",0.5f,1.4f,1f).apply{duration=900;startDelay=d},
+                    android.animation.ObjectAnimator.ofFloat(tv,"scaleY",0.5f,1.4f,1f).apply{duration=900;startDelay=d}
+                )
+                addListener(object:android.animation.AnimatorListenerAdapter(){override fun onAnimationEnd(a:android.animation.Animator){root.removeView(tv)}})
+                start()
+            }
+        }
+    }
+
+    override fun onResume() { super.onResume(); activeThreadId = threadId }
+    override fun onPause() { super.onPause(); if (activeThreadId == threadId) activeThreadId = -1L }
+
     companion object {
+        @JvmStatic var activeThreadId: Long = -1L
         const val EXTRA_THREAD_ID = "extra_thread_id"
         const val EXTRA_ADDRESS = "extra_address"
         const val EXTRA_DISPLAY_NAME = "extra_display_name"

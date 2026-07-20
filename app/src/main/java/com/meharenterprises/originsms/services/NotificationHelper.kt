@@ -192,5 +192,6 @@ class NotificationHelper(private val context: Context) {
     fun cancel(threadId: Long) {
         messageHistory.remove(threadId) // clear history when dismissed
         manager.cancel(threadId.toInt())
+        try { manager.cancel("group_sms", 0) } catch (_: Exception) {}
     }
 }

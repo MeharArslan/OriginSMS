@@ -139,8 +139,26 @@ class ThreadActivity : AppCompatActivity() {
         }
 
         viewModel.bind(threadId, address)
+        var fabPrevCount = -1
         viewModel.messages.observe(this) { list ->
+            val newArrived = fabPrevCount >= 0 && list.size > fabPrevCount
+            fabPrevCount = list.size
             mergeAndSubmit(list, viewModel.scheduledEntries.value ?: emptyList())
+            if (newArrived) {
+                val lmf = recycler.layoutManager as? LinearLayoutManager
+                val lv = lmf?.findLastVisibleItemPosition() ?: -1
+                val atBot = list.isEmpty() || lv >= list.size - 3
+                if (!atBot) {
+                    unreadBelowFold++
+                    val n = unreadBelowFold
+                    extFab?.text = when { n>99->"99+ New"; n==1->"1 New Message"; else->"$n New Messages" }
+                    extFab?.extend()
+                    if (fabWrapper?.visibility != android.view.View.VISIBLE) {
+                        fabWrapper?.alpha = 0f; fabWrapper?.visibility = android.view.View.VISIBLE
+                        fabWrapper?.animate()?.alpha(1f)?.setDuration(200)?.start()
+                    }
+                }
+            }
         }
         viewModel.pendingAttachments.observe(this) { uris -> renderAttachmentPreviews(uris) }
 
@@ -661,23 +679,6 @@ class ThreadActivity : AppCompatActivity() {
                 }
             }
         })
-        viewModel.messages.observe(this) { msgs ->
-            val lm2 = recycler.layoutManager as? LinearLayoutManager
-            val lastVisible = lm2?.findLastVisibleItemPosition() ?: -1
-            val atBottom = msgs.isEmpty() || lastVisible >= msgs.size - 3
-            val newArrived = prevMsgCount >= 0 && msgs.size > prevMsgCount
-            prevMsgCount = msgs.size
-            if (newArrived && !atBottom) {
-                unreadBelowFold++
-                val n = unreadBelowFold
-                extFab?.text = when { n > 99 -> "99+ New"; n == 1 -> "1 New Message"; else -> "$n New Messages" }
-                extFab?.extend()
-                if (fabWrapper?.visibility != android.view.View.VISIBLE) {
-                    fabWrapper?.alpha = 0f; fabWrapper?.visibility = android.view.View.VISIBLE
-                    fabWrapper?.animate()?.alpha(1f)?.setDuration(180)?.start()
-                }
-            }
-        }
         extFab?.setOnClickListener {
             unreadBelowFold = 0; extFab.text = ""; extFab.shrink()
             fabWrapper?.animate()?.alpha(0f)?.setDuration(180)
@@ -1108,32 +1109,49 @@ class ThreadActivity : AppCompatActivity() {
     }
 
     fun showFloatingStarAnimation(anchorView: android.view.View) {
-        val root = window.decorView.rootView as? android.view.ViewGroup ?: return
-        val rnd = java.util.Random()
-        val loc = IntArray(2); anchorView.getLocationInWindow(loc)
-        val sx = loc[0].toFloat() + anchorView.width / 2f
-        val sy = loc[1].toFloat()
+        val ov = window.decorView.overlay; val rnd = java.util.Random()
+        val loc = IntArray(2); anchorView.getLocationOnScreen(loc)
+        val wloc = IntArray(2); window.decorView.getLocationOnScreen(wloc)
+        val sx = (loc[0]-wloc[0]).toFloat()+anchorView.width/2f
+        val sy = (loc[1]-wloc[1]).toFloat()+anchorView.height/2f
         listOf("⭐","✨","⭐","✨","⭐").forEachIndexed { i, star ->
-            val tv = android.widget.TextView(this).apply { text = star; textSize = 22f; alpha = 0f }
-            root.addView(tv)
-            tv.x = sx + rnd.nextInt(80) - 40f; tv.y = sy
+            val tv = android.widget.TextView(this).apply {
+                text=star; textSize=26f; alpha=0f
+                measure(android.view.View.MeasureSpec.UNSPECIFIED, android.view.View.MeasureSpec.UNSPECIFIED)
+                layout(0,0,measuredWidth,measuredHeight)
+            }
+            val ox=sx+rnd.nextInt(100)-50f
+            ov.add(tv); tv.translationX=ox; tv.translationY=sy
             android.animation.AnimatorSet().apply {
-                val d = (i * 80L)
+                val d=(i*100L)
                 playTogether(
-                    android.animation.ObjectAnimator.ofFloat(tv,"alpha",0f,1f,1f,0f).apply{duration=900;startDelay=d},
-                    android.animation.ObjectAnimator.ofFloat(tv,"translationY",0f,-220f).apply{duration=900;startDelay=d},
-                    android.animation.ObjectAnimator.ofFloat(tv,"translationX",0f,(rnd.nextInt(60)-30).toFloat()).apply{duration=900;startDelay=d},
-                    android.animation.ObjectAnimator.ofFloat(tv,"scaleX",0.5f,1.4f,1f).apply{duration=900;startDelay=d},
-                    android.animation.ObjectAnimator.ofFloat(tv,"scaleY",0.5f,1.4f,1f).apply{duration=900;startDelay=d}
+                    android.animation.ObjectAnimator.ofFloat(tv,"alpha",0f,1f,1f,0f).apply{duration=1000;startDelay=d},
+                    android.animation.ObjectAnimator.ofFloat(tv,"translationY",sy,sy-240f).apply{duration=1000;startDelay=d},
+                    android.animation.ObjectAnimator.ofFloat(tv,"translationX",ox,ox+(rnd.nextInt(80)-40f)).apply{duration=1000;startDelay=d},
+                    android.animation.ObjectAnimator.ofFloat(tv,"scaleX",0.4f,1.5f,0.9f).apply{duration=1000;startDelay=d},
+                    android.animation.ObjectAnimator.ofFloat(tv,"scaleY",0.4f,1.5f,0.9f).apply{duration=1000;startDelay=d}
                 )
-                addListener(object:android.animation.AnimatorListenerAdapter(){override fun onAnimationEnd(a:android.animation.Animator){root.removeView(tv)}})
+                addListener(object:android.animation.AnimatorListenerAdapter(){override fun onAnimationEnd(a:android.animation.Animator){ov.remove(tv)}})
                 start()
             }
         }
     }
 
-    override fun onResume() { super.onResume(); activeThreadId = threadId }
-    override fun onPause() { super.onPause(); if (activeThreadId == threadId) activeThreadId = -1L }
+    override fun onResume() {
+        super.onResume(); activeThreadId = threadId
+        if (threadId > 0L) lifecycleScope.launch {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                try { com.meharenterprises.originsms.core.SmsRepository(this@ThreadActivity).markThreadRead(threadId) } catch(_:Exception){}
+            }
+            getSystemService(android.app.NotificationManager::class.java)?.cancel(threadId.toInt())
+        }
+    }
+    override fun onPause() {
+        super.onPause(); if (activeThreadId == threadId) activeThreadId = -1L
+        if (threadId > 0L) lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            try { com.meharenterprises.originsms.core.SmsRepository(this@ThreadActivity).markThreadRead(threadId) } catch(_:Exception){}
+        }
+    }
 
     companion object {
         @JvmStatic var activeThreadId: Long = -1L

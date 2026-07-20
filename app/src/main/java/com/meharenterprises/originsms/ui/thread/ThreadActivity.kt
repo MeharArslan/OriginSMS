@@ -680,7 +680,9 @@ class ThreadActivity : AppCompatActivity() {
             }
         })
         extFab?.setOnClickListener {
-            unreadBelowFold = 0; extFab.text = ""; extFab.shrink()
+            unreadBelowFold = 0
+            val ef = extFab ?: return@setOnClickListener
+            ef.text = ""; ef.shrink()
             fabWrapper?.animate()?.alpha(0f)?.setDuration(180)
                 ?.withEndAction { fabWrapper?.visibility = android.view.View.GONE }?.start()
             val last = adapter.itemCount - 1
@@ -1109,7 +1111,7 @@ class ThreadActivity : AppCompatActivity() {
     }
 
     fun showFloatingStarAnimation(anchorView: android.view.View) {
-        val ov = window.decorView.overlay; val rnd = java.util.Random()
+        val ov = (window.decorView as android.view.ViewGroup).overlay; val rnd = java.util.Random()
         val loc = IntArray(2); anchorView.getLocationOnScreen(loc)
         val wloc = IntArray(2); window.decorView.getLocationOnScreen(wloc)
         val sx = (loc[0]-wloc[0]).toFloat()+anchorView.width/2f

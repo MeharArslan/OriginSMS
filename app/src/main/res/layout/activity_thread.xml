@@ -118,30 +118,25 @@
             android:layout_height="match_parent"
             android:paddingHorizontal="@dimen/spacing_sm"
             android:paddingVertical="@dimen/spacing_md"/>
-        <LinearLayout
-            android:gravity="center"
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/fabScrollDown"
             android:layout_gravity="bottom|center_horizontal"
-            android:orientation="vertical"
-            android:id="@+id/fabScrollDownWrapper"
+            android:layout_marginBottom="12dp"
             android:visibility="gone"
+            android:text=""
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:minWidth="40dp"
+            android:paddingHorizontal="12dp"
+            app:icon="@drawable/ic_arrow_down"
+            app:iconTint="#FFFFFF"
+            app:iconSize="18dp"
+            app:iconPadding="0dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp">
-            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-                android:id="@+id/fabScrollDown"
-                android:text=""
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                app:icon="@drawable/ic_arrow_down"
-                app:iconTint="#FFFFFF"
-                app:iconSize="18dp"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:backgroundTint="#CC1C1B22"
-                app:elevation="8dp"
-                app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Full"/>
-        </LinearLayout>
+            android:layout_height="40dp"
+            android:backgroundTint="#E61C1B22"
+            app:elevation="6dp"
+            app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Full"/>
     </FrameLayout>
     <View
         android:background="@color/divider"

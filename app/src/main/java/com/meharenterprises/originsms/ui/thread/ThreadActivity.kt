@@ -93,7 +93,6 @@ class ThreadActivity : AppCompatActivity() {
     ) { granted -> if (granted) launchCamera() }
 
     private var unreadBelowFold = 0
-    private var fabWrapper: android.view.View? = null
     private var extFab: com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton? = null
     private var fabMsgCount = -1
 
@@ -146,19 +145,11 @@ class ThreadActivity : AppCompatActivity() {
             fabMsgCount = list.size
             mergeAndSubmit(list, viewModel.scheduledEntries.value ?: emptyList())
             if (newArrived) {
-                val lmf = recycler.layoutManager as? LinearLayoutManager
-                val lv = lmf?.findLastVisibleItemPosition() ?: -1
-                val atBot = list.isEmpty() || lv >= list.size - 3
-                if (!atBot) {
-                    unreadBelowFold++
-                    val n = unreadBelowFold
-                    extFab?.text = when { n>99->"99+ New"; n==1->"1 New Message"; else->"$n New Messages" }
-                    extFab?.extend()
-                    if (fabWrapper?.visibility != android.view.View.VISIBLE) {
-                        fabWrapper?.alpha = 0f; fabWrapper?.visibility = android.view.View.VISIBLE
-                        fabWrapper?.animate()?.alpha(1f)?.setDuration(200)?.start()
-                    }
-                }
+                val lm2 = recycler.layoutManager as? LinearLayoutManager
+                val atBot = list.isEmpty() || (lm2?.findLastVisibleItemPosition() ?: -1) >= list.size - 3
+                if (!atBot) { unreadBelowFold = minOf(unreadBelowFold + 1, 99); showUnreadFab(unreadBelowFold) }
+            }
+        }
             }
         }
         viewModel.pendingAttachments.observe(this) { uris -> renderAttachmentPreviews(uris) }
@@ -664,33 +655,9 @@ class ThreadActivity : AppCompatActivity() {
             recycler.itemAnimator = null
         }
 
-        // Scroll down FAB with unread badge
-        fabWrapper = findViewById(R.id.fabScrollDownWrapper)
+        // Google Messages scroll FAB
         extFab = findViewById(R.id.fabScrollDown)
-        recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
-                val lm2 = rv.layoutManager as? LinearLayoutManager ?: return
-                val lastVisible = lm2.findLastVisibleItemPosition()
-                val total = adapter.itemCount
-                val atBottom = total == 0 || lastVisible >= total - 3
-                if (atBottom) {
-                    if (fabWrapper?.visibility == android.view.View.VISIBLE) {
-                        fabWrapper?.animate()?.alpha(0f)?.setDuration(180)
-                            ?.withEndAction { fabWrapper?.visibility = android.view.View.GONE }?.start()
-                    }
-                    unreadBelowFold = 0; extFab?.text = ""; extFab?.shrink()
-                } else if (fabWrapper?.visibility != android.view.View.VISIBLE) {
-                    fabWrapper?.alpha = 0f; fabWrapper?.visibility = android.view.View.VISIBLE
-                    fabWrapper?.animate()?.alpha(1f)?.setDuration(180)?.start()
-                }
-            }
-        })
-        extFab?.setOnClickListener {
-            unreadBelowFold = 0
-            val ef = extFab ?: return@setOnClickListener
-            ef.text = ""; ef.shrink()
-            fabWrapper?.animate()?.alpha(0f)?.setDuration(180)
-                ?.withEndAction { fabWrapper?.visibility = android.view.View.GONE }?.start()
+        setupScrollFab()?.start()
             val last = adapter.itemCount - 1
             if (last >= 0) recycler.smoothScrollToPosition(last)
         }
@@ -755,9 +722,8 @@ class ThreadActivity : AppCompatActivity() {
                 viewModel.sendMessage(text)
                 editMessage.setText("")
                 hideEmojiPicker()
-                unreadBelowFold = 0
-                val ef = fabWrapper?.findViewById<com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton>(R.id.fabScrollDown)
-                ef?.text = ""; ef?.shrink(); fabWrapper?.visibility = android.view.View.GONE
+                scrollToLatest()
+                // already scrolling
                 recycler.postDelayed({ val l = adapter.itemCount-1; if(l>=0) recycler.smoothScrollToPosition(l) }, 100)
             }
         }
@@ -1164,6 +1130,59 @@ class ThreadActivity : AppCompatActivity() {
         if (threadId > 0L) lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             try { com.meharenterprises.originsms.core.SmsRepository(this@ThreadActivity).markThreadRead(threadId) } catch(_:Exception){}
         }
+    }
+
+    private fun setupScrollFab() {
+        val fab = extFab ?: return
+        fab.visibility = android.view.View.GONE
+        recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
+                val lm = rv.layoutManager as? LinearLayoutManager ?: return
+                val atBottom = adapter.itemCount == 0 || lm.findLastVisibleItemPosition() >= adapter.itemCount - 3
+                if (atBottom) {
+                    if (fab.visibility == android.view.View.VISIBLE) {
+                        fab.animate().alpha(0f).setDuration(200).withEndAction { fab.visibility = android.view.View.GONE }.start()
+                    }
+                    collapseFab()
+                } else if (fab.visibility != android.view.View.VISIBLE) {
+                    fab.alpha = 0f; fab.visibility = android.view.View.VISIBLE
+                    fab.animate().alpha(1f).setDuration(200).start()
+                }
+            }
+        })
+        fab.setOnClickListener { scrollToLatest() }
+    }
+
+    private fun showUnreadFab(count: Int) {
+        val fab = extFab ?: return
+        val text = if (count == 1) "1 New message" else "$count New messages"
+        if (fab.text.toString() == text) return
+        if (fab.isExtended) {
+            fab.animate().alpha(0.5f).setDuration(80).withEndAction {
+                fab.text = text; fab.animate().alpha(1f).setDuration(80).start()
+            }.start()
+        } else {
+            fab.text = text; fab.extend()
+            if (fab.visibility != android.view.View.VISIBLE) {
+                fab.alpha = 0f; fab.visibility = android.view.View.VISIBLE
+                fab.animate().alpha(1f).setDuration(200).start()
+            }
+        }
+    }
+
+    private fun collapseFab(hide: Boolean = false) {
+        val fab = extFab ?: return
+        unreadBelowFold = 0
+        if (fab.isExtended) fab.shrink()
+        if (hide) fab.postDelayed({
+            fab.animate().alpha(0f).setDuration(200).withEndAction { fab.visibility = android.view.View.GONE }.start()
+        }, 220)
+    }
+
+    private fun scrollToLatest() {
+        collapseFab(hide = true)
+        val last = adapter.itemCount - 1
+        if (last >= 0) recycler.smoothScrollToPosition(last)
     }
 
     companion object {

@@ -644,15 +644,20 @@ class ThreadActivity : AppCompatActivity() {
         fabWrapper = findViewById(R.id.fabScrollDownWrapper)
         val fabDown = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton?>(R.id.fabScrollDown)
         txtNewMsgCount = findViewById(R.id.txtNewMessageCount)
-        var unreadBelowFold = 0
         recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
                 val lm2 = rv.layoutManager as? LinearLayoutManager ?: return
                 val lastVisible = lm2.findLastVisibleItemPosition()
                 val total = adapter.itemCount
                 val atBottom = total == 0 || lastVisible >= total - 3
-                fabWrapper?.visibility = if (!atBottom) android.view.View.VISIBLE else android.view.View.GONE
-                if (atBottom) { unreadBelowFold = 0; txtNewMsgCount?.visibility = android.view.View.GONE }
+                if (!atBottom && fabWrapper?.visibility != android.view.View.VISIBLE) {
+                    fabWrapper?.alpha = 0f; fabWrapper?.visibility = android.view.View.VISIBLE
+                    fabWrapper?.animate()?.alpha(1f)?.setDuration(180)?.start()
+                } else if (atBottom && fabWrapper?.visibility == android.view.View.VISIBLE) {
+                    fabWrapper?.animate()?.alpha(0f)?.setDuration(180)
+                        ?.withEndAction { fabWrapper?.visibility = android.view.View.GONE }?.start()
+                    unreadBelowFold = 0; txtNewMsgCount?.visibility = android.view.View.GONE
+                }
             }
         })
         viewModel.messages.observe(this) { msgs ->

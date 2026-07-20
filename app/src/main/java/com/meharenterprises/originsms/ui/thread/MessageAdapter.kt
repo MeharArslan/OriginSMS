@@ -280,14 +280,6 @@ class MessageAdapter(
                         expandedTimestampIds.add(msgId)
                         val pos = currentList.indexOfFirst { it.id == msgId }
                         if (pos >= 0) notifyItemChanged(pos)
-                        // Auto-hide after 3 seconds
-                        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                            if (expandedTimestampIds.contains(msgId)) {
-                                expandedTimestampIds.remove(msgId)
-                                val p = currentList.indexOfFirst { it.id == msgId }
-                                if (p >= 0) notifyItemChanged(p)
-                            }
-                        }, 3000L)
                     }
                 }
             }

@@ -617,7 +617,7 @@ class ConversationListActivity : AppCompatActivity() {
             putExtra(ThreadActivity.EXTRA_ADDRESS, conversation.address)
             putExtra(ThreadActivity.EXTRA_DISPLAY_NAME, conversation.displayName)
         }
-        startActivity(intent)
+        threadLauncher.launch(intent)
         if (conversation.unreadCount > 0) {
             viewModel.markRead(conversation.threadId)
         }
@@ -656,6 +656,10 @@ class ConversationListActivity : AppCompatActivity() {
             else -> super.onBackPressed()
         }
     }
+
+    private val threadLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+    ) { viewModel.loadConversations() }
 
     private val vaultLauncher = registerForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()

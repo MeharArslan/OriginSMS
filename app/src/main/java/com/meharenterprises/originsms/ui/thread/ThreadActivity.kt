@@ -723,8 +723,6 @@ class ThreadActivity : AppCompatActivity() {
                 editMessage.setText("")
                 hideEmojiPicker()
                 scrollToLatest()
-                // already scrolling
-                recycler.postDelayed({ val l = adapter.itemCount-1; if(l>=0) recycler.smoothScrollToPosition(l) }, 100)
             }
         }
         btnSend.setOnLongClickListener {

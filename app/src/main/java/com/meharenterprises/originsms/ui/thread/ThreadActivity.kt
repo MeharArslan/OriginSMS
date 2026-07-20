@@ -94,6 +94,8 @@ class ThreadActivity : AppCompatActivity() {
 
     private var unreadBelowFold = 0
     private var fabWrapper: android.view.View? = null
+    private var extFab: com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton? = null
+    private var fabMsgCount = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -139,10 +141,9 @@ class ThreadActivity : AppCompatActivity() {
         }
 
         viewModel.bind(threadId, address)
-        var fabPrevCount = -1
         viewModel.messages.observe(this) { list ->
-            val newArrived = fabPrevCount >= 0 && list.size > fabPrevCount
-            fabPrevCount = list.size
+            val newArrived = fabMsgCount >= 0 && list.size > fabMsgCount
+            fabMsgCount = list.size
             mergeAndSubmit(list, viewModel.scheduledEntries.value ?: emptyList())
             if (newArrived) {
                 val lmf = recycler.layoutManager as? LinearLayoutManager
@@ -659,8 +660,7 @@ class ThreadActivity : AppCompatActivity() {
 
         // Scroll down FAB with unread badge
         fabWrapper = findViewById(R.id.fabScrollDownWrapper)
-        val extFab = findViewById<com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton?>(R.id.fabScrollDown)
-        var prevMsgCount = -1
+        extFab = findViewById(R.id.fabScrollDown)
         recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
                 val lm2 = rv.layoutManager as? LinearLayoutManager ?: return

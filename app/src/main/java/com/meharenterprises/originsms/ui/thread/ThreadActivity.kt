@@ -92,6 +92,10 @@ class ThreadActivity : AppCompatActivity() {
         ActivityResultContracts.RequestPermission()
     ) { granted -> if (granted) launchCamera() }
 
+    private var unreadBelowFold = 0
+    private var fabWrapper: android.view.View? = null
+    private var txtNewMsgCount: android.widget.TextView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_thread)
@@ -637,9 +641,9 @@ class ThreadActivity : AppCompatActivity() {
         }
 
         // Scroll down FAB with unread badge
-        val fabWrapper = findViewById<android.view.View?>(R.id.fabScrollDownWrapper)
+        fabWrapper = findViewById(R.id.fabScrollDownWrapper)
         val fabDown = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton?>(R.id.fabScrollDown)
-        val txtNewMsgCount = findViewById<android.widget.TextView?>(R.id.txtNewMessageCount)
+        txtNewMsgCount = findViewById(R.id.txtNewMessageCount)
         var unreadBelowFold = 0
         recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {

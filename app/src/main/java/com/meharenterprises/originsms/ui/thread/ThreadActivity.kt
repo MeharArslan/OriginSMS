@@ -947,8 +947,10 @@ class ThreadActivity : AppCompatActivity() {
                     recycler.scrollToPosition(pos)
                     recycler.postDelayed({
                         recycler.findViewHolderForAdapterPosition(pos)?.itemView?.let { v ->
-                            v.setBackgroundColor(android.graphics.Color.parseColor("#33AA8F00"))
-                            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ v.animate().alpha(1f).setDuration(500).withEndAction { v.background = null }.start() }, 2000)
+                            val bubble = v.findViewById<android.view.View>(R.id.txtBody) ?: v
+                            val ob = bubble.background
+                            bubble.setBackgroundColor(android.graphics.Color.parseColor("#88FFD700"))
+                            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ bubble.background = ob }, 2000)
                         }
                     }, 200)
                 }
@@ -1129,7 +1131,9 @@ class ThreadActivity : AppCompatActivity() {
                 measure(android.view.View.MeasureSpec.UNSPECIFIED, android.view.View.MeasureSpec.UNSPECIFIED)
                 layout(0,0,measuredWidth,measuredHeight)
             }
-            val ox=sx+rnd.nextInt(100)-50f
+            val screenW = resources.displayMetrics.widthPixels.toFloat()
+            val positions = listOf(screenW*0.1f,screenW*0.3f,screenW*0.5f,screenW*0.7f,screenW*0.9f)
+            val ox = positions.getOrElse(i){sx} + rnd.nextInt(40)-20f
             ov.add(tv); tv.translationX=ox; tv.translationY=sy
             android.animation.AnimatorSet().apply {
                 val d=(i*100L)

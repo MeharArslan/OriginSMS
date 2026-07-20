@@ -29,6 +29,16 @@ object ChatThemeManager {
 
     private fun buildThemes() = listOf(
 
+        ChatTheme("Google Messages", "Clean dark theme like Google Messages",
+            Color.parseColor("#0F0F0F"), Color.parseColor("#1C1C1C"),
+            Color.parseColor("#2A2A2A"), Color.parseColor("#1A73E8"),
+            Color.parseColor("#FFFFFF"), Color.parseColor("#FFFFFF"),
+            Color.parseColor("#FFFFFF"), Color.parseColor("#AAAAAA"),
+            Color.parseColor("#1A73E8"), 22f, Color.parseColor("#0F0F0F"),
+            R.drawable.bg_bubble_sent, R.drawable.bg_bubble_received,
+            R.drawable.bg_chat_default),
+
+
         ChatTheme("Default (Original)", "App's original indigo & coral style",
             Color.parseColor("#F4F1FF"), Color.parseColor("#3B3486"),
             Color.parseColor("#6B64C4"), Color.parseColor("#5C55B3"),

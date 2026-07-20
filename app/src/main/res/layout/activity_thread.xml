@@ -119,19 +119,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp">
-            <TextView
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:id="@+id/txtNewMessageCount"
-                android:background="@drawable/bg_new_msg_label"
-                android:visibility="gone"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="3dp"/>
-            <com.google.android.material.floatingactionbutton.floatingactionbutton.ExtendedFloatingActionButton
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
                 android:id="@+id/fabScrollDown"
                 android:text=""
                 android:textColor="@android:color/white"
@@ -144,12 +132,8 @@
                 android:contentDescription="Scroll to bottom"
                 android:backgroundTint="@color/surface_card"
                 app:elevation="4dp"
-                app:fabCustomSize="40dp"
-                app:fabSize="mini"
-                app:maxImageSize="18dp"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
-                app:srcCompat="@drawable/ic_arrow_down"
-                app:tint="@color/origin_primary"/>
+                app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Full"
+                app:elevation="4dp"/>
         </LinearLayout>
     </FrameLayout>
     <View

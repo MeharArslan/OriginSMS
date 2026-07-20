@@ -57,8 +57,8 @@
             <ImageButton
                 android:id="@+id/btnCloseMessageSelection"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:src="@drawable/ic_close_white"
                 android:contentDescription="@string/action_settings"/>
             <TextView
@@ -72,29 +72,29 @@
             <ImageButton
                 android:id="@+id/btnMessageCopy"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:src="@drawable/ic_copy"
                 android:contentDescription="@string/action_copy_text"/>
             <ImageButton
                 android:id="@+id/btnMessageStar"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:src="@drawable/ic_star"
                 android:contentDescription="@string/action_star"/>
             <ImageButton
                 android:id="@+id/btnMessageDelete"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:src="@drawable/ic_delete"
                 android:contentDescription="@string/action_delete_message"/>
             <ImageButton
                 android:id="@+id/btnMessageMore"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:src="@drawable/ic_more_vert"
                 android:contentDescription="More"/>
         </LinearLayout>
@@ -126,11 +126,14 @@
                 android:textSize="13sp"
                 android:textStyle="bold"
                 app:icon="@drawable/ic_arrow_down"
-                app:iconTint="@android:color/white"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                app:iconTint="@color/origin_primary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:contentDescription="Scroll to bottom"
-                android:backgroundTint="@color/surface_card"
+                android:backgroundTint="?attr/colorSurface"
+                app:strokeColor="@color/origin_primary"
+                app:strokeWidth="1.5dp"
+                app:elevation="6dp"
                 app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Full"/>
         </LinearLayout>
     </FrameLayout>

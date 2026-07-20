@@ -296,7 +296,8 @@ class ThreadActivity : AppCompatActivity() {
                 true
             }
             R.id.action_delete_thread -> { confirmDeleteThread(); true }
-            R.id.action_starred_messages -> { startActivity(android.content.Intent(this, com.meharenterprises.originsms.ui.StarredMessagesActivity::class.java)); true }
+            R.id.action_starred_messages -> { startActivity(android.content.Intent(this, com.meharenterprises.originsms.ui.StarredMessagesActivity::class.java).apply {
+                        putExtra("FILTER_THREAD_ID", threadId) }); true }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -455,6 +456,11 @@ class ThreadActivity : AppCompatActivity() {
                 findViewById<View>(R.id.btnMessageStar).setOnClickListener {
             val selected = currentSelectedMessages()
             if (selected.isNotEmpty()) {
+                selected.filter { !it.isStarred }.forEach { msg ->
+                    val pos = adapter.currentList.indexOfFirst { it.id == msg.id }
+                    val anchor = if (pos >= 0) recycler.findViewHolderForAdapterPosition(pos)?.itemView else null
+                    (anchor ?: recycler).post { showFloatingStarAnimation(anchor ?: recycler) }
+                }
                 selected.forEach { msg -> viewModel.toggleStar(msg) }
             }
             adapter.clearSelection()
@@ -941,7 +947,8 @@ class ThreadActivity : AppCompatActivity() {
                     recycler.scrollToPosition(pos)
                     recycler.postDelayed({
                         recycler.findViewHolderForAdapterPosition(pos)?.itemView?.let { v ->
-                            v.animate().alpha(0.2f).setDuration(200).withEndAction { v.animate().alpha(1f).setDuration(400).start() }.start()
+                            v.setBackgroundColor(android.graphics.Color.parseColor("#33AA8F00"))
+                            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ v.animate().alpha(1f).setDuration(500).withEndAction { v.background = null }.start() }, 2000)
                         }
                     }, 200)
                 }

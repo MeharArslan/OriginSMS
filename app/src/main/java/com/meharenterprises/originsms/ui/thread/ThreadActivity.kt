@@ -947,7 +947,7 @@ class ThreadActivity : AppCompatActivity() {
                     recycler.scrollToPosition(pos)
                     recycler.postDelayed({
                         recycler.findViewHolderForAdapterPosition(pos)?.itemView?.let { v ->
-                            val bubble = v.findViewById<android.view.View>(R.id.txtBody) ?: v
+                            val bubble = v.findViewById<android.view.View>(R.id.txtMessageBody) ?: v
                             val ob = bubble.background
                             bubble.setBackgroundColor(android.graphics.Color.parseColor("#88FFD700"))
                             android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ bubble.background = ob }, 2000)

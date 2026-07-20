@@ -302,6 +302,8 @@ class LockUnlockActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     OriginDatabase.getInstance(this@LockUnlockActivity).threadLockDao()
                         .setAutoUnhideAt(conversation.threadId, unhideAt)
+                        com.meharenterprises.originsms.receivers.AutoUnhideReceiver
+                            .schedule(this@LockUnlockActivity, conversation.threadId, unhideAt)
                     android.widget.Toast.makeText(
                         this@LockUnlockActivity,
                         getString(R.string.schedule_auto_unhide_confirmed),

@@ -35,6 +35,11 @@ import com.meharenterprises.originsms.ui.thread.ThreadActivity
 import kotlinx.coroutines.launch
 
 class ConversationListActivity : AppCompatActivity() {
+    private val unhideReceiver = object : android.content.BroadcastReceiver() {
+        override fun onReceive(ctx: android.content.Context?, i: android.content.Intent?) {
+            viewModel.loadConversations()
+        }
+    }
 
     private lateinit var viewModel: ConversationListViewModel
     private lateinit var adapter: ConversationAdapter

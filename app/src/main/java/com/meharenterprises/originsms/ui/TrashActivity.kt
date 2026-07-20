@@ -224,10 +224,15 @@ class TrashActivity : AppCompatActivity() {
             holder.txtSnippet.visibility = android.view.View.GONE
             holder.txtDate.text = if (deletedAt > 0L)
                 SimpleDateFormat("MMM d", Locale.getDefault()).format(Date(deletedAt)) else ""
-            holder.txtDaysLeft.text = if (daysLeft > 0) "$daysLeft days" else "Expires today"
-            holder.txtMsgCount.text = if (deletedAt > 0L)
-                "Deleted ${SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date(deletedAt))}"
-            else "Swipe right to restore, left to delete"
+            holder.txtDaysLeft.text = if (daysLeft > 0) "$daysLeft Days Left" else "Expires Today"
+            val mc = try {
+                val cur = holder.itemView.context.contentResolver.query(
+                    android.provider.Telephony.Sms.CONTENT_URI, arrayOf("COUNT(*)"),
+                    "${android.provider.Telephony.Sms.THREAD_ID} = ?",
+                    arrayOf(conv.threadId.toString()), null)
+                cur?.use { if (it.moveToFirst()) it.getInt(0) else 0 } ?: 0
+            } catch (_: Exception) { 0 }
+            holder.txtMsgCount.text = if (mc > 0) "$mc Messages" else "No messages"
 
             // Load avatar
             val uri = conv.contactPhotoUri

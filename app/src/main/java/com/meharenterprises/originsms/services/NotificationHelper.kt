@@ -36,9 +36,7 @@ class NotificationHelper(private val context: Context) {
         try {
             if (com.meharenterprises.originsms.ui.thread.ThreadActivity.activeThreadId == threadId) return
         } catch (_: Exception) {}
-                val lockState = runBlocking {
-            OriginDatabase.getInstance(context).threadLockDao().getForThread(threadId)
-        }
+                val lockState = try { kotlinx.coroutines.runBlocking(kotlinx.coroutines.Dispatchers.IO) { OriginDatabase.getInstance(context).threadLockDao().getForThread(threadId) } } catch(_:Exception){null}
         val isLocked = lockState?.isLocked == true
         val isHidden = lockState?.isHidden == true
         if (isHidden) return

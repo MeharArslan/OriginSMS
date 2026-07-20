@@ -656,7 +656,8 @@ class ThreadActivity : AppCompatActivity() {
             val lastVisible = lm2?.findLastVisibleItemPosition() ?: -1
             if (msgs.size > 0 && lastVisible < msgs.size - 3) {
                 unreadBelowFold++
-                txtNewMsgCount?.text = if (unreadBelowFold > 99) "99+" else "$unreadBelowFold new"
+                val n = unreadBelowFold
+                    txtNewMsgCount?.text = when { n > 99 -> "⬇ 99+ New Messages"; n == 1 -> "⬇ 1 New Message"; else -> "⬇ $n New Messages" }
                 txtNewMsgCount?.visibility = android.view.View.VISIBLE
             }
         }
@@ -727,6 +728,9 @@ class ThreadActivity : AppCompatActivity() {
                 viewModel.sendMessage(text)
                 editMessage.setText("")
                 hideEmojiPicker()
+                unreadBelowFold = 0; txtNewMsgCount?.visibility = android.view.View.GONE
+                fabWrapper?.visibility = android.view.View.GONE
+                recycler.postDelayed({ val l = adapter.itemCount-1; if(l>=0) recycler.smoothScrollToPosition(l) }, 100)
             }
         }
         btnSend.setOnLongClickListener {
@@ -904,11 +908,23 @@ class ThreadActivity : AppCompatActivity() {
             )
         }
         val combined = (messages + fakeScheduled).sortedBy { it.dateMillis }
+        val highlightId = intent.getLongExtra(EXTRA_HIGHLIGHT_MESSAGE_ID, -1L)
         val lmCheck = recycler.layoutManager as? LinearLayoutManager
         val lastVis = lmCheck?.findLastVisibleItemPosition() ?: -1
         val wasAtBottom = lastVis < 0 || lastVis >= adapter.itemCount - 3
         adapter.submitList(combined) {
-            if (combined.isNotEmpty() && wasAtBottom) {
+            if (highlightId > 0L) {
+                val pos = combined.indexOfFirst { it.id == highlightId }
+                if (pos >= 0) {
+                    recycler.scrollToPosition(pos)
+                    recycler.postDelayed({
+                        recycler.findViewHolderForAdapterPosition(pos)?.itemView?.let { v ->
+                            v.animate().alpha(0.2f).setDuration(200).withEndAction { v.animate().alpha(1f).setDuration(400).start() }.start()
+                        }
+                    }, 200)
+                }
+                intent.removeExtra(EXTRA_HIGHLIGHT_MESSAGE_ID)
+            } else if (combined.isNotEmpty() && wasAtBottom) {
                 recycler.scrollToPosition(combined.size - 1)
             }
         }
@@ -1102,6 +1118,7 @@ class ThreadActivity : AppCompatActivity() {
 
     companion object {
         @JvmStatic var activeThreadId: Long = -1L
+        const val EXTRA_HIGHLIGHT_MESSAGE_ID = "HIGHLIGHT_MESSAGE_ID"
         const val EXTRA_THREAD_ID = "extra_thread_id"
         const val EXTRA_ADDRESS = "extra_address"
         const val EXTRA_DISPLAY_NAME = "extra_display_name"

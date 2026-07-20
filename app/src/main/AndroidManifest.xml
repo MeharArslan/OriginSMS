@@ -232,5 +232,10 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <receiver android:name=".receivers.AutoUnhideReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="com.meharenterprises.originsms.ACTION_AUTO_UNHIDE" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

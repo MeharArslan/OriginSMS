@@ -27,7 +27,7 @@ class NotificationActionReceiver : BroadcastReceiver() {
                 val threadId = intent.getLongExtra(EXTRA_THREAD_ID, -1L)
                 if (threadId != -1L) {
                     com.meharenterprises.originsms.core.SmsRepository(context).let { repo ->
-                        kotlinx.coroutines.runBlocking { repo.markThreadRead(threadId) }
+                        kotlinx.coroutines.runBlocking(kotlinx.coroutines.Dispatchers.IO) { repo.markThreadRead(threadId) }
                     }
                 }
                 com.meharenterprises.originsms.services.NotificationHelper(context).cancel(threadId)

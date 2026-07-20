@@ -66,7 +66,7 @@ class StarredMessagesActivity : AppCompatActivity() {
                         putExtra(ThreadActivity.EXTRA_ADDRESS, item.address)
                         putExtra(ThreadActivity.EXTRA_DISPLAY_NAME,
                             nameCache[item.address] ?: item.address)
-                        putExtra("HIGHLIGHT_MESSAGE_ID", item.messageId)
+                        putExtra(com.meharenterprises.originsms.ui.thread.ThreadActivity.EXTRA_HIGHLIGHT_MESSAGE_ID, item.messageId)
                     }
                     startActivity(intent)
                 }

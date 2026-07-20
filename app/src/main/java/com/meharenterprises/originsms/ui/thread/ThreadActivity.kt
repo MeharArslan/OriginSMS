@@ -657,7 +657,7 @@ class ThreadActivity : AppCompatActivity() {
 
         // Google Messages scroll FAB
         extFab = findViewById(R.id.fabScrollDown)
-        setupScrollFab()?.start()
+        setupScrollFab()
             val last = adapter.itemCount - 1
             if (last >= 0) recycler.smoothScrollToPosition(last)
         }

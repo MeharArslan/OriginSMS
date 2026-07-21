@@ -48,42 +48,7 @@ class TrashActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
 
-        findViewById<android.view.View>(R.id.btnRestoreAll).setOnClickListener {
-            AlertDialog.Builder(this)
-                .setTitle("Restore all chats?")
-                .setMessage("All chats will be restored from Trash.")
-                .setPositiveButton("Restore all") { _, _ ->
-                    lifecycleScope.launch {
-                        withContext(Dispatchers.IO) {
-                            database.threadLockDao().getTrashedThreads().forEach { e ->
-                                database.threadLockDao().upsert(e.copy(deletedAtMillis = 0L))
-                            }
-                        }
-                        android.widget.Toast.makeText(this@TrashActivity, "All chats restored", android.widget.Toast.LENGTH_SHORT).show()
-                        loadTrash()
-                    }
-                }
-                .setNegativeButton(android.R.string.cancel, null).show()
-        }
 
-        findViewById<android.view.View>(R.id.btnDeleteAll).setOnClickListener {
-            AlertDialog.Builder(this)
-                .setTitle("Delete all permanently?")
-                .setMessage("All chats in Trash will be permanently deleted. This cannot be undone.")
-                .setPositiveButton("Delete all") { _, _ ->
-                    lifecycleScope.launch {
-                        withContext(Dispatchers.IO) {
-                            database.threadLockDao().getTrashedThreads().forEach { e ->
-                                repository.deleteThread(e.threadId)
-                                database.threadLockDao().clear(e.threadId)
-                            }
-                        }
-                        android.widget.Toast.makeText(this@TrashActivity, "All permanently deleted", android.widget.Toast.LENGTH_SHORT).show()
-                        loadTrash()
-                    }
-                }
-                .setNegativeButton(android.R.string.cancel, null).show()
-        }
 
         recycler = findViewById(R.id.recyclerTrash)
         emptyState = findViewById(R.id.emptyTrash)
@@ -204,7 +169,6 @@ class TrashActivity : AppCompatActivity() {
             val imgAvatar: android.widget.ImageView = itemView.findViewById(R.id.imgTrashAvatar)
             val txtName: TextView = itemView.findViewById(R.id.txtTrashName)
             val txtDate: TextView = itemView.findViewById(R.id.txtTrashDate)
-            val txtSnippet: TextView = itemView.findViewById(R.id.txtTrashSnippet)
             val txtDaysLeft: TextView = itemView.findViewById(R.id.txtDaysLeft)
             val txtMsgCount: TextView = itemView.findViewById(R.id.txtMsgCount)
         }
@@ -220,8 +184,6 @@ class TrashActivity : AppCompatActivity() {
             else 30L
 
             holder.txtName.text = conv.displayName
-            holder.txtSnippet.text = ""
-            holder.txtSnippet.visibility = android.view.View.GONE
             holder.txtDate.text = if (deletedAt > 0L)
                 SimpleDateFormat("MMM d", Locale.getDefault()).format(Date(deletedAt)) else ""
             holder.txtDaysLeft.text = if (daysLeft > 0) "$daysLeft Days Left" else "Expires Today"

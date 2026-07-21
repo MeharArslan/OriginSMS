@@ -93,7 +93,7 @@ class ThreadActivity : AppCompatActivity() {
     ) { granted -> if (granted) launchCamera() }
 
     private var unreadBelowFold = 0
-    private var fabCard: androidx.cardview.widget.CardView? = null
+    private var fabRoot: android.widget.FrameLayout? = null
     private var fabTextView: android.widget.TextView? = null
     private var fabMsgCount = -1
 
@@ -655,8 +655,8 @@ class ThreadActivity : AppCompatActivity() {
         }
 
         // Google Messages scroll FAB
-        fabCard = findViewById(R.id.fabScrollDown)
-        fabTextView = fabCard?.findViewById(R.id.fabText)
+        fabRoot = findViewById(R.id.fabScrollDown)
+        fabTextView = fabRoot?.findViewById(R.id.fabText)
         setupScrollFab()
 
         // Pinch to zoom toggle
@@ -1135,40 +1135,74 @@ class ThreadActivity : AppCompatActivity() {
         }
     }
 
-    private val fabSizeDp = 36
-    private fun fabPx() = (fabSizeDp * resources.displayMetrics.density + 0.5f).toInt()
-    private fun setFabCircle() { fabCard?.layoutParams?.width = fabPx(); fabCard?.requestLayout() }
-    private fun setFabPill() { fabCard?.layoutParams?.width = android.view.ViewGroup.LayoutParams.WRAP_CONTENT; fabCard?.requestLayout() }
     private fun setupScrollFab() {
-        val card = fabCard ?: return; card.visibility = android.view.View.GONE
+        val fab = fabRoot ?: return
+        fab.visibility = android.view.View.GONE
         recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
                 val lm = rv.layoutManager as? LinearLayoutManager ?: return
-                val atBottom = adapter.itemCount == 0 || lm.findLastVisibleItemPosition() >= adapter.itemCount - 3
+                val atBottom = adapter.itemCount == 0 ||
+                    lm.findLastVisibleItemPosition() >= adapter.itemCount - 3
                 if (atBottom) {
-                    if (card.visibility == android.view.View.VISIBLE) card.animate().alpha(0f).setDuration(200).withEndAction { card.visibility = android.view.View.GONE }.start()
+                    if (fab.visibility == android.view.View.VISIBLE) {
+                        fab.animate().alpha(0f).setDuration(200)
+                            .withEndAction { fab.visibility = android.view.View.GONE }.start()
+                    }
                     collapseFab()
-                } else if (card.visibility != android.view.View.VISIBLE) { card.alpha=0f; card.visibility=android.view.View.VISIBLE; card.animate().alpha(1f).setDuration(200).start() }
+                } else if (fab.visibility != android.view.View.VISIBLE) {
+                    fab.alpha = 0f
+                    fab.visibility = android.view.View.VISIBLE
+                    fab.animate().alpha(1f).setDuration(200).start()
+                }
             }
         })
-        card.setOnClickListener { scrollToLatest() }
+        fab.setOnClickListener { scrollToLatest() }
     }
+
     private fun showUnreadFab(count: Int) {
-        val card = fabCard ?: return; val tv = fabTextView ?: return
+        val fab = fabRoot ?: return
+        val tv = fabTextView ?: return
         val text = if (count == 1) "1 New message" else "$count New messages"
-        if (tv.text == text) return
-        tv.text = text; tv.visibility = android.view.View.VISIBLE
-        setFabPill()
-        if (card.visibility != android.view.View.VISIBLE) { card.alpha=0f; card.visibility=android.view.View.VISIBLE; card.animate().alpha(1f).setDuration(200).start() }
+        if (tv.text == text && tv.visibility == android.view.View.VISIBLE) return
+        // Animate only width — height stays 36dp
+        if (tv.visibility == android.view.View.VISIBLE) {
+            // Update count with fade
+            tv.animate().alpha(0f).setDuration(100).withEndAction {
+                tv.text = text; tv.animate().alpha(1f).setDuration(100).start()
+            }.start()
+        } else {
+            tv.text = text
+            tv.visibility = android.view.View.VISIBLE
+            tv.alpha = 0f
+            tv.animate().alpha(1f).setDuration(200).start()
+        }
+        if (fab.visibility != android.view.View.VISIBLE) {
+            fab.alpha = 0f
+            fab.visibility = android.view.View.VISIBLE
+            fab.animate().alpha(1f).setDuration(200).start()
+        }
     }
+
     private fun collapseFab(hide: Boolean = false) {
-        unreadBelowFold = 0; fabTextView?.visibility = android.view.View.GONE; fabTextView?.text = ""
-        if (hide) fabCard?.animate()?.alpha(0f)?.setDuration(200)?.withEndAction { fabCard?.visibility = android.view.View.GONE }?.start()
+        unreadBelowFold = 0
+        val tv = fabTextView
+        if (tv != null && tv.visibility == android.view.View.VISIBLE) {
+            tv.animate().alpha(0f).setDuration(150).withEndAction {
+                tv.visibility = android.view.View.GONE; tv.text = ""
+            }.start()
+        }
+        if (hide) {
+            fabRoot?.animate()?.alpha(0f)?.setDuration(200)
+                ?.withEndAction { fabRoot?.visibility = android.view.View.GONE }?.start()
+        }
     }
+
     private fun scrollToLatest() {
         collapseFab(hide = true)
-        val last = adapter.itemCount - 1; if (last >= 0) recycler.smoothScrollToPosition(last)
+        val last = adapter.itemCount - 1
+        if (last >= 0) recycler.smoothScrollToPosition(last)
     }
+
 
 
 

@@ -35,6 +35,7 @@ import com.meharenterprises.originsms.ui.thread.ThreadActivity
 import kotlinx.coroutines.launch
 
 class ConversationListActivity : AppCompatActivity() {
+    private var smsContentObserver: android.database.ContentObserver? = null
     private var contentObserver: android.database.ContentObserver? = null
 
     private val unhideReceiver = object : android.content.BroadcastReceiver() {
@@ -127,6 +128,7 @@ class ConversationListActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         ensurePermissionsThenLoad()
+        registerSmsObserver()
         if (contentObserver == null) {
             val h = android.os.Handler(android.os.Looper.getMainLooper())
             val r = Runnable { viewModel.loadConversations() }
@@ -694,6 +696,27 @@ class ConversationListActivity : AppCompatActivity() {
 
     private fun openArchivedChats() {
         startActivity(android.content.Intent(this, ArchivedChatsActivity::class.java))
+    }
+
+    private fun registerSmsObserver() {
+        if (smsContentObserver != null) return
+        val handler = android.os.Handler(android.os.Looper.getMainLooper())
+        var pending = false
+        smsContentObserver = object : android.database.ContentObserver(handler) {
+            override fun onChange(selfChange: Boolean) {
+                if (!pending) {
+                    pending = true
+                    handler.postDelayed({
+                        pending = false
+                        viewModel.loadConversations()
+                    }, 150)
+                }
+            }
+        }
+        contentResolver.registerContentObserver(
+            android.provider.Telephony.Sms.CONTENT_URI, true, smsContentObserver!!)
+        contentResolver.registerContentObserver(
+            android.net.Uri.parse("content://mms-sms/conversations"), true, smsContentObserver!!)
     }
 
     companion object {

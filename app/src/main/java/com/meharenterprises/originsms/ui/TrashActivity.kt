@@ -269,6 +269,31 @@ class TrashActivity : AppCompatActivity() {
         }
     }
 
+    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> { finish(); true }
+            R.id.action_restore_all -> {
+                lifecycleScope.launch {
+                    val dao = com.meharenterprises.originsms.data.db.OriginDatabase
+                        .getInstance(this@TrashActivity).threadLockDao()
+                    dao.getTrashedThreads().forEach { dao.restoreFromTrash(it.threadId) }
+                    loadTrash()
+                }
+                true
+            }
+            R.id.action_delete_forever -> {
+                lifecycleScope.launch {
+                    val dao = com.meharenterprises.originsms.data.db.OriginDatabase
+                        .getInstance(this@TrashActivity).threadLockDao()
+                    dao.getTrashedThreads().forEach { dao.clear(it.threadId) }
+                    loadTrash()
+                }
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     companion object {
         val TRASH_DIFF = object : DiffUtil.ItemCallback<ConversationSummary>() {
             override fun areItemsTheSame(a: ConversationSummary, b: ConversationSummary) = a.threadId == b.threadId

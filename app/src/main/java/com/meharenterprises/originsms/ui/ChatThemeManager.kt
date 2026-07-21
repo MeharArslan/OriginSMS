@@ -29,8 +29,21 @@ object ChatThemeManager {
 
     private fun buildThemes() = listOf(
 
-        ChatTheme("Google Messages", "Clean dark theme like Google Messages",
-            Color.parseColor("#0F0F0F"), Color.parseColor("#1C1C1C"),
+        ChatTheme("Google Messages",
+            "Exact Google Messages style",
+            android.graphics.Color.parseColor("#0F0F0F"),   // app bg
+            android.graphics.Color.parseColor("#1C1C1E"),   // toolbar
+            android.graphics.Color.parseColor("#2C2C2E"),   // recv bubble
+            android.graphics.Color.parseColor("#1B6EF3"),   // sent bubble (Google blue)
+            android.graphics.Color.WHITE,                    // recv text
+            android.graphics.Color.WHITE,                    // sent text
+            android.graphics.Color.WHITE,                    // primary text
+            android.graphics.Color.parseColor("#8E8E93"),   // secondary text
+            android.graphics.Color.parseColor("#1B6EF3"),   // accent
+            18f,                                             // bubble radius
+            android.graphics.Color.parseColor("#0F0F0F"),   // status bar
+            R.drawable.bg_bubble_sent, R.drawable.bg_bubble_received, R.drawable.bg_chat_default),
+Color.parseColor("#1C1C1C"),
             Color.parseColor("#2A2A2A"), Color.parseColor("#1A73E8"),
             Color.parseColor("#FFFFFF"), Color.parseColor("#FFFFFF"),
             Color.parseColor("#FFFFFF"), Color.parseColor("#AAAAAA"),

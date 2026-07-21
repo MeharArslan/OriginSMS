@@ -1,92 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
-    android:gravity="center_vertical"
+    android:layout_height="72dp"
     android:orientation="horizontal"
-    android:paddingHorizontal="16dp"
-    android:paddingVertical="14dp">
+    android:gravity="center_vertical"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:background="?attr/selectableItemBackground">
 
-    <!-- Checkbox (shown in selection mode) -->
-    <CheckBox
-        android:id="@+id/cbTrashSelect"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:clickable="false"
-        android:focusable="false"
-        android:visibility="gone" />
-
-    <!-- Avatar -->
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imgTrashAvatar"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
-        android:background="@drawable/bg_avatar_circle"
-        android:contentDescription="@null"
-        android:padding="10dp"
-        android:src="@drawable/ic_person" />
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_person_placeholder"/>
 
-    <!-- Info -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="14dp"
         android:layout_weight="1"
+        android:layout_marginStart="16dp"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/txtTrashName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="@color/text_primary"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textColor="?android:textColorPrimary"
+            android:textStyle="bold"
+            android:singleLine="true"/>
 
         <TextView
             android:id="@+id/txtMsgCount"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
-
+            android:textSize="14sp"
+            android:textColor="?android:textColorSecondary"
+            android:layout_marginTop="2dp"/>
     </LinearLayout>
 
-    <!-- Right: days left chip + date -->
-    <LinearLayout
+    <TextView
+        android:id="@+id/txtDaysLeft"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="end|center_vertical"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/txtDaysLeft"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_days_left_chip"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="3dp"
-            android:textColor="@android:color/white"
-            android:textSize="11sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/txtTrashSnippet"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="13sp" android:maxLines="1" android:ellipsize="end" />
-    <TextView
-        android:id="@+id/txtTrashDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="@color/text_secondary"
-            android:textSize="11sp" />
-
-    </LinearLayout>
+        android:textSize="12sp"
+        android:textColor="?android:textColorSecondary"
+        android:layout_marginStart="8dp"/>
 
 </LinearLayout>

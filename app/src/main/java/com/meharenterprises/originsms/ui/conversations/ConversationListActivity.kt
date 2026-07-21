@@ -118,9 +118,23 @@ class ConversationListActivity : AppCompatActivity() {
         maybePromptDefaultAppOnFirstLaunch()
     }
 
+    override fun onPause() {
+        super.onPause()
+        contentObserver?.let { contentResolver.unregisterContentObserver(it) }
+        contentObserver = null
+    }
+
     override fun onResume() {
         super.onResume()
         ensurePermissionsThenLoad()
+        if (contentObserver == null) {
+            val h = android.os.Handler(android.os.Looper.getMainLooper())
+            val r = Runnable { viewModel.loadConversations() }
+            contentObserver = object : android.database.ContentObserver(h) {
+                override fun onChange(selfChange: Boolean) { h.removeCallbacks(r); h.postDelayed(r, 200) }
+            }
+            contentResolver.registerContentObserver(android.provider.Telephony.Sms.CONTENT_URI, true, contentObserver!!)
+        }
         refreshDefaultAppBanner()
         processScheduledAutoActions()
         // Refresh display name instantly in case it was changed in Settings

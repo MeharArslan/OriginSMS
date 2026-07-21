@@ -1135,6 +1135,10 @@ class ThreadActivity : AppCompatActivity() {
         }
     }
 
+    private val fabSizeDp = 36
+    private fun fabPx() = (fabSizeDp * resources.displayMetrics.density + 0.5f).toInt()
+    private fun setFabCircle() { fabCard?.layoutParams?.width = fabPx(); fabCard?.requestLayout() }
+    private fun setFabPill() { fabCard?.layoutParams?.width = android.view.ViewGroup.LayoutParams.WRAP_CONTENT; fabCard?.requestLayout() }
     private fun setupScrollFab() {
         val card = fabCard ?: return; card.visibility = android.view.View.GONE
         recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -1154,6 +1158,7 @@ class ThreadActivity : AppCompatActivity() {
         val text = if (count == 1) "1 New message" else "$count New messages"
         if (tv.text == text) return
         tv.text = text; tv.visibility = android.view.View.VISIBLE
+        setFabPill()
         if (card.visibility != android.view.View.VISIBLE) { card.alpha=0f; card.visibility=android.view.View.VISIBLE; card.animate().alpha(1f).setDuration(200).start() }
     }
     private fun collapseFab(hide: Boolean = false) {

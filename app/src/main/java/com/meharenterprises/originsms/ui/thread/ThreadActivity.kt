@@ -150,8 +150,6 @@ class ThreadActivity : AppCompatActivity() {
                 if (!atBot) { unreadBelowFold = minOf(unreadBelowFold + 1, 99); showUnreadFab(unreadBelowFold) }
             }
         }
-            }
-        }
         viewModel.pendingAttachments.observe(this) { uris -> renderAttachmentPreviews(uris) }
 
         viewModel.scheduledEntries.observe(this) { entries ->

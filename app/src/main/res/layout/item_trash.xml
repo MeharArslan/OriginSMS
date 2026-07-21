@@ -12,7 +12,7 @@
         android:id="@+id/imgTrashAvatar"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:src="@drawable/ic_person_placeholder"/>
+        android:background="@color/origin_primary"/>
 
     <LinearLayout
         android:layout_width="0dp"

@@ -1128,6 +1128,7 @@ class ThreadActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupScrollFab() {
         val fab = extFab ?: return
         fab.visibility = android.view.View.GONE
         recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {

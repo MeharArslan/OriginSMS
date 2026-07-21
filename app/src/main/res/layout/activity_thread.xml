@@ -119,25 +119,41 @@
             android:layout_height="match_parent"
             android:paddingHorizontal="@dimen/spacing_sm"
             android:paddingVertical="@dimen/spacing_md"/>
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        <androidx.cardview.widget.CardView
             android:id="@+id/fabScrollDown"
             android:layout_gravity="bottom|center_horizontal"
             android:layout_marginBottom="12dp"
             android:visibility="gone"
-            android:text=""
-            android:textColor="#FFFFFF"
-            android:textSize="13sp"
-            android:minWidth="40dp"
-            android:paddingHorizontal="12dp"
-            app:icon="@drawable/ic_arrow_down"
-            app:iconTint="#FFFFFF"
-            app:iconSize="18dp"
-            app:iconPadding="0dp"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:backgroundTint="#E61C1B22"
-            app:elevation="6dp"
-            app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Full"/>
+            android:layout_height="36dp"
+            app:cardBackgroundColor="#E6000000"
+            app:cardCornerRadius="18dp"
+            app:cardElevation="6dp">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="14dp">
+                <ImageView
+                    android:id="@+id/fabIcon"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_arrow_down"
+                    app:tint="#FFFFFF"/>
+                <TextView
+                    android:id="@+id/fabText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    android:text=""/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
     </FrameLayout>
     <View
         android:background="@color/divider"

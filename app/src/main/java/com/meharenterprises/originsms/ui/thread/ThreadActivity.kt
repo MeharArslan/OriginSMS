@@ -93,7 +93,8 @@ class ThreadActivity : AppCompatActivity() {
     ) { granted -> if (granted) launchCamera() }
 
     private var unreadBelowFold = 0
-    private var extFab: com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton? = null
+    private var fabCard: androidx.cardview.widget.CardView? = null
+    private var fabTextView: android.widget.TextView? = null
     private var fabMsgCount = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -654,7 +655,8 @@ class ThreadActivity : AppCompatActivity() {
         }
 
         // Google Messages scroll FAB
-        extFab = findViewById(R.id.fabScrollDown)
+        fabCard = findViewById(R.id.fabScrollDown)
+        fabTextView = fabCard?.findViewById(R.id.fabText)
         setupScrollFab()
 
         // Pinch to zoom toggle
@@ -1134,57 +1136,36 @@ class ThreadActivity : AppCompatActivity() {
     }
 
     private fun setupScrollFab() {
-        val fab = extFab ?: return
-        fab.visibility = android.view.View.GONE
+        val card = fabCard ?: return; card.visibility = android.view.View.GONE
         recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
                 val lm = rv.layoutManager as? LinearLayoutManager ?: return
                 val atBottom = adapter.itemCount == 0 || lm.findLastVisibleItemPosition() >= adapter.itemCount - 3
                 if (atBottom) {
-                    if (fab.visibility == android.view.View.VISIBLE) {
-                        fab.animate().alpha(0f).setDuration(200).withEndAction { fab.visibility = android.view.View.GONE }.start()
-                    }
+                    if (card.visibility == android.view.View.VISIBLE) card.animate().alpha(0f).setDuration(200).withEndAction { card.visibility = android.view.View.GONE }.start()
                     collapseFab()
-                } else if (fab.visibility != android.view.View.VISIBLE) {
-                    fab.alpha = 0f; fab.visibility = android.view.View.VISIBLE
-                    fab.animate().alpha(1f).setDuration(200).start()
-                }
+                } else if (card.visibility != android.view.View.VISIBLE) { card.alpha=0f; card.visibility=android.view.View.VISIBLE; card.animate().alpha(1f).setDuration(200).start() }
             }
         })
-        fab.setOnClickListener { scrollToLatest() }
+        card.setOnClickListener { scrollToLatest() }
     }
-
     private fun showUnreadFab(count: Int) {
-        val fab = extFab ?: return
+        val card = fabCard ?: return; val tv = fabTextView ?: return
         val text = if (count == 1) "1 New message" else "$count New messages"
-        if (fab.text.toString() == text) return
-        if (fab.isExtended) {
-            fab.animate().alpha(0.5f).setDuration(80).withEndAction {
-                fab.text = text; fab.animate().alpha(1f).setDuration(80).start()
-            }.start()
-        } else {
-            fab.text = text; fab.extend()
-            if (fab.visibility != android.view.View.VISIBLE) {
-                fab.alpha = 0f; fab.visibility = android.view.View.VISIBLE
-                fab.animate().alpha(1f).setDuration(200).start()
-            }
-        }
+        if (tv.text == text) return
+        tv.text = text; tv.visibility = android.view.View.VISIBLE
+        if (card.visibility != android.view.View.VISIBLE) { card.alpha=0f; card.visibility=android.view.View.VISIBLE; card.animate().alpha(1f).setDuration(200).start() }
     }
-
     private fun collapseFab(hide: Boolean = false) {
-        val fab = extFab ?: return
-        unreadBelowFold = 0
-        if (fab.isExtended) fab.shrink()
-        if (hide) fab.postDelayed({
-            fab.animate().alpha(0f).setDuration(200).withEndAction { fab.visibility = android.view.View.GONE }.start()
-        }, 220)
+        unreadBelowFold = 0; fabTextView?.visibility = android.view.View.GONE; fabTextView?.text = ""
+        if (hide) fabCard?.animate()?.alpha(0f)?.setDuration(200)?.withEndAction { fabCard?.visibility = android.view.View.GONE }?.start()
     }
-
     private fun scrollToLatest() {
         collapseFab(hide = true)
-        val last = adapter.itemCount - 1
-        if (last >= 0) recycler.smoothScrollToPosition(last)
+        val last = adapter.itemCount - 1; if (last >= 0) recycler.smoothScrollToPosition(last)
     }
+
+
 
     companion object {
         @JvmStatic var activeThreadId: Long = -1L

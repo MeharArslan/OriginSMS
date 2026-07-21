@@ -904,14 +904,22 @@ class ThreadActivity : AppCompatActivity() {
                 val pos = combined.indexOfFirst { it.id == highlightId }
                 if (pos >= 0) {
                     recycler.scrollToPosition(pos)
-                    recycler.postDelayed({
-                        recycler.findViewHolderForAdapterPosition(pos)?.itemView?.let { v ->
-                            val bubble = v.findViewById<android.view.View>(R.id.txtMessageBody) ?: v
-                            val ob = bubble.background
-                            bubble.setBackgroundColor(android.graphics.Color.parseColor("#88FFD700"))
-                            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({ bubble.background = ob }, 2000)
+                    recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                        override fun onScrollStateChanged(rv: RecyclerView, newState: Int) {
+                            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                                rv.removeOnScrollListener(this)
+                                rv.postDelayed({
+                                    rv.findViewHolderForAdapterPosition(pos)?.itemView?.let { v ->
+                                        val bubble = v.findViewById<android.view.View>(R.id.txtMessageBody) ?: v
+                                        val origBg = bubble.background
+                                        bubble.setBackgroundColor(android.graphics.Color.parseColor("#AAFFE082"))
+                                        android.os.Handler(android.os.Looper.getMainLooper())
+                                            .postDelayed({ bubble.background = origBg }, 2500)
+                                    }
+                                }, 100)
+                            }
                         }
-                    }, 200)
+                    })
                 }
                 intent.removeExtra(EXTRA_HIGHLIGHT_MESSAGE_ID)
             } else if (combined.isNotEmpty() && wasAtBottom) {

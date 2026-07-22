@@ -152,6 +152,8 @@ class TrashActivity : AppCompatActivity() {
             .show()
     }
 
+    var onItemClick: ((ConversationSummary) -> Unit)? = null
+
     inner class TrashAdapter(
         private val onClick: (ConversationSummary) -> Unit,
         private val onRestore: (ConversationSummary) -> Unit,

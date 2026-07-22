@@ -115,8 +115,7 @@ class TrashActivity : AppCompatActivity() {
     }
 
     private fun openDeletedChat(conv: ConversationSummary) {
-        }
-        startActivity(intent)
+        // Trash items do not open conversation - select only
     }
 
     private fun restoreChat(conv: ConversationSummary) {

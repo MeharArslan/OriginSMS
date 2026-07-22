@@ -28,223 +28,177 @@ import java.util.Locale
 
 class TrashActivity : AppCompatActivity() {
 
-    private lateinit var recycler: RecyclerView
-    private lateinit var emptyState: TextView
-    private lateinit var adapter: TrashAdapter
     private lateinit var database: OriginDatabase
-    private lateinit var repository: SmsRepository
-
-    private var deletedTimestamps: Map<Long, Long> = emptyMap()
+    private lateinit var adapter: TrashAdapter
+    private val selectedIds = mutableSetOf<Long>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trash)
 
         database = OriginDatabase.getInstance(this)
-        repository = SmsRepository(this)
 
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
 
+        adapter = TrashAdapter(selectedIds) { conv ->
+            // Toggle selection
+            if (selectedIds.contains(conv.threadId)) selectedIds.remove(conv.threadId)
+            else selectedIds.add(conv.threadId)
+            adapter.notifyDataSetChanged()
+        }
 
-
-        recycler = findViewById(R.id.recyclerTrash)
-        emptyState = findViewById(R.id.emptyTrash)
-
-        adapter = TrashAdapter(
-            onClick = { conv -> openDeletedChat(conv) },
-            onRestore = { conv -> restoreChat(conv) },
-            onDelete = { conv -> confirmPermanentDelete(conv) }
-        )
+        val recycler = findViewById<RecyclerView>(R.id.recyclerTrash)
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.adapter = adapter
-
-        // Swipe right = restore, swipe left = permanent delete
-        val swipeHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
-            0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-        ) {
-            override fun onMove(rv: RecyclerView, vh: RecyclerView.ViewHolder, t: RecyclerView.ViewHolder) = false
-            override fun onSwiped(vh: RecyclerView.ViewHolder, dir: Int) {
-                val conv = adapter.currentList[vh.adapterPosition]
-                if (dir == ItemTouchHelper.RIGHT) restoreChat(conv)
-                else confirmPermanentDelete(conv)
-            }
-
-            override fun onChildDraw(c: android.graphics.Canvas, rv: RecyclerView,
-                vh: RecyclerView.ViewHolder, dX: Float, dY: Float, state: Int, active: Boolean) {
-                val itemView = vh.itemView
-                val paint = android.graphics.Paint()
-                if (dX > 0) {
-                    // Swipe right = green restore
-                    paint.color = android.graphics.Color.parseColor("#388E3C")
-                    c.drawRect(itemView.left.toFloat(), itemView.top.toFloat(),
-                        itemView.left + dX, itemView.bottom.toFloat(), paint)
-                } else {
-                    // Swipe left = red delete
-                    paint.color = android.graphics.Color.parseColor("#D32F2F")
-                    c.drawRect(itemView.right + dX, itemView.top.toFloat(),
-                        itemView.right.toFloat(), itemView.bottom.toFloat(), paint)
-                }
-                super.onChildDraw(c, rv, vh, dX, dY, state, active)
-            }
-        })
-        swipeHelper.attachToRecyclerView(recycler)
 
         loadTrash()
     }
 
-    override fun onResume() {
-        super.onResume()
-        loadTrash()
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_trash, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> { finish(); true }
+
+            R.id.action_restore_all -> {
+                if (selectedIds.isEmpty()) {
+                    android.widget.Toast.makeText(this, "Select one or more conversations", android.widget.Toast.LENGTH_SHORT).show()
+                } else {
+                    lifecycleScope.launch {
+                        withContext(Dispatchers.IO) {
+                            selectedIds.forEach { id -> database.threadLockDao().setDeletedAt(id, 0L) }
+                        }
+                        selectedIds.clear()
+                        loadTrash()
+                        android.widget.Toast.makeText(this@TrashActivity, "Restored", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                }
+                true
+            }
+
+            R.id.action_delete_forever -> {
+                if (selectedIds.isEmpty()) {
+                    android.widget.Toast.makeText(this, "Select one or more conversations", android.widget.Toast.LENGTH_SHORT).show()
+                } else {
+                    androidx.appcompat.app.AlertDialog.Builder(this)
+                        .setTitle("Delete forever?")
+                        .setMessage("${selectedIds.size} conversation(s) will be permanently deleted.")
+                        .setPositiveButton("Delete") { _, _ ->
+                            lifecycleScope.launch {
+                                withContext(Dispatchers.IO) {
+                                    selectedIds.forEach { id -> database.threadLockDao().clear(id) }
+                                }
+                                selectedIds.clear()
+                                loadTrash()
+                            }
+                        }
+                        .setNegativeButton("Cancel", null)
+                        .show()
+                }
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun loadTrash() {
         lifecycleScope.launch {
-            val allConvs = withContext(Dispatchers.IO) {
-                repository.getConversations().filter { it.isDeleted }
-            }
-            deletedTimestamps = withContext(Dispatchers.IO) {
+            val trashedThreadIds = withContext(Dispatchers.IO) {
                 database.threadLockDao().getTrashedThreads()
-                    .associate { it.threadId to it.deletedAtMillis }
             }
-            adapter.submitList(allConvs)
-            emptyState.visibility = if (allConvs.isEmpty()) View.VISIBLE else View.GONE
-            recycler.visibility = if (allConvs.isEmpty()) View.GONE else View.VISIBLE
+            val deletedAtMap = trashedThreadIds.associate { it.threadId to it.deletedAtMillis }
+            val allConvs = withContext(Dispatchers.IO) {
+                com.meharenterprises.originsms.core.SmsRepository(this@TrashActivity).getConversations()
+            }
+            val trashList = allConvs.filter { deletedAtMap.containsKey(it.threadId) }
+                .sortedByDescending { deletedAtMap[it.threadId] }
+
+            val emptyView = findViewById<android.widget.TextView>(R.id.emptyTrash)
+            val recycler = findViewById<RecyclerView>(R.id.recyclerTrash)
+            if (trashList.isEmpty()) {
+                emptyView?.visibility = android.view.View.VISIBLE
+                recycler?.visibility = android.view.View.GONE
+            } else {
+                emptyView?.visibility = android.view.View.GONE
+                recycler?.visibility = android.view.View.VISIBLE
+            }
+            adapter.submitList(trashList)
+            adapter.deletedAtMap = deletedAtMap
         }
     }
-
-    private fun openDeletedChat(conv: ConversationSummary) {
-        // Trash items do not open conversation - select only
-    }
-
-    private fun restoreChat(conv: ConversationSummary) {
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                val existing = database.threadLockDao().getForThread(conv.threadId)
-                if (existing != null) database.threadLockDao().upsert(existing.copy(deletedAtMillis = 0L))
-            }
-            android.widget.Toast.makeText(this@TrashActivity,
-                "${conv.displayName} restored", android.widget.Toast.LENGTH_SHORT).show()
-            loadTrash()
-        }
-    }
-
-    private fun confirmPermanentDelete(conv: ConversationSummary) {
-        AlertDialog.Builder(this)
-            .setTitle("Delete permanently?")
-            .setMessage("${conv.displayName}\n\nAll messages will be deleted. This cannot be undone.")
-            .setPositiveButton("Delete permanently") { _, _ ->
-                lifecycleScope.launch {
-                    withContext(Dispatchers.IO) {
-                        repository.deleteThread(conv.threadId)
-                        database.threadLockDao().clear(conv.threadId)
-                    }
-                    android.widget.Toast.makeText(this@TrashActivity,
-                        "Permanently deleted", android.widget.Toast.LENGTH_SHORT).show()
-                    loadTrash()
-                }
-            }
-            .setNegativeButton(android.R.string.cancel) { _, _ ->
-                // Restore item position in recycler
-                adapter.notifyDataSetChanged()
-            }
-            .show()
-    }
-
-    var onItemClick: ((ConversationSummary) -> Unit)? = null
 
     inner class TrashAdapter(
-        private val onClick: (ConversationSummary) -> Unit,
-        private val onRestore: (ConversationSummary) -> Unit,
-        private val onDelete: (ConversationSummary) -> Unit
-    ) : ListAdapter<ConversationSummary, TrashAdapter.ViewHolder>(TRASH_DIFF) {
+        private val selectedIds: MutableSet<Long>,
+        private val onClick: (ConversationSummary) -> Unit
+    ) : ListAdapter<ConversationSummary, TrashAdapter.VH>(TRASH_DIFF) {
 
-        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            val imgAvatar: android.widget.ImageView = itemView.findViewById(R.id.imgTrashAvatar)
-            val txtName: TextView = itemView.findViewById(R.id.txtTrashName)
-            val txtDaysLeft: TextView = itemView.findViewById(R.id.txtDaysLeft)
-            val txtMsgCount: TextView = itemView.findViewById(R.id.txtMsgCount)
+        var deletedAtMap: Map<Long, Long> = emptyMap()
+
+        inner class VH(v: android.view.View) : RecyclerView.ViewHolder(v) {
+            val avatar = v.findViewById<com.google.android.material.imageview.ShapeableImageView>(R.id.imgTrashAvatar)
+            val checkmark = v.findViewById<android.widget.ImageView>(R.id.imgCheckmark)
+            val overlay = v.findViewById<android.view.View>(R.id.selectionOverlay)
+            val name = v.findViewById<android.widget.TextView>(R.id.txtTrashName)
+            val count = v.findViewById<android.widget.TextView>(R.id.txtMsgCount)
+            val days = v.findViewById<android.widget.TextView>(R.id.txtDaysLeft)
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
-            ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_trash, parent, false))
+        override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): VH {
+            val v = android.view.LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_trash, parent, false)
+            return VH(v)
+        }
 
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: VH, position: Int) {
             val conv = getItem(position)
-            val deletedAt = deletedTimestamps[conv.threadId] ?: 0L
-            val daysLeft = if (deletedAt > 0L)
-                30L - java.util.concurrent.TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - deletedAt)
-            else 30L
+            val isSelected = selectedIds.contains(conv.threadId)
+            val deletedAt = deletedAtMap[conv.threadId] ?: 0L
+            val daysLeft = if (deletedAt > 0) {
+                val diff = 30 - ((System.currentTimeMillis() - deletedAt) / 86_400_000)
+                diff.coerceAtLeast(0)
+            } else 30L
 
-            holder.txtName.text = conv.displayName
-            holder.txtDaysLeft.text = if (daysLeft > 0) "$daysLeft Days Left" else "Expires Today"
-            val mc = try {
-                val cur = holder.itemView.context.contentResolver.query(
+            holder.name.text = conv.displayName
+
+            // Get actual message count
+            try {
+                val cur = contentResolver.query(
                     android.provider.Telephony.Sms.CONTENT_URI, arrayOf("COUNT(*)"),
                     "${android.provider.Telephony.Sms.THREAD_ID} = ?",
                     arrayOf(conv.threadId.toString()), null)
-                cur?.use { if (it.moveToFirst()) it.getInt(0) else 0 } ?: 0
-            } catch (_: Exception) { 0 }
-            holder.txtMsgCount.text = if (mc > 0) "$mc Messages" else "No messages"
+                val mc = cur?.use { if (it.moveToFirst()) it.getInt(0) else 0 } ?: 0
+                holder.count.text = if (mc == 1) "1 Message" else "$mc Messages"
+            } catch (_: Exception) { holder.count.text = "Messages" }
 
-            // Load avatar
-            val uri = conv.contactPhotoUri
-            if (uri != null) {
+            holder.days.text = if (daysLeft > 0) "$daysLeft Days Left" else "Expires Today"
+
+            // Avatar: colored circle with initial
+            val colors = listOf(0xFF6200EE, 0xFF03DAC5, 0xFFFF6B00, 0xFF4CAF50, 0xFFE91E63, 0xFF2196F3)
+            val color = colors[conv.displayName.hashCode().and(0x7FFFFFFF) % colors.size].toInt()
+
+            if (!conv.contactPhotoUri.isNullOrBlank()) {
                 try {
-                    holder.itemView.context.contentResolver.openInputStream(android.net.Uri.parse(uri))?.use { s ->
-                        val bmp = android.graphics.BitmapFactory.decodeStream(s)
-                        if (bmp != null) {
-                            holder.imgAvatar.setImageBitmap(bmp)
-                            holder.imgAvatar.scaleType = android.widget.ImageView.ScaleType.CENTER_CROP
-                            holder.imgAvatar.setPadding(0, 0, 0, 0)
-                            holder.imgAvatar.clipToOutline = true
-                        }
-                    }
-                } catch (_: Exception) {}
+                    holder.avatar.setImageURI(android.net.Uri.parse(conv.contactPhotoUri))
+                } catch (_: Exception) {
+                    holder.avatar.setImageDrawable(null)
+                    holder.avatar.setBackgroundColor(color)
+                }
             } else {
-                holder.imgAvatar.setImageResource(R.drawable.ic_person)
-                holder.imgAvatar.setPadding(16, 16, 16, 16)
+                holder.avatar.setImageDrawable(null)
+                holder.avatar.setBackgroundColor(color)
             }
 
-            // Single tap = open chat, long press = restore/delete options
+            // Selection state
+            holder.checkmark.visibility = if (isSelected) android.view.View.VISIBLE else android.view.View.GONE
+            holder.overlay.visibility = if (isSelected) android.view.View.VISIBLE else android.view.View.GONE
+
             holder.itemView.setOnClickListener { onClick(conv) }
-            holder.itemView.setOnLongClickListener {
-                AlertDialog.Builder(holder.itemView.context)
-                    .setTitle(conv.displayName)
-                    .setItems(arrayOf("✓  Restore chat", "🗑  Delete permanently")) { _, i ->
-                        when (i) {
-                            0 -> onRestore(conv)
-                            1 -> onDelete(conv)
-                        }
-                    }.show()
-                true
-            }
-        }
-    }
-
-    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> { finish(); true }
-            R.id.action_restore_all -> {
-                lifecycleScope.launch {
-                    val dao = com.meharenterprises.originsms.data.db.OriginDatabase
-                        .getInstance(this@TrashActivity).threadLockDao()
-                    dao.getTrashedThreads().forEach { dao.setDeletedAt(it.threadId, 0L) }
-                    loadTrash()
-                }
-                true
-            }
-            R.id.action_delete_forever -> {
-                lifecycleScope.launch {
-                    val dao = com.meharenterprises.originsms.data.db.OriginDatabase
-                        .getInstance(this@TrashActivity).threadLockDao()
-                    dao.getTrashedThreads().forEach { dao.clear(it.threadId) }
-                    loadTrash()
-                }
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
         }
     }
 

@@ -183,7 +183,6 @@ class TrashActivity : AppCompatActivity() {
             else 30L
 
             holder.txtName.text = conv.displayName
-                SimpleDateFormat("MMM d", Locale.getDefault()).format(Date(deletedAt)) else ""
             holder.txtDaysLeft.text = if (daysLeft > 0) "$daysLeft Days Left" else "Expires Today"
             val mc = try {
                 val cur = holder.itemView.context.contentResolver.query(

@@ -68,40 +68,39 @@ class TrashActivity : AppCompatActivity() {
             android.R.id.home -> { finish(); true }
 
             R.id.action_restore_all -> {
-                if (selectedIds.isEmpty()) {
-                    android.widget.Toast.makeText(this, "Select one or more conversations", android.widget.Toast.LENGTH_SHORT).show()
-                } else {
-                    lifecycleScope.launch {
-                        withContext(Dispatchers.IO) {
-                            selectedIds.forEach { id -> database.threadLockDao().setDeletedAt(id, 0L) }
-                        }
-                        selectedIds.clear()
-                        loadTrash()
-                        android.widget.Toast.makeText(this@TrashActivity, "Restored", android.widget.Toast.LENGTH_SHORT).show()
+                lifecycleScope.launch {
+                    val idsToRestore = if (selectedIds.isNotEmpty()) selectedIds.toSet()
+                        else adapter.currentList.map { it.threadId }.toSet()
+                    withContext(Dispatchers.IO) {
+                        idsToRestore.forEach { id -> database.threadLockDao().setDeletedAt(id, 0L) }
                     }
+                    val msg = if (selectedIds.isNotEmpty()) "Restored ${selectedIds.size} chat(s)" else "All chats restored"
+                    selectedIds.clear()
+                    loadTrash()
+                    android.widget.Toast.makeText(this@TrashActivity, msg, android.widget.Toast.LENGTH_SHORT).show()
                 }
                 true
             }
 
             R.id.action_delete_forever -> {
-                if (selectedIds.isEmpty()) {
-                    android.widget.Toast.makeText(this, "Select one or more conversations", android.widget.Toast.LENGTH_SHORT).show()
-                } else {
-                    androidx.appcompat.app.AlertDialog.Builder(this)
-                        .setTitle("Delete forever?")
-                        .setMessage("${selectedIds.size} conversation(s) will be permanently deleted.")
-                        .setPositiveButton("Delete") { _, _ ->
-                            lifecycleScope.launch {
-                                withContext(Dispatchers.IO) {
-                                    selectedIds.forEach { id -> database.threadLockDao().clear(id) }
-                                }
-                                selectedIds.clear()
-                                loadTrash()
+                val idsToDelete = if (selectedIds.isNotEmpty()) selectedIds.toSet()
+                    else adapter.currentList.map { it.threadId }.toSet()
+                val msg = if (selectedIds.isNotEmpty()) "Delete ${selectedIds.size} selected chat(s) forever?"
+                    else "Delete all ${idsToDelete.size} chat(s) forever?"
+                androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Delete forever?")
+                    .setMessage(msg)
+                    .setPositiveButton("Delete") { _, _ ->
+                        lifecycleScope.launch {
+                            withContext(Dispatchers.IO) {
+                                idsToDelete.forEach { id -> database.threadLockDao().clear(id) }
                             }
+                            selectedIds.clear()
+                            loadTrash()
                         }
-                        .setNegativeButton("Cancel", null)
-                        .show()
-                }
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
                 true
             }
 
@@ -187,13 +186,12 @@ class TrashActivity : AppCompatActivity() {
             if (!conv.contactPhotoUri.isNullOrBlank()) {
                 try {
                     holder.avatar.setImageURI(android.net.Uri.parse(conv.contactPhotoUri))
-                } catch (_: Exception) {
-                    holder.avatar.setImageDrawable(null)
                     holder.avatar.setBackgroundColor(color)
+                } catch (_: Exception) {
+                    setInitialAvatar(holder.avatar, conv.displayName, color)
                 }
             } else {
-                holder.avatar.setImageDrawable(null)
-                holder.avatar.setBackgroundColor(color)
+                setInitialAvatar(holder.avatar, conv.displayName, color)
             }
 
             // Selection state
@@ -202,6 +200,26 @@ class TrashActivity : AppCompatActivity() {
 
             holder.itemView.setOnClickListener { onClick(conv) }
         }
+    }
+
+    private fun setInitialAvatar(
+        view: com.google.android.material.imageview.ShapeableImageView,
+        name: String, bgColor: Int
+    ) {
+        val initial = name.firstOrNull { it.isLetterOrDigit() }?.uppercaseChar()?.toString() ?: "?"
+        val bitmap = android.graphics.Bitmap.createBitmap(96, 96, android.graphics.Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(bitmap)
+        val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+        paint.color = bgColor
+        canvas.drawCircle(48f, 48f, 48f, paint)
+        paint.color = android.graphics.Color.WHITE
+        paint.textSize = 40f
+        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
+        paint.textAlign = android.graphics.Paint.Align.CENTER
+        val metrics = paint.fontMetrics
+        val y = 48f - (metrics.ascent + metrics.descent) / 2f
+        canvas.drawText(initial, 48f, y, paint)
+        view.setImageBitmap(bitmap)
     }
 
     companion object {

@@ -19,7 +19,6 @@ import com.meharenterprises.originsms.R
 import com.meharenterprises.originsms.core.ConversationSummary
 import com.meharenterprises.originsms.core.SmsRepository
 import com.meharenterprises.originsms.data.db.OriginDatabase
-import com.meharenterprises.originsms.ui.thread.ThreadActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -116,11 +115,6 @@ class TrashActivity : AppCompatActivity() {
     }
 
     private fun openDeletedChat(conv: ConversationSummary) {
-        val intent = Intent(this, ThreadActivity::class.java).apply {
-            putExtra(ThreadActivity.EXTRA_THREAD_ID, conv.threadId)
-            putExtra(ThreadActivity.EXTRA_ADDRESS, conv.address)
-            putExtra(ThreadActivity.EXTRA_DISPLAY_NAME, conv.displayName)
-            putExtra(ThreadActivity.EXTRA_FROM_TRASH, true)  // prevents auto-restore
         }
         startActivity(intent)
     }

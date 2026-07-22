@@ -209,7 +209,7 @@ class ConversationAdapter(
         }
 
         // 192x192 high-res bitmap for crisp rendering
-        val S = 192
+        val S = 256
         val half = S / 2f
         val bmp = android.graphics.Bitmap.createBitmap(S, S, android.graphics.Bitmap.Config.ARGB_8888)
         val canvas = android.graphics.Canvas(bmp)

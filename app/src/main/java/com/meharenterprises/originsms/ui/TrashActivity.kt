@@ -168,7 +168,6 @@ class TrashActivity : AppCompatActivity() {
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val imgAvatar: android.widget.ImageView = itemView.findViewById(R.id.imgTrashAvatar)
             val txtName: TextView = itemView.findViewById(R.id.txtTrashName)
-            val txtDate: TextView = itemView.findViewById(R.id.txtTrashDate)
             val txtDaysLeft: TextView = itemView.findViewById(R.id.txtDaysLeft)
             val txtMsgCount: TextView = itemView.findViewById(R.id.txtMsgCount)
         }
@@ -184,7 +183,6 @@ class TrashActivity : AppCompatActivity() {
             else 30L
 
             holder.txtName.text = conv.displayName
-            holder.txtDate.text = if (deletedAt > 0L)
                 SimpleDateFormat("MMM d", Locale.getDefault()).format(Date(deletedAt)) else ""
             holder.txtDaysLeft.text = if (daysLeft > 0) "$daysLeft Days Left" else "Expires Today"
             val mc = try {
@@ -238,7 +236,7 @@ class TrashActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     val dao = com.meharenterprises.originsms.data.db.OriginDatabase
                         .getInstance(this@TrashActivity).threadLockDao()
-                    dao.getTrashedThreads().forEach { dao.restoreFromTrash(it.threadId) }
+                    dao.getTrashedThreads().forEach { dao.setDeletedAt(it.threadId, 0L) }
                     loadTrash()
                 }
                 true

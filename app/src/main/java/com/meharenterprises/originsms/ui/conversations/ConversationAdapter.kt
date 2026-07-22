@@ -118,6 +118,7 @@ class ConversationAdapter(
             }
         }
 
+        setAvatar(holder, item)
         holder.itemView.setOnClickListener {
             if (isSelectionMode) {
                 toggleSelection(item.threadId)
@@ -181,6 +182,52 @@ class ConversationAdapter(
             else ->
                 SimpleDateFormat("MM/dd/yy", Locale.getDefault()).format(then.time)
         }
+    }
+
+    private fun setAvatar(holder: ViewHolder, conv: com.meharenterprises.originsms.core.ConversationSummary) {
+        val colors = listOf(
+            0xFFE53935, 0xFFE91E63, 0xFF9C27B0, 0xFF3F51B5,
+            0xFF1976D2, 0xFF0097A7, 0xFF388E3C, 0xFFF57C00,
+            0xFF795548, 0xFF455A64
+        )
+        val color = colors[conv.displayName.hashCode().and(0x7FFFFFFF) % colors.size].toInt()
+
+        // Try contact photo first
+        if (!conv.contactPhotoUri.isNullOrBlank()) {
+            try {
+                holder.imgAvatar.setImageURI(android.net.Uri.parse(conv.contactPhotoUri))
+                return
+            } catch (_: Exception) {}
+        }
+
+        // Draw colored circle with initial or person silhouette
+        val isPhoneOnly = conv.displayName.replace("+","").replace(" ","").replace("-","").all { it.isDigit() }
+        val size = 104
+        val bmp = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(bmp)
+        val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+
+        // Background circle
+        paint.color = color
+        canvas.drawCircle(52f, 52f, 52f, paint)
+
+        paint.color = android.graphics.Color.WHITE
+        if (isPhoneOnly) {
+            // Person silhouette
+            paint.alpha = 200
+            canvas.drawCircle(52f, 36f, 17f, paint)
+            val oval = android.graphics.RectF(14f, 60f, 90f, 108f)
+            canvas.drawOval(oval, paint)
+        } else {
+            // Initial letter
+            val initial = conv.displayName.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString() ?: "?"
+            paint.textSize = 48f
+            paint.textAlign = android.graphics.Paint.Align.CENTER
+            paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
+            val y = 52f - (paint.fontMetrics.ascent + paint.fontMetrics.descent) / 2f
+            canvas.drawText(initial, 52f, y, paint)
+        }
+        holder.imgAvatar.setImageBitmap(bmp)
     }
 
     companion object {

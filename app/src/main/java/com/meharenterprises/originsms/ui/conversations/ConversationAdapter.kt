@@ -192,6 +192,7 @@ class ConversationAdapter(
         )
         val color = colors[conv.displayName.hashCode().and(0x7FFFFFFF) % colors.size]
 
+        // Use actual contact photo if available
         if (!conv.contactPhotoUri.isNullOrBlank()) {
             try {
                 holder.imgAvatar.setImageURI(android.net.Uri.parse(conv.contactPhotoUri))
@@ -199,28 +200,40 @@ class ConversationAdapter(
             } catch (_: Exception) {}
         }
 
-        val S = 256; val h = S / 2f
+        // Draw 320x320 bitmap — crisp on all densities
+        val S = 320; val h = S / 2f
         val bmp = android.graphics.Bitmap.createBitmap(S, S, android.graphics.Bitmap.Config.ARGB_8888)
         val canvas = android.graphics.Canvas(bmp)
         val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
 
+        // 1. Colored background circle fills entire bitmap
         paint.color = color
         canvas.drawCircle(h, h, h, paint)
 
+        // 2. White content (person or initial)
         paint.color = android.graphics.Color.WHITE
         paint.alpha = 255
 
-        val isPhoneOnly = conv.displayName.replace("+","").replace(" ","").replace("-","").all { it.isDigit() }
+        val isPhoneOnly = conv.displayName.replace("+","").replace(" ","")
+            .replace("-","").replace("(","").replace(")","").all { it.isDigit() }
+
         if (isPhoneOnly) {
-            canvas.drawCircle(h, S * 0.35f, S * 0.20f, paint)
-            canvas.drawOval(android.graphics.RectF(S*0.12f, S*0.58f, S*0.88f, S*1.05f), paint)
+            // Google Messages person silhouette proportions
+            val headRadius = S * 0.21f
+            val headCY = S * 0.36f
+            canvas.drawCircle(h, headCY, headRadius, paint)
+            val bodyTop = headCY + headRadius + S * 0.04f
+            canvas.drawOval(android.graphics.RectF(S*0.10f, bodyTop, S*0.90f, S*1.08f), paint)
         } else {
-            val initial = conv.displayName.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString() ?: "?"
-            paint.textSize = S * 0.44f
+            val initial = conv.displayName.firstOrNull { it.isLetter() }
+                ?.uppercaseChar()?.toString() ?: conv.displayName.take(1).uppercase()
+            paint.textSize = S * 0.45f
             paint.textAlign = android.graphics.Paint.Align.CENTER
-            paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
-            canvas.drawText(initial, h, h - (paint.fontMetrics.ascent + paint.fontMetrics.descent)/2f, paint)
+            paint.typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL)
+            val fm = paint.fontMetrics
+            canvas.drawText(initial, h, h - (fm.ascent + fm.descent) / 2f, paint)
         }
+
         holder.imgAvatar.setImageBitmap(bmp)
     }
 

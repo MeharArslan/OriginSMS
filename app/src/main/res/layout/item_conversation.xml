@@ -3,13 +3,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="72dp"
+    android:layout_height="80dp"
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
     android:background="?attr/selectableItemBackground">
 
+    <!-- Avatar container 56dp exactly like GM -->
     <FrameLayout
         android:layout_width="56dp"
         android:layout_height="56dp">
@@ -40,6 +41,7 @@
             android:visibility="gone"/>
     </FrameLayout>
 
+    <!-- Text section -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -69,11 +71,12 @@
             android:layout_marginTop="2dp"/>
     </LinearLayout>
 
+    <!-- Time + badge -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="end|center_vertical">
+        android:gravity="end">
 
         <TextView
             android:id="@+id/txtTimestamp"

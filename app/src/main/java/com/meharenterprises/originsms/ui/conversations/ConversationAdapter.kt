@@ -29,11 +29,11 @@ class ConversationAdapter(
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imgAvatar: ImageView = itemView.findViewById(R.id.imgAvatar)
-        val imgLockBadge: ImageView = itemView.findViewById(R.id.imgLockBadge)
-        val imgSelectedCheck: ImageView = itemView.findViewById(R.id.imgSelectedCheck)
+        val imgLockBadge: ImageView = itemView.findViewById<android.view.View?>(R.id.imgLockBadge)
+        val imgSelectedCheck: ImageView = itemView.findViewById<android.view.View?>(R.id.imgSelectedCheck)
         val txtName: TextView = itemView.findViewById(R.id.txtName)
         val txtSnippet: TextView = itemView.findViewById(R.id.txtSnippet)
-        val txtTime: TextView = itemView.findViewById(R.id.txtTime)
+        val txtTime: TextView = itemView.findViewById<android.widget.TextView?>(R.id.txtTimestamp)
         val txtUnreadBadge: TextView = itemView.findViewById(R.id.txtUnreadBadge)
     }
 
@@ -64,10 +64,10 @@ class ConversationAdapter(
                 item.snippet
             }
         }
-        holder.txtTime.text = formatTimestamp(item.dateMillis)
+        holder.txtTimestamp?.text = formatTimestamp(item.dateMillis)
 
-        holder.imgLockBadge.visibility = if (item.isLocked) View.VISIBLE else View.GONE
-        holder.imgSelectedCheck.visibility = if (isSelected) View.VISIBLE else View.GONE
+        holder.imgLockBadge?.visibility = if (item.isLocked) View.VISIBLE else View.GONE
+        holder.imgSelectedCheck?.visibility = if (isSelected) View.VISIBLE else View.GONE
         // Google Messages style: only avatar gets the circular selection indicator,
         // the row background stays transparent (no full-row highlight)
         holder.itemView.isActivated = false

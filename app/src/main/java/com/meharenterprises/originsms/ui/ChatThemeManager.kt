@@ -30,12 +30,16 @@ object ChatThemeManager {
     private fun buildThemes() = listOf(
 
         ChatTheme("Google Messages",
-            "Google Messages original style",
-            Color.parseColor("#0B1512"), Color.parseColor("#0D1F19"),
-            Color.parseColor("#1C2B25"), Color.parseColor("#00C853"),
+            "Google Messages exact style",
+            Color.parseColor("#0A1410"),
+            Color.parseColor("#0C1C14"),
+            Color.parseColor("#1E2924"),
+            Color.parseColor("#00C853"),
             Color.WHITE, Color.WHITE, Color.WHITE,
-            Color.parseColor("#9DB8B0"), Color.parseColor("#00C853"),
-            20f, Color.parseColor("#0B1512"),
+            Color.parseColor("#8EB8A0"),
+            Color.parseColor("#00C853"),
+            16f,
+            Color.parseColor("#0A1410"),
             R.drawable.bg_bubble_gm_sent, R.drawable.bg_bubble_gm_recv, R.drawable.bg_chat_gm),
 
 

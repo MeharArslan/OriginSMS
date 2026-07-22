@@ -97,10 +97,14 @@ class ConversationAdapter(
                     holder.imgAvatar.setImageResource(R.drawable.ic_person)
                 }
             } else {
-                holder.imgAvatar.setImageResource(R.drawable.ic_person)
-                holder.imgAvatar.scaleType = ImageView.ScaleType.CENTER_INSIDE
-                val pad = (8 * context.resources.displayMetrics.density).toInt()
-                holder.imgAvatar.setPadding(pad, pad, pad, pad)
+                // No contact photo — draw colored avatar with initial/silhouette
+                // NO padding — fills full 56dp circle
+                holder.imgAvatar.setPadding(0, 0, 0, 0)
+                holder.imgAvatar.scaleType = android.widget.ImageView.ScaleType.FIT_XY
+                holder.imgAvatar.setImageBitmap(makeColoredAvatar(item.displayName,
+                    listOf(0xFFE53935,0xFFE91E63,0xFF9C27B0,0xFF3F51B5,0xFF1976D2,
+                           0xFF0097A7,0xFF388E3C,0xFFF57C00,0xFF795548,0xFF455A64)
+                        .map{it.toInt()}[item.displayName.hashCode().and(0x7FFFFFFF) % 10]))
             }
         }
 
@@ -235,6 +239,27 @@ class ConversationAdapter(
         }
 
         holder.imgAvatar.setImageBitmap(bmp)
+    }
+
+    private fun makeColoredAvatar(name: String, color: Int): android.graphics.Bitmap {
+        val S = 320; val h = S / 2f
+        val bmp = android.graphics.Bitmap.createBitmap(S, S, android.graphics.Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(bmp)
+        val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+        paint.color = color; canvas.drawCircle(h, h, h, paint)
+        paint.color = android.graphics.Color.WHITE; paint.alpha = 255
+        val isPhone = name.replace("+","").replace(" ","").replace("-","").all { it.isDigit() }
+        if (isPhone) {
+            canvas.drawCircle(h, S*0.365f, S*0.21f, paint)
+            canvas.drawOval(android.graphics.RectF(S*0.11f, S*0.60f, S*0.89f, S*1.09f), paint)
+        } else {
+            val initial = name.firstOrNull{it.isLetter()}?.uppercaseChar()?.toString() ?: name.take(1).uppercase()
+            paint.textSize = S*0.44f; paint.textAlign = android.graphics.Paint.Align.CENTER
+            paint.typeface = android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL)
+            val fm = paint.fontMetrics
+            canvas.drawText(initial, h, h-(fm.ascent+fm.descent)/2f, paint)
+        }
+        return bmp
     }
 
     companion object {

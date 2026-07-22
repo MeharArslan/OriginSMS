@@ -185,12 +185,20 @@ class ConversationAdapter(
     }
 
     private fun setAvatar(holder: ViewHolder, conv: com.meharenterprises.originsms.core.ConversationSummary) {
+        // Google Messages color palette - exact match
         val colors = listOf(
-            0xFFE53935, 0xFFE91E63, 0xFF9C27B0, 0xFF3F51B5,
-            0xFF1976D2, 0xFF0097A7, 0xFF388E3C, 0xFFF57C00,
-            0xFF795548, 0xFF455A64
+            0xFFE53935.toInt(), // red
+            0xFFE91E63.toInt(), // pink
+            0xFF9C27B0.toInt(), // purple
+            0xFF3F51B5.toInt(), // indigo
+            0xFF1976D2.toInt(), // blue
+            0xFF0097A7.toInt(), // cyan
+            0xFF388E3C.toInt(), // green
+            0xFFF57C00.toInt(), // orange
+            0xFF795548.toInt(), // brown
+            0xFF455A64.toInt()  // blue-grey
         )
-        val color = colors[conv.displayName.hashCode().and(0x7FFFFFFF) % colors.size].toInt()
+        val color = colors[conv.displayName.hashCode().and(0x7FFFFFFF) % colors.size]
 
         // Try contact photo first
         if (!conv.contactPhotoUri.isNullOrBlank()) {
@@ -200,32 +208,44 @@ class ConversationAdapter(
             } catch (_: Exception) {}
         }
 
-        // Draw colored circle with initial or person silhouette
-        val isPhoneOnly = conv.displayName.replace("+","").replace(" ","").replace("-","").all { it.isDigit() }
-        val size = 104
-        val bmp = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
+        // 192x192 high-res bitmap for crisp rendering
+        val S = 192
+        val half = S / 2f
+        val bmp = android.graphics.Bitmap.createBitmap(S, S, android.graphics.Bitmap.Config.ARGB_8888)
         val canvas = android.graphics.Canvas(bmp)
         val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
 
-        // Background circle
+        // Colored background circle
         paint.color = color
-        canvas.drawCircle(52f, 52f, 52f, paint)
+        canvas.drawCircle(half, half, half, paint)
+
+        val isPhoneOnly = conv.displayName
+            .replace("+","").replace(" ","").replace("-","").all { it.isDigit() }
 
         paint.color = android.graphics.Color.WHITE
         if (isPhoneOnly) {
-            // Person silhouette
-            paint.alpha = 200
-            canvas.drawCircle(52f, 36f, 17f, paint)
-            val oval = android.graphics.RectF(14f, 60f, 90f, 108f)
-            canvas.drawOval(oval, paint)
+            // Google Messages style person silhouette
+            // Head: centered at 38% from top, radius 22% of size
+            paint.alpha = 230
+            val headR = S * 0.22f
+            val headY = S * 0.38f
+            canvas.drawCircle(half, headY, headR, paint)
+            // Body: oval lower half
+            val bodyRect = android.graphics.RectF(
+                S * 0.15f, S * 0.62f, S * 0.85f, S * 1.05f
+            )
+            canvas.drawOval(bodyRect, paint)
         } else {
-            // Initial letter
-            val initial = conv.displayName.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString() ?: "?"
-            paint.textSize = 48f
+            // Initial letter - large and centered
+            val initial = conv.displayName
+                .firstOrNull { it.isLetter() }?.uppercaseChar()?.toString()
+                ?: conv.displayName.first().toString()
+            paint.textSize = S * 0.45f
             paint.textAlign = android.graphics.Paint.Align.CENTER
             paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
-            val y = 52f - (paint.fontMetrics.ascent + paint.fontMetrics.descent) / 2f
-            canvas.drawText(initial, 52f, y, paint)
+            val metrics = paint.fontMetrics
+            val y = half - (metrics.ascent + metrics.descent) / 2f
+            canvas.drawText(initial, half, y, paint)
         }
         holder.imgAvatar.setImageBitmap(bmp)
     }

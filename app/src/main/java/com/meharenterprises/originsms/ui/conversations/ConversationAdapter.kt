@@ -30,7 +30,8 @@ class ConversationAdapter(
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imgAvatar: ImageView = itemView.findViewById(R.id.imgAvatar)
         val imgLockBadge: ImageView? = itemView.findViewById(R.id.imgLockBadge)
-        val imgSelectedCheck: ImageView? = itemView.findViewById(R.id.imgSelectedCheck)
+        val selBg: android.view.View? = itemView.findViewById(R.id.viewSelectedBg)
+        val imgSelectedCheck: android.view.View? = itemView.findViewById(R.id.imgSelectedCheck)
         val txtName: TextView = itemView.findViewById(R.id.txtName)
         val txtSnippet: TextView = itemView.findViewById(R.id.txtSnippet)
         val txtTimestamp: TextView? = itemView.findViewById(R.id.txtTimestamp)
@@ -40,6 +41,25 @@ class ConversationAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_conversation, parent, false)
         return ViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: List<Any>) {
+        if (payloads.contains("selection")) {
+            val sel = selectedThreadIds.contains(getItem(position).threadId)
+            if (sel) {
+                holder.selBg?.animate()?.alpha(1f)?.setDuration(120)?.start()
+                holder.imgSelectedCheck?.visibility = android.view.View.VISIBLE
+                holder.imgSelectedCheck?.animate()?.alpha(1f)?.setDuration(120)?.start()
+                holder.imgAvatar?.animate()?.alpha(0f)?.setDuration(120)?.start()
+            } else {
+                holder.selBg?.animate()?.alpha(0f)?.setDuration(120)?.start()
+                holder.imgSelectedCheck?.animate()?.alpha(0f)?.setDuration(120)
+                    ?.withEndAction { holder.imgSelectedCheck?.visibility = android.view.View.GONE }?.start()
+                holder.imgAvatar?.animate()?.alpha(1f)?.setDuration(120)?.start()
+            }
+            return
+        }
+        super.onBindViewHolder(holder, position, payloads)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -67,10 +87,17 @@ class ConversationAdapter(
         holder.txtTimestamp?.text = formatTimestamp(item.dateMillis)
 
         holder.imgLockBadge?.visibility = if (item.isLocked) View.VISIBLE else View.GONE
-        holder.imgSelectedCheck?.visibility = if (isSelected) View.VISIBLE else View.GONE
-        // Google Messages style: only avatar gets the circular selection indicator,
-        // the row background stays transparent (no full-row highlight)
-        holder.itemView.isActivated = false
+        if (isSelected) {
+            holder.selBg?.animate()?.alpha(1f)?.setDuration(150)?.start()
+            holder.imgSelectedCheck?.visibility = android.view.View.VISIBLE
+            holder.imgSelectedCheck?.animate()?.alpha(1f)?.setDuration(150)?.start()
+            holder.imgAvatar?.animate()?.alpha(0f)?.setDuration(150)?.start()
+        } else {
+            holder.selBg?.animate()?.alpha(0f)?.setDuration(150)?.start()
+            holder.imgSelectedCheck?.animate()?.alpha(0f)?.setDuration(150)
+                ?.withEndAction { holder.imgSelectedCheck?.visibility = android.view.View.GONE }?.start()
+            holder.imgAvatar?.animate()?.alpha(1f)?.setDuration(150)?.start()
+        }
 
         if (item.unreadCount > 0 && !item.isLocked) {
             holder.txtUnreadBadge.visibility = View.VISIBLE

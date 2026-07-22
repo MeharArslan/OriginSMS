@@ -133,7 +133,7 @@ class ConversationListActivity : AppCompatActivity() {
             val h = android.os.Handler(android.os.Looper.getMainLooper())
             val r = Runnable { viewModel.loadConversations() }
             contentObserver = object : android.database.ContentObserver(h) {
-                override fun onChange(selfChange: Boolean) { h.removeCallbacks(r); h.postDelayed(r, 200) }
+                override fun onChange(selfChange: Boolean) { h.removeCallbacks(r); h.postDelayed(r, 50) }
             }
             contentResolver.registerContentObserver(android.provider.Telephony.Sms.CONTENT_URI, true, contentObserver!!)
         }

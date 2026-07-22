@@ -49,27 +49,22 @@ class NotificationHelper(private val context: Context) {
         val title  = if (isLocked) context.getString(R.string.app_name) else displayName
         val content = if (isLocked) context.getString(R.string.notif_locked_chat_content) else body
 
-        val history: List<Pair<String, Long>> = try {
+        data class MsgEntry(val body: String, val date: Long, val isSent: Boolean)
+        val history: List<MsgEntry> = try {
             val cur = context.contentResolver.query(
                 android.provider.Telephony.Sms.CONTENT_URI,
-                arrayOf(android.provider.Telephony.Sms.BODY, android.provider.Telephony.Sms.DATE),
-                "${android.provider.Telephony.Sms.THREAD_ID} = ? AND ${android.provider.Telephony.Sms.READ} = 0",
-                arrayOf(threadId.toString()),
-                "${android.provider.Telephony.Sms.DATE} DESC LIMIT 5"
-            )
-            val msgs = mutableListOf<Pair<String, Long>>()
+                arrayOf(android.provider.Telephony.Sms.BODY, android.provider.Telephony.Sms.DATE, android.provider.Telephony.Sms.TYPE),
+                "${android.provider.Telephony.Sms.THREAD_ID} = ?", arrayOf(threadId.toString()),
+                "${android.provider.Telephony.Sms.DATE} DESC LIMIT 5")
+            val msgs = mutableListOf<MsgEntry>()
             cur?.use { while (it.moveToNext()) {
-                val b = it.getColumnIndex(android.provider.Telephony.Sms.BODY)
-                val d = it.getColumnIndex(android.provider.Telephony.Sms.DATE)
-                if (b >= 0 && d >= 0) msgs.add(Pair(if (isLocked) context.getString(R.string.notif_locked_chat_content) else it.getString(b), it.getLong(d)))
+                val b=it.getColumnIndex(android.provider.Telephony.Sms.BODY)
+                val d=it.getColumnIndex(android.provider.Telephony.Sms.DATE)
+                val t=it.getColumnIndex(android.provider.Telephony.Sms.TYPE)
+                if (b>=0&&d>=0) msgs.add(MsgEntry(if(isLocked)context.getString(R.string.notif_locked_chat_content) else it.getString(b), it.getLong(d), t>=0&&it.getInt(t)==android.provider.Telephony.Sms.MESSAGE_TYPE_SENT))
             }}
             msgs.reversed()
-        } catch (_: Exception) {
-            val m = messageHistory.getOrPut(threadId) { ArrayDeque() }
-            m.addLast(Pair(content, System.currentTimeMillis()))
-            while (m.size > 5) m.removeFirst()
-            m.toList()
-        }
+        } catch (_: Exception) { listOf(MsgEntry(content, System.currentTimeMillis(), false)) }
 
         val contentIntent = if (isLocked) {
             Intent(context, LockUnlockActivity::class.java).apply {
@@ -106,11 +101,7 @@ class NotificationHelper(private val context: Context) {
         messagingStyle.conversationTitle = null // no group title for 1:1
 
         // Add last 5 messages to MessagingStyle
-        history.forEach { (msg, ts) ->
-            messagingStyle.addMessage(
-                NotificationCompat.MessagingStyle.Message(msg, ts, person)
-            )
-        }
+        history.forEach { e -> messagingStyle.addMessage(NotificationCompat.MessagingStyle.Message(e.body, e.date, if(e.isSent) null else person)) }
 
         val builder = NotificationCompat.Builder(context, OriginSmsApp.CHANNEL_MESSAGES)
             .setSmallIcon(R.drawable.ic_notification)

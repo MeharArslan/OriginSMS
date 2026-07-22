@@ -68,17 +68,27 @@ class TrashActivity : AppCompatActivity() {
             android.R.id.home -> { finish(); true }
 
             R.id.action_restore_all -> {
-                lifecycleScope.launch {
-                    val idsToRestore = if (selectedIds.isNotEmpty()) selectedIds.toSet()
-                        else adapter.currentList.map { it.threadId }.toSet()
-                    withContext(Dispatchers.IO) {
-                        idsToRestore.forEach { id -> database.threadLockDao().setDeletedAt(id, 0L) }
+                val idsToRestore = if (selectedIds.isNotEmpty()) selectedIds.toSet()
+                    else adapter.currentList.map { it.threadId }.toSet()
+                val msg = if (selectedIds.isNotEmpty()) "Restore ${selectedIds.size} selected chat(s)?"
+                    else "Restore all ${idsToRestore.size} chat(s)?"
+                androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Restore")
+                    .setMessage(msg)
+                    .setPositiveButton("Restore") { _, _ ->
+                        lifecycleScope.launch {
+                            withContext(Dispatchers.IO) {
+                                idsToRestore.forEach { id -> database.threadLockDao().setDeletedAt(id, 0L) }
+                            }
+                            selectedIds.clear()
+                            loadTrash()
+                            android.widget.Toast.makeText(this@TrashActivity,
+                                if (idsToRestore.size == 1) "Chat restored" else "${idsToRestore.size} chats restored",
+                                android.widget.Toast.LENGTH_SHORT).show()
+                        }
                     }
-                    val msg = if (selectedIds.isNotEmpty()) "Restored ${selectedIds.size} chat(s)" else "All chats restored"
-                    selectedIds.clear()
-                    loadTrash()
-                    android.widget.Toast.makeText(this@TrashActivity, msg, android.widget.Toast.LENGTH_SHORT).show()
-                }
+                    .setNegativeButton("Cancel", null)
+                    .show()
                 true
             }
 
@@ -206,19 +216,30 @@ class TrashActivity : AppCompatActivity() {
         view: com.google.android.material.imageview.ShapeableImageView,
         name: String, bgColor: Int
     ) {
-        val initial = name.firstOrNull { it.isLetterOrDigit() }?.uppercaseChar()?.toString() ?: "?"
+        // If name is a phone number (all digits/+), show person icon; else show initial
+        val isPhoneOnly = name.all { it.isDigit() || it == '+' || it == ' ' || it == '-' }
         val bitmap = android.graphics.Bitmap.createBitmap(96, 96, android.graphics.Bitmap.Config.ARGB_8888)
         val canvas = android.graphics.Canvas(bitmap)
         val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
         paint.color = bgColor
         canvas.drawCircle(48f, 48f, 48f, paint)
-        paint.color = android.graphics.Color.WHITE
-        paint.textSize = 40f
-        paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
-        paint.textAlign = android.graphics.Paint.Align.CENTER
-        val metrics = paint.fontMetrics
-        val y = 48f - (metrics.ascent + metrics.descent) / 2f
-        canvas.drawText(initial, 48f, y, paint)
+        if (isPhoneOnly) {
+            // Draw person silhouette icon
+            val icon = androidx.core.content.ContextCompat.getDrawable(view.context, R.drawable.ic_person_placeholder)
+                ?: androidx.core.content.ContextCompat.getDrawable(view.context, android.R.drawable.ic_menu_myplaces)
+            icon?.setBounds(16, 16, 80, 80)
+            icon?.setTint(android.graphics.Color.WHITE)
+            icon?.draw(canvas)
+        } else {
+            val initial = name.firstOrNull { it.isLetter() }?.uppercaseChar()?.toString() ?: name.first().uppercaseChar().toString()
+            paint.color = android.graphics.Color.WHITE
+            paint.textSize = 42f
+            paint.typeface = android.graphics.Typeface.DEFAULT_BOLD
+            paint.textAlign = android.graphics.Paint.Align.CENTER
+            val metrics = paint.fontMetrics
+            val y = 48f - (metrics.ascent + metrics.descent) / 2f
+            canvas.drawText(initial, 48f, y, paint)
+        }
         view.setImageBitmap(bitmap)
     }
 

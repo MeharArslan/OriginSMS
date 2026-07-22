@@ -225,7 +225,7 @@ class TrashActivity : AppCompatActivity() {
         canvas.drawCircle(48f, 48f, 48f, paint)
         if (isPhoneOnly) {
             // Draw person silhouette icon
-            val icon = androidx.core.content.ContextCompat.getDrawable(view.context, R.drawable.ic_person_placeholder)
+            val icon = androidx.core.content.ContextCompat.getDrawable(view.context, R.drawable.ic_person)
                 ?: androidx.core.content.ContextCompat.getDrawable(view.context, android.R.drawable.ic_menu_myplaces)
             icon?.setBounds(16, 16, 80, 80)
             icon?.setTint(android.graphics.Color.WHITE)

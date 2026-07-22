@@ -29,11 +29,11 @@ class ConversationAdapter(
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imgAvatar: ImageView = itemView.findViewById(R.id.imgAvatar)
-        val imgLockBadge: ImageView = itemView.findViewById<android.view.View?>(R.id.imgLockBadge)
-        val imgSelectedCheck: ImageView = itemView.findViewById<android.view.View?>(R.id.imgSelectedCheck)
+        val imgLockBadge: ImageView? = itemView.findViewById(R.id.imgLockBadge)
+        val imgSelectedCheck: ImageView? = itemView.findViewById(R.id.imgSelectedCheck)
         val txtName: TextView = itemView.findViewById(R.id.txtName)
         val txtSnippet: TextView = itemView.findViewById(R.id.txtSnippet)
-        val txtTime: TextView = itemView.findViewById<android.widget.TextView?>(R.id.txtTimestamp)
+        val txtTimestamp: TextView? = itemView.findViewById(R.id.txtTimestamp)
         val txtUnreadBadge: TextView = itemView.findViewById(R.id.txtUnreadBadge)
     }
 

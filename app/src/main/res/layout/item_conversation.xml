@@ -1,96 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="76dp"
-    android:background="?attr/selectableItemBackground"
-    android:paddingStart="12dp"
-    android:paddingEnd="16dp">
+    android:layout_height="72dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:background="?attr/selectableItemBackground">
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/imgAvatar"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
-        android:scaleType="centerCrop"
-        app:shapeAppearanceOverlay="@style/CircleImageView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+    <FrameLayout
+        android:layout_width="56dp"
+        android:layout_height="56dp">
 
-    <ImageView
-        android:id="@+id/imgLockBadge"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:src="@drawable/ic_lock"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@id/imgAvatar"
-        app:layout_constraintBottom_toBottomOf="@id/imgAvatar"/>
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/imgAvatar"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/CircleImageView"/>
 
-    <ImageView
-        android:id="@+id/imgSelectedCheck"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
-        android:padding="14dp"
-        android:src="@drawable/ic_check"
-        android:tint="#FFFFFF"
-        android:visibility="gone"
-        app:layout_constraintStart_toStartOf="@id/imgAvatar"
-        app:layout_constraintTop_toTopOf="@id/imgAvatar"/>
+        <ImageView
+            android:id="@+id/imgSelectedCheck"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:src="@drawable/ic_check"
+            android:padding="16dp"
+            android:tint="#FFFFFF"
+            android:background="#CC6200EE"
+            android:visibility="gone"/>
 
-    <TextView
-        android:id="@+id/txtTimestamp"
+        <ImageView
+            android:id="@+id/imgLockBadge"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_lock"
+            android:layout_gravity="bottom|end"
+            android:visibility="gone"/>
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp">
+
+        <TextView
+            android:id="@+id/txtName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="?android:textColorPrimary"
+            android:singleLine="true"
+            android:ellipsize="end"/>
+
+        <TextView
+            android:id="@+id/txtSnippet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="?android:textColorSecondary"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:layout_marginTop="2dp"/>
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
-        android:textColor="?android:textColorSecondary"
-        android:layout_marginTop="18dp"
-        android:layout_marginEnd="0dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:orientation="vertical"
+        android:gravity="end|center_vertical">
 
-    <TextView
-        android:id="@+id/txtName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="?android:textColorPrimary"
-        android:singleLine="true"
-        android:ellipsize="end"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="14dp"
-        app:layout_constraintStart_toEndOf="@id/imgAvatar"
-        app:layout_constraintEnd_toStartOf="@id/txtTimestamp"
-        app:layout_constraintTop_toTopOf="parent"/>
+        <TextView
+            android:id="@+id/txtTimestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="?android:textColorSecondary"/>
 
-    <TextView
-        android:id="@+id/txtSnippet"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textColor="?android:textColorSecondary"
-        android:singleLine="true"
-        android:ellipsize="end"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="3dp"
-        app:layout_constraintStart_toEndOf="@id/imgAvatar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/txtName"/>
+        <TextView
+            android:id="@+id/txtUnreadBadge"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@drawable/bg_unread_badge"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:layout_marginTop="4dp"
+            android:visibility="gone"/>
+    </LinearLayout>
 
-    <TextView
-        android:id="@+id/txtUnreadBadge"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:background="@drawable/bg_unread_badge"
-        android:gravity="center"
-        android:textColor="#FFFFFF"
-        android:textSize="11sp"
-        android:textStyle="bold"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/txtSnippet"/>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

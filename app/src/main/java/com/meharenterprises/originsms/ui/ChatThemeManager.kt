@@ -31,18 +31,12 @@ object ChatThemeManager {
 
         ChatTheme("Google Messages",
             "Exact Google Messages style",
-            android.graphics.Color.parseColor("#0F0F0F"),   // app bg
-            android.graphics.Color.parseColor("#1C1C1E"),   // toolbar
-            android.graphics.Color.parseColor("#2C2C2E"),   // recv bubble
-            android.graphics.Color.parseColor("#1B6EF3"),   // sent bubble (Google blue)
-            android.graphics.Color.WHITE,                    // recv text
-            android.graphics.Color.WHITE,                    // sent text
-            android.graphics.Color.WHITE,                    // primary text
-            android.graphics.Color.parseColor("#8E8E93"),   // secondary text
-            android.graphics.Color.parseColor("#1B6EF3"),   // accent
-            18f,                                             // bubble radius
-            android.graphics.Color.parseColor("#0F0F0F"),   // status bar
-            R.drawable.bg_bubble_sent, R.drawable.bg_bubble_received, R.drawable.bg_chat_default),
+            Color.parseColor("#0A0A0A"), Color.parseColor("#1C1C1E"),
+            Color.parseColor("#2C2C2E"), Color.parseColor("#1B6EF3"),
+            Color.WHITE, Color.WHITE, Color.WHITE,
+            Color.parseColor("#8E8E93"), Color.parseColor("#1B6EF3"),
+            18f, Color.parseColor("#0A0A0A"),
+            R.drawable.bg_bubble_gm_sent, R.drawable.bg_bubble_gm_recv, R.drawable.bg_chat_gm),
 
 
         ChatTheme("Default (Original)", "App's original indigo & coral style",

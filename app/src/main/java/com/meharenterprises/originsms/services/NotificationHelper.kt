@@ -54,8 +54,8 @@ class NotificationHelper(private val context: Context) {
             val cur = context.contentResolver.query(
                 android.provider.Telephony.Sms.CONTENT_URI,
                 arrayOf(android.provider.Telephony.Sms.BODY, android.provider.Telephony.Sms.DATE, android.provider.Telephony.Sms.TYPE),
-                "${android.provider.Telephony.Sms.THREAD_ID} = ?", arrayOf(threadId.toString()),
-                "${android.provider.Telephony.Sms.DATE} DESC LIMIT 5")
+                "${android.provider.Telephony.Sms.THREAD_ID} = ? AND ${android.provider.Telephony.Sms.READ} = 0 AND ${android.provider.Telephony.Sms.TYPE} = ${android.provider.Telephony.Sms.MESSAGE_TYPE_INBOX}", arrayOf(threadId.toString()),
+                "${android.provider.Telephony.Sms.DATE} ASC")
             val msgs = mutableListOf<MsgEntry>()
             cur?.use { while (it.moveToNext()) {
                 val b=it.getColumnIndex(android.provider.Telephony.Sms.BODY)

@@ -157,7 +157,6 @@ class ConversationAdapter(
             }
         }
 
-        setAvatar(holder, item)
         holder.itemView.setOnClickListener {
             if (isSelectionMode) {
                 toggleSelection(item.threadId)

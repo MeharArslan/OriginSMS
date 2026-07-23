@@ -112,12 +112,20 @@ class ConversationAdapter(
                 try {
                     val uri = Uri.parse(item.contactPhotoUri)
                     context.contentResolver.openInputStream(uri)?.use { stream ->
-                        val bitmap = BitmapFactory.decodeStream(stream)
-                        if (bitmap != null) {
-                            holder.imgAvatar.setImageBitmap(bitmap)
-                            holder.imgAvatar.scaleType = ImageView.ScaleType.CENTER_CROP
+                        val raw = BitmapFactory.decodeStream(stream)
+                        if (raw != null) {
+                            val size = minOf(raw.width, raw.height)
+                            val sx = (raw.width - size) / 2; val sy = (raw.height - size) / 2
+                            val sq = android.graphics.Bitmap.createBitmap(raw, sx, sy, size, size)
+                            val out = android.graphics.Bitmap.createBitmap(size, size, android.graphics.Bitmap.Config.ARGB_8888)
+                            val cv = android.graphics.Canvas(out)
+                            val pt = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+                            cv.drawCircle(size/2f, size/2f, size/2f, pt)
+                            pt.xfermode = android.graphics.PorterDuffXfermode(android.graphics.PorterDuff.Mode.SRC_IN)
+                            cv.drawBitmap(sq, 0f, 0f, pt)
+                            holder.imgAvatar.setImageBitmap(out)
+                            holder.imgAvatar.scaleType = ImageView.ScaleType.FIT_XY
                             holder.imgAvatar.setPadding(0, 0, 0, 0)
-                            holder.imgAvatar.clipToOutline = true
                         }
                     }
                 } catch (_: Exception) {

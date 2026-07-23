@@ -171,7 +171,8 @@ class ConversationAdapter(
             } else if (!isSelectionMode) {
                 isSelectionMode = true
                 selectedThreadIds.add(item.threadId)
-                notifyDataSetChanged()
+                val lp = currentList.indexOfFirst { it.threadId == item.threadId }
+                if (lp >= 0) notifyItemChanged(lp, "selection")
                 onLongClick(item)
             }
             true
@@ -184,10 +185,9 @@ class ConversationAdapter(
         } else {
             selectedThreadIds.add(threadId)
         }
-        if (selectedThreadIds.isEmpty()) {
-            isSelectionMode = false
-        }
-        notifyDataSetChanged()
+        if (selectedThreadIds.isEmpty()) isSelectionMode = false
+        val tp = currentList.indexOfFirst { it.threadId == threadId }
+        if (tp >= 0) notifyItemChanged(tp, "selection")
     }
 
     fun getSelectedThreadIds(): Set<Long> = selectedThreadIds.toSet()
@@ -195,9 +195,9 @@ class ConversationAdapter(
     fun getSelectedCount(): Int = selectedThreadIds.size
 
     fun clearSelection() {
-        selectedThreadIds.clear()
-        isSelectionMode = false
-        notifyDataSetChanged()
+        val prev = selectedThreadIds.toSet()
+        selectedThreadIds.clear(); isSelectionMode = false
+        prev.forEach { id -> val cp = currentList.indexOfFirst { it.threadId == id }; if (cp >= 0) notifyItemChanged(cp, "selection") }
     }
 
     private fun formatTimestamp(millis: Long): String {

@@ -340,6 +340,7 @@ class ConversationListActivity : AppCompatActivity() {
         )
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.adapter = adapter
+        (recycler.itemAnimator as? androidx.recyclerview.widget.SimpleItemAnimator)?.supportsChangeAnimations = false
 
         // Swipe actions
         val swipePrefs = getSharedPreferences(GeneralSettingsActivity.PREFS_NAME, MODE_PRIVATE)
